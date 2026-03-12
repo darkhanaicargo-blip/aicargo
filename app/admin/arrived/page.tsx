@@ -55,7 +55,7 @@ export default function ArrivedPage() {
     for (const s of today) {
       const phone = s.phone ?? '—'
       if (!map.has(phone)) map.set(phone, new Map())
-      const desc = s.description ?? ''
+      const desc = s.adminNote ?? ''
       map.get(phone)!.set(desc, (map.get(phone)!.get(desc) ?? 0) + 1)
     }
     const result: TodayEntry[] = []
@@ -275,7 +275,7 @@ export default function ArrivedPage() {
               }}>
                 <CopyPhone phone={t.phone} />
                 {t.description && (
-                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '55%', textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right' }}>
                     {t.description}
                   </span>
                 )}
