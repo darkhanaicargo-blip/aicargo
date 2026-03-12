@@ -48,8 +48,11 @@ export default function ArrivedPage() {
   const [todayList, setTodayList] = useState<TodayEntry[]>([])
 
   function buildTodayList(shipments: SearchResult[]) {
-    const start = new Date(); start.setHours(0, 0, 0, 0)
-    const today = shipments.filter(s => s.updatedAt && new Date(s.updatedAt) >= start)
+    const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD in local timezone
+    const today = shipments.filter(s => {
+      if (!s.updatedAt) return false
+      return new Date(s.updatedAt).toLocaleDateString('en-CA') === todayStr
+    })
     // Group by phone, pick most frequent description
     const map = new Map<string, Map<string, number>>()
     for (const s of today) {
