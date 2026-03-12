@@ -5,13 +5,18 @@ export default function NotifyPage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ sent: number; noEmail: number; failed: number } | null>(null)
   const [error, setError] = useState('')
+  const [closingTime, setClosingTime] = useState('18:00')
 
   async function send() {
     if (!confirm('Мэдэгдэл илгээхдээ итгэлтэй байна уу?')) return
     setLoading(true)
     setError('')
     setResult(null)
-    const res = await fetch('/api/admin/notify-all', { method: 'POST' })
+    const res = await fetch('/api/admin/notify-all', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ closingTime }),
+    })
     const data = await res.json()
     setLoading(false)
     if (!res.ok) { setError(data.error); return }
@@ -21,23 +26,15 @@ export default function NotifyPage() {
   return (
     <div className="page" style={{ maxWidth: 480 }}>
       <h1 className="section-title">Мэдэгдэл илгээх</h1>
-      <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-        "Ирсэн" статустай бараатай бүх хэрэглэгчид и-мэйл илгээнэ.
-        И-мэйлд ирсэн бараа тоо болон нийт төлбөр харагдана.
-      </p>
 
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <div className="card-row">
-          <span className="label">Хэнд илгээх вэ?</span>
-          <span>И-мэйлтэй, "Ирсэн" бараатай хэрэглэгчид</span>
-        </div>
-        <div className="card-row">
-          <span className="label">И-мэйл агуулга</span>
-          <span>Бараа тоо + нийт дүн</span>
-        </div>
+      <div className="form-group">
+        <label>Өнөөдөр хэдэн цаг хүртэл ажиллах вэ?</label>
+        <input className="input" type="time" value={closingTime}
+          onChange={e => setClosingTime(e.target.value)}
+          style={{ maxWidth: 160 }} />
       </div>
 
-      <button className="btn" onClick={send} disabled={loading}>
+      <button className="btn" onClick={send} disabled={loading || !closingTime} style={{ marginTop: '0.5rem' }}>
         {loading ? 'Илгээж байна...' : 'Мэдэгдэл илгээх'}
       </button>
 

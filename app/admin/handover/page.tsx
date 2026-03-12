@@ -140,20 +140,16 @@ export default function HandoverPage() {
         <div className="handover-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.5rem', alignItems: 'start', marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             {shipments.map(s => (
-              <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block' }}>
-                <div className="card-row">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <input type="checkbox" checked={selected.includes(s.id)} onChange={() => toggle(s.id)}
-                      style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer', flexShrink: 0 }} />
-                    <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{s.trackCode}</strong>
-                  </div>
-                  {s.adminPrice
-                    ? <strong style={{ color: 'var(--accent)' }}>₮{Number(s.adminPrice).toLocaleString()}</strong>
-                    : <span style={{ color: 'var(--muted)' }}>—</span>}
+              <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.65rem 1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--muted)', flexShrink: 0 }}>{s.phone ?? '—'}</span>
+                  <strong style={{ fontFamily: 'monospace', fontSize: '0.88rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>{s.trackCode}</strong>
+                  <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.88rem' }}>
+                    {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
+                  </span>
+                  <input type="checkbox" checked={selected.includes(s.id)} onChange={() => toggle(s.id)}
+                    style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer', flexShrink: 0 }} />
                 </div>
-                {s.description && (
-                  <div style={{ padding: '0 1.2rem 0.7rem', fontSize: '0.8rem', color: 'var(--muted)' }}>{s.description}</div>
-                )}
               </label>
             ))}
           </div>

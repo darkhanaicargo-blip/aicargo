@@ -20,6 +20,7 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  height: -webkit-fill-available;
 }
 
 body {
@@ -27,9 +28,11 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 a { color: inherit; text-decoration: none; }
@@ -99,9 +102,11 @@ textarea.input { resize: vertical; }
   align-items: center;
   justify-content: space-between;
   padding: 0.9rem 5%;
+  padding-top: calc(0.9rem + env(safe-area-inset-top));
   border-bottom: 1px solid var(--border);
   background: rgba(245,244,239,0.92);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -336,32 +341,44 @@ textarea.input { resize: vertical; }
   :root { --radius: 8px; }
 
   /* Nav */
-  .nav { padding: 0.8rem 4%; }
+  .nav {
+    padding: 0.75rem 4%;
+    padding-top: calc(0.75rem + env(safe-area-inset-top));
+  }
   .nav-logo { font-size: 1rem; }
-  .nav-links { gap: 1rem; }
+  .nav-links { gap: 0.6rem; }
   .nav-links a, .nav-links button { font-size: 0.82rem; }
+
+  /* Hide FAQ text on mobile, show only icon */
+  .nav-faq-text { display: none; }
 
   /* Page */
   .page, .page-wide { padding: 1.2rem 4%; }
 
-  /* Forms */
+  /* Forms — inputs must be 16px to prevent iOS zoom */
+  .input { font-size: 1rem; }
+
+  /* Buttons — min 44px touch target */
+  .btn, .btn-ghost {
+    padding: 0.75rem 1.2rem;
+    font-size: 0.875rem;
+    min-height: 44px;
+  }
+
+  /* Form actions stack */
   .form-actions { flex-direction: column; }
   .form-actions .btn,
   .form-actions .btn-ghost { width: 100%; justify-content: center; }
 
   /* Cards */
   .card-row { padding: 0.75rem 1rem; font-size: 0.83rem; }
-  .order-card-head { padding: 0.65rem 0.9rem 0.55rem; }
-  .order-card-meta { padding: 0 0.9rem 0.7rem; }
-  .order-card-track { font-size: 0.85rem; }
+  .order-card-head { padding: 0.7rem 1rem 0.6rem; }
+  .order-card-meta { padding: 0 1rem 0.75rem; }
 
   /* Section title */
   .section-title { font-size: 1.1rem; }
 
   /* Admin nav — scroll horizontally */
   .admin-nav { padding: 0 2%; }
-  .admin-nav-link { padding: 0.75rem 0.75rem; font-size: 0.8rem; }
-
-  /* Buttons */
-  .btn, .btn-ghost { padding: 0.65rem 1.1rem; font-size: 0.83rem; }
+  .admin-nav-link { padding: 0.75rem 0.75rem; font-size: 0.8rem; min-height: 44px; }
 }

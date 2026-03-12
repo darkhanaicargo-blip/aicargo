@@ -19,6 +19,9 @@ export async function POST(req: NextRequest) {
     },
   })
 
+  const body = await req.json().catch(() => ({}))
+  const closingTime: string = body.closingTime || '18:00'
+
   let sent = 0
   let noEmail = 0
   let failed = 0
@@ -32,7 +35,7 @@ export async function POST(req: NextRequest) {
     }, 0)
 
     try {
-      await sendNotificationEmail(user.email, user.name, cargoCount, totalAmount)
+      await sendNotificationEmail(user.email, user.name, user.phone, cargoCount, totalAmount, closingTime)
       sent++
     } catch (err) {
       failed++

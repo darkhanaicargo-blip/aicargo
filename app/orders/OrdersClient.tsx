@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import SiteFooter from '../components/SiteFooter'
@@ -21,11 +21,11 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const TABS = [
-  { key: 'ALL',           label: 'Бүгд' },
-  { key: 'REGISTERED',    label: 'Бүртгүүлсэн' },
+  { key: 'ALL', label: 'Бүгд' },
+  { key: 'REGISTERED', label: 'Бүртгүүлсэн' },
   { key: 'EREEN_ARRIVED', label: 'Эрээнд' },
-  { key: 'ARRIVED',       label: 'Ирсэн' },
-  { key: 'PICKED_UP',     label: 'Авсан' },
+  { key: 'ARRIVED', label: 'Ирсэн' },
+  { key: 'PICKED_UP', label: 'Авсан' },
 ]
 
 const PAGE_SIZE = 10
@@ -78,6 +78,37 @@ export default function OrdersClient({
   const [searchQ, setSearchQ] = useState('')
   const [faqOpen, setFaqOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
+  const [addForm, setAddForm] = useState({ trackCode: '', description: '' })
+  const [addLoading, setAddLoading] = useState(false)
+  const [addError, setAddError] = useState('')
+  const [addedCodes, setAddedCodes] = useState<string[]>([])
+  const addInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (addOpen) setTimeout(() => addInputRef.current?.focus(), 100)
+    else { setAddForm({ trackCode: '', description: '' }); setAddError(''); setAddedCodes([]) }
+  }, [addOpen])
+
+  async function submitAdd(e: React.FormEvent) {
+    e.preventDefault()
+    if (!addForm.trackCode.trim()) return
+    if (!/\d/.test(addForm.trackCode)) { setAddError('Трак код дор хаяж нэг тоо агуулсан байх ёстой'); return }
+    setAddLoading(true)
+    setAddError('')
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(addForm),
+    })
+    const data = await res.json()
+    setAddLoading(false)
+    if (!res.ok) { setAddError(data.error); return }
+    setShipments(prev => [data, ...prev])
+    setAddedCodes(prev => [data.trackCode, ...prev])
+    setAddForm({ trackCode: '', description: '' })
+    addInputRef.current?.focus()
+  }
 
 
   async function logout() {
@@ -130,12 +161,12 @@ export default function OrdersClient({
         {pages.map((p, i) => p === '...'
           ? <span key={`e${i}`} style={{ fontSize: '0.78rem', color: 'var(--muted)', padding: '0 0.1rem' }}>…</span>
           : <button key={p} onClick={() => setPage(p)} style={{
-              width: 32, height: 32, borderRadius: '8px', border: '1px solid',
-              borderColor: p === page ? 'var(--accent)' : 'var(--border)',
-              background: p === page ? 'var(--accent)' : 'var(--surface)',
-              color: p === page ? '#fff' : 'var(--text)',
-              cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600,
-            }}>{p}</button>
+            width: 32, height: 32, borderRadius: '8px', border: '1px solid',
+            borderColor: p === page ? 'var(--accent)' : 'var(--border)',
+            background: p === page ? 'var(--accent)' : 'var(--surface)',
+            color: p === page ? '#fff' : 'var(--text)',
+            cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600,
+          }}>{p}</button>
         )}
         <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{
           width: 32, height: 32, borderRadius: '8px', border: '1px solid var(--border)',
@@ -158,7 +189,7 @@ export default function OrdersClient({
             padding: '0.25rem 0.5rem', borderRadius: '6px',
             transition: 'color 0.12s', display: 'flex', alignItems: 'center', gap: '0.25rem',
           }}>
-            <span style={{ fontWeight: 800 }}>?</span> Асуулт хариулт
+            <span style={{ fontWeight: 800 }}>?</span><span className="nav-faq-text"> Асуулт хариулт</span>
           </button>
           <div style={{ position: 'relative' }}>
             <button onClick={() => setProfileOpen(o => !o)} style={{
@@ -201,12 +232,74 @@ export default function OrdersClient({
       <ChatWidget open={faqOpen} onClose={() => setFaqOpen(false)} />
       {profileOpen && <div onClick={() => setProfileOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 998 }} />}
 
+      {/* Add shipment drawer */}
+      {addOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200 }}>
+          <div onClick={() => setAddOpen(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }} />
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -60%)',
+            background: 'var(--surface)', borderRadius: '16px',
+            padding: '1.5rem',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
+            width: 'calc(100% - 2rem)', maxWidth: 480,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Бараа бүртгэх</h2>
+              <button onClick={() => setAddOpen(false)} style={{
+                background: 'var(--surface2)', border: 'none', cursor: 'pointer',
+                width: 32, height: 32, borderRadius: '50%', fontSize: '1rem',
+                color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>✕</button>
+            </div>
+            <form onSubmit={submitAdd}>
+              <div className="form-group">
+                <label>Трак код</label>
+                <input ref={addInputRef} className="input" placeholder="жш: YT2580126073683" required
+                  value={addForm.trackCode}
+                  onChange={e => setAddForm({ ...addForm, trackCode: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Тайлбар</label>
+                <textarea className="input" placeholder="Барааны тайлбар..." rows={2} required
+                  value={addForm.description}
+                  onChange={e => setAddForm({ ...addForm, description: e.target.value })} />
+              </div>
+              {addError && <p className="msg-error">{addError}</p>}
+              <button className="btn" type="submit" disabled={addLoading || !addForm.trackCode.trim() || !addForm.description.trim()}
+                style={{ width: '100%', marginTop: '0.25rem' }}>
+                {addLoading ? 'Хадгалж байна...' : 'Бүртгэх'}
+              </button>
+            </form>
+            {addedCodes.length > 0 && (
+              <div style={{ marginTop: '1rem' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, marginBottom: '0.4rem' }}>
+                  Бүртгэгдсэн ({addedCodes.length})
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  {addedCodes.map((code, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: '0.5rem',
+                      padding: '0.45rem 0.75rem', background: 'var(--bg)',
+                      border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.85rem',
+                    }}>
+                      <span style={{ color: 'var(--green)', fontWeight: 700 }}>✓</span>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{code}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="page">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <h1 className="section-title" style={{ marginBottom: 0 }}>Миний захиалгууд</h1>
-          <Link href="/orders/new" className="btn" style={{ fontSize: '0.85rem', padding: '0.55rem 1rem' }}>
+          <button className="btn" onClick={() => setAddOpen(true)} style={{ fontSize: '0.85rem', padding: '0.55rem 1rem' }}>
             + Бүртгэх
-          </Link>
+          </button>
         </div>
 
         {/* Search */}
@@ -219,21 +312,33 @@ export default function OrdersClient({
         />
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '1rem', overflowX: 'auto', paddingBottom: '0.1rem', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.3rem', marginBottom: '1rem' }}>
           {TABS.map(tab => {
             const count = tab.key === 'ALL' ? afterSearch.length : afterSearch.filter(s => s.status === tab.key).length
             const active = activeTab === tab.key
             return (
               <button key={tab.key} onClick={() => switchTab(tab.key)} style={{
-                padding: '0.4rem 0.85rem', borderRadius: '100px', border: '1px solid',
+                position: 'relative',
+                padding: '0.5rem 0.25rem', borderRadius: '8px', border: '1px solid',
                 borderColor: active ? 'var(--accent)' : 'var(--border)',
                 background: active ? 'var(--accent)' : 'var(--surface)',
                 color: active ? '#fff' : 'var(--muted)',
-                fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-                whiteSpace: 'nowrap', flexShrink: 0,
+                fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                textAlign: 'center', lineHeight: 1.3,
                 transition: 'background 0.15s, color 0.15s, border-color 0.15s',
               }}>
-                {tab.label}{count > 0 && <span style={{ marginLeft: '0.3rem', opacity: 0.75 }}>({count})</span>}
+                {tab.label}
+                {count > 0 && (
+                  <span style={{
+                    position: 'absolute', top: '-6px', right: '-4px',
+                    background: active ? '#fff' : 'var(--accent)',
+                    color: active ? 'var(--accent)' : '#fff',
+                    fontSize: '0.6rem', fontWeight: 700,
+                    minWidth: 16, height: 16, borderRadius: '100px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 3px', lineHeight: 1,
+                  }}>{count}</span>
+                )}
               </button>
             )
           })}

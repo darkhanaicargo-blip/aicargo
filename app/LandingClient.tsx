@@ -137,7 +137,7 @@ export default function LandingClient() {
             padding: '0.25rem 0.5rem', borderRadius: '6px',
             transition: 'color 0.12s', display: 'flex', alignItems: 'center', gap: '0.25rem',
           }}>
-            <span style={{ fontWeight: 800 }}>?</span> Асуулт хариулт
+            <span style={{ fontWeight: 800 }}>?</span><span className="nav-faq-text"> Асуулт хариулт</span>
           </button>
           <Link href="/login">Нэвтрэх</Link>
           <Link href="/register" className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>

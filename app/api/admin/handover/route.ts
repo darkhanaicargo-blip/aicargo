@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
   const isPhone = /^\d+$/.test(q.trim())
   const shipments = await prisma.shipment.findMany({
     where: isPhone
-      ? { phone: q.trim(), status: 'ARRIVED' }
+      ? { phone: { contains: q.trim() }, status: 'ARRIVED' }
       : { trackCode: { contains: q.trim().toUpperCase() }, status: 'ARRIVED' },
     orderBy: { createdAt: 'desc' },
   })

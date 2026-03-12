@@ -92,7 +92,7 @@ export default function ArrivedPage() {
 
   const valid = {
     trackCode: form.trackCode.trim().length >= 4,
-    phone: form.phone.trim().length >= 8,
+    phone: /^\d{8}$/.test(form.phone.trim()),
     adminPrice: form.adminPrice.trim() !== '' && Number(form.adminPrice) >= 0,
   }
   const canSave = valid.trackCode && valid.phone && valid.adminPrice
