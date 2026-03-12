@@ -1,12 +1,31 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface Form { trackCode: string; phone: string; adminPrice: string; adminNote: string }
 const EMPTY: Form = { trackCode: '', phone: '', adminPrice: '', adminNote: '' }
 
 interface SearchResult {
   id: number; trackCode: string; phone: string | null; adminPrice: number | null
-  adminNote: string | null; createdAt: string; user?: { name: string; phone: string } | null
+  adminNote: string | null; createdAt: string; updatedAt?: string; description?: string | null
+  user?: { name: string; phone: string } | null
+}
+
+interface TodayEntry { phone: string; description: string }
+
+function CopyPhone({ phone }: { phone: string }) {
+  const [copied, setCopied] = useState(false)
+  function copy() {
+    navigator.clipboard.writeText(phone)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  return (
+    <span onClick={copy} title="Хуулах" style={{
+      fontFamily: 'monospace', fontWeight: 700, cursor: 'pointer',
+      color: copied ? 'var(--green)' : 'var(--accent)',
+      fontSize: '0.88rem',
+    }}>{copied ? '✓ Хуулагдлаа' : phone}</span>
+  )
 }
 
 export default function ArrivedPage() {
@@ -26,6 +45,34 @@ export default function ArrivedPage() {
   const [editing, setEditing] = useState<SearchResult | null>(null)
   const [editForm, setEditForm] = useState({ adminPrice: '', adminNote: '', phone: '' })
   const [editLoading, setEditLoading] = useState(false)
+  const [todayList, setTodayList] = useState<TodayEntry[]>([])
+
+  function buildTodayList(shipments: SearchResult[]) {
+    const start = new Date(); start.setHours(0, 0, 0, 0)
+    const today = shipments.filter(s => s.updatedAt && new Date(s.updatedAt) >= start)
+    // Group by phone, pick most frequent description
+    const map = new Map<string, Map<string, number>>()
+    for (const s of today) {
+      const phone = s.phone ?? '—'
+      if (!map.has(phone)) map.set(phone, new Map())
+      const desc = s.description ?? ''
+      map.get(phone)!.set(desc, (map.get(phone)!.get(desc) ?? 0) + 1)
+    }
+    const result: TodayEntry[] = []
+    for (const [phone, descMap] of map) {
+      let topDesc = ''; let topCount = 0
+      for (const [desc, count] of descMap) { if (count > topCount) { topCount = count; topDesc = desc } }
+      result.push({ phone, description: topDesc })
+    }
+    setTodayList(result)
+  }
+
+  async function loadToday() {
+    const res = await fetch('/api/admin/arrived/search?q=')
+    if (res.ok) buildTodayList(await res.json())
+  }
+
+  useEffect(() => { loadToday() }, [])
 
   function openEdit(s: SearchResult) {
     setEditing(s)
@@ -118,6 +165,7 @@ export default function ArrivedPage() {
     setForm(EMPTY)
     setTouched({})
     setPhoneLocked(false)
+    loadToday()
     setTimeout(() => trackRef.current?.focus(), 50)
   }
 
@@ -209,6 +257,31 @@ export default function ArrivedPage() {
               <strong style={{ color: 'var(--accent)' }}>₮{Number(result.adminPrice).toLocaleString()}</strong>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Today list */}
+      {todayList.length > 0 && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <h2 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Өнөөдөр бүртгэсэн — {todayList.length} дугаар
+          </h2>
+          <div className="card" style={{ overflow: 'hidden' }}>
+            {todayList.map((t, i) => (
+              <div key={t.phone} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.55rem 1rem', gap: '0.75rem',
+                borderBottom: i < todayList.length - 1 ? '1px solid var(--border)' : 'none',
+              }}>
+                <CopyPhone phone={t.phone} />
+                {t.description && (
+                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '55%', textAlign: 'right' }}>
+                    {t.description}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

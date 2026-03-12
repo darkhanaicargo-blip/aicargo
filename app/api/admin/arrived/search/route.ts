@@ -27,6 +27,8 @@ export async function GET(req: NextRequest) {
       adminPrice: true,
       adminNote: true,
       createdAt: true,
+      updatedAt: true,
+      description: true,
       user: { select: { name: true, phone: true } },
     },
   })
