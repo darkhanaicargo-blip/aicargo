@@ -295,12 +295,29 @@ export default function OrdersClient({
       )}
 
       <div className="page">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
           <h1 className="section-title" style={{ marginBottom: 0 }}>Миний захиалгууд</h1>
           <button className="btn" onClick={() => setAddOpen(true)} style={{ fontSize: '0.85rem', padding: '0.55rem 1rem' }}>
             + Бүртгэх
           </button>
         </div>
+        {(() => {
+          const arrived = shipments.filter(s => s.status === 'ARRIVED')
+          const total = arrived.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
+          if (arrived.length === 0) return null
+          return (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.9rem' }}>
+              <span style={{ fontSize: '0.78rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
+                Ирсэн <strong style={{ color: 'var(--text)' }}>{arrived.length} бараа</strong>
+              </span>
+              {total > 0 && (
+                <span style={{ fontSize: '0.78rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
+                  Нийт <strong style={{ color: 'var(--accent)' }}>₮{total.toLocaleString()}</strong>
+                </span>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Search */}
         <input
