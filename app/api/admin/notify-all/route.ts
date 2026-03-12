@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!user.email) { skipped++; continue }
 
     const cargoCount = user.shipments.length
-    const totalAmount = user.shipments.reduce((sum: number, s) => {
+    const totalAmount = user.shipments.reduce((sum: number, s: { adminPrice: unknown }) => {
       return sum + (s.adminPrice ? Number(s.adminPrice) : 0)
     }, 0)
 
