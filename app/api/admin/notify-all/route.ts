@@ -20,10 +20,11 @@ export async function POST(req: NextRequest) {
   })
 
   let sent = 0
-  let skipped = 0
+  let noEmail = 0
+  let failed = 0
 
   for (const user of usersWithCargo) {
-    if (!user.email) { skipped++; continue }
+    if (!user.email) { noEmail++; continue }
 
     const cargoCount = user.shipments.length
     const totalAmount = user.shipments.reduce((sum: number, s: { adminPrice: unknown }) => {
@@ -33,10 +34,11 @@ export async function POST(req: NextRequest) {
     try {
       await sendNotificationEmail(user.email, user.name, cargoCount, totalAmount)
       sent++
-    } catch {
-      skipped++
+    } catch (err) {
+      failed++
+      console.error('Mail error for', user.email, err)
     }
   }
 
-  return NextResponse.json({ sent, skipped })
+  return NextResponse.json({ sent, noEmail, failed })
 }

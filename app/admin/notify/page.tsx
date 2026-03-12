@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 export default function NotifyPage() {
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<{ sent: number; skipped: number } | null>(null)
+  const [result, setResult] = useState<{ sent: number; noEmail: number; failed: number } | null>(null)
   const [error, setError] = useState('')
 
   async function send() {
@@ -49,10 +49,18 @@ export default function NotifyPage() {
             <span className="label">Илгээгдсэн</span>
             <strong style={{ color: 'var(--green)' }}>{result.sent} хэрэглэгч</strong>
           </div>
-          <div className="card-row">
-            <span className="label">Алгасагдсан</span>
-            <span style={{ color: 'var(--muted)' }}>{result.skipped} (и-мэйлгүй)</span>
-          </div>
+          {result.noEmail > 0 && (
+            <div className="card-row">
+              <span className="label">И-мэйлгүй</span>
+              <span style={{ color: 'var(--muted)' }}>{result.noEmail} хэрэглэгч</span>
+            </div>
+          )}
+          {result.failed > 0 && (
+            <div className="card-row">
+              <span className="label">Илгээхэд алдаа</span>
+              <span style={{ color: 'var(--danger)' }}>{result.failed} хэрэглэгч</span>
+            </div>
+          )}
         </div>
       )}
     </div>
