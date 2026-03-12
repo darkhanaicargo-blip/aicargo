@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
       where: { status: 'PICKED_UP', updatedAt: { gte: start } },
       select: { adminPrice: true, phone: true },
     })
-    const phones = new Set(todayShipments.map(s => s.phone ?? '—'))
-    const totalValue = todayShipments.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
+    const phones = new Set(todayShipments.map((s: { phone: string | null; adminPrice: unknown }) => s.phone ?? '—'))
+    const totalValue = todayShipments.reduce((sum: number, s: { phone: string | null; adminPrice: unknown }) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
     return NextResponse.json({
       shipments: todayShipments.length,
       customers: phones.size,
