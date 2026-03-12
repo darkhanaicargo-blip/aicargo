@@ -280,30 +280,26 @@ export default function ArrivedPage() {
 
           {result && (
             <div className="card" style={{ marginTop: '1.2rem' }}>
-              <div className="card-row">
-                <span className="label">Трак код</span>
-                <strong style={{ fontFamily: 'monospace' }}>{result.trackCode}</strong>
-              </div>
-              <div className="card-row">
-                <span className="label">Статус</span>
-                <span className="badge badge-ARRIVED">Ирсэн</span>
-              </div>
               {(result.phone || result.user?.phone) && (
                 <div className="card-row">
                   <span className="label">Утас</span>
-                  <span>{result.user?.phone || result.phone}</span>
+                  <CopyPhone phone={result.user?.phone || result.phone} />
                 </div>
               )}
-              {result.user && (
-                <div className="card-row">
-                  <span className="label">Хэрэглэгч</span>
-                  <span>{result.user.name}</span>
-                </div>
-              )}
+              <div className="card-row">
+                <span className="label">Трак код</span>
+                <CopyPhone phone={result.trackCode} />
+              </div>
               {result.adminPrice && (
                 <div className="card-row">
                   <span className="label">Үнэ</span>
                   <strong style={{ color: 'var(--accent)' }}>₮{Number(result.adminPrice).toLocaleString()}</strong>
+                </div>
+              )}
+              {result.adminNote && (
+                <div className="card-row">
+                  <span className="label">Тайлбар</span>
+                  <span style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>{result.adminNote}</span>
                 </div>
               )}
             </div>
