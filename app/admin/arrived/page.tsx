@@ -174,7 +174,50 @@ export default function ArrivedPage() {
       <h1 className="section-title">Ирсэн</h1>
 
       <div className="arrived-grid">
-        {/* Left col — form + result */}
+        {/* Col 1 — Search */}
+        <div>
+          <h2 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.8rem' }}>Бүртгэгдсэн бараа хайх</h2>
+          <form onSubmit={search} style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem' }}>
+            <input className="input" placeholder="Утасны дугаар эсвэл трак код"
+              value={searchQ} onChange={e => { setSearchQ(e.target.value); setSearchResults(null) }}
+              style={{ minWidth: 0 }} />
+            <button className="btn" type="submit" disabled={searching || !searchQ.trim()} style={{ flexShrink: 0 }}>
+              {searching ? '...' : 'Хайх'}
+            </button>
+          </form>
+
+          {searchResults !== null && (
+            searchResults.length === 0
+              ? <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Олдсонгүй.</p>
+              : <div className="card" style={{ overflow: 'hidden' }}>
+                  {searchResults.map((s, i) => (
+                    <div key={s.id} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '0.5rem 0.9rem', gap: '0.5rem',
+                      borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
+                      fontSize: '0.83rem',
+                    }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
+                          <span style={{ color: 'var(--muted)' }}>
+                            {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
+                          </span>
+                        </div>
+                        {s.adminNote && <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.15rem' }}>{s.adminNote}</div>}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                        {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)' }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
+                        <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
+                        <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+          )}
+        </div>
+
+        {/* Col 2 — Form + result */}
         <div>
           <form onSubmit={submit} noValidate>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -264,11 +307,10 @@ export default function ArrivedPage() {
           )}
         </div>
 
-        {/* Right 2 cols — today list + search */}
+        {/* Col 3 — Today list */}
         <div>
-          {/* Today list */}
           {todayList.length > 0 && (
-            <div style={{ marginBottom: '2rem' }}>
+            <>
               <h2 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Өнөөдөр бүртгэсэн — {todayList.length} дугаар
               </h2>
@@ -276,63 +318,20 @@ export default function ArrivedPage() {
                 {todayList.map((t, i) => (
                   <div key={t.phone} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0.55rem 1rem', gap: '0.75rem',
+                    padding: '0.38rem 0.9rem', gap: '0.6rem',
                     borderBottom: i < todayList.length - 1 ? '1px solid var(--border)' : 'none',
                   }}>
                     <CopyPhone phone={t.phone} />
                     {t.description && (
-                      <span style={{ fontSize: '0.82rem', color: 'var(--muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'right' }}>
                         {t.description}
                       </span>
                     )}
                   </div>
                 ))}
               </div>
-            </div>
+            </>
           )}
-
-          {/* Search */}
-          <div>
-            <h2 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.8rem' }}>Бүртгэгдсэн бараа хайх</h2>
-            <form onSubmit={search} style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem' }}>
-              <input className="input" placeholder="Утасны дугаар эсвэл трак код"
-                value={searchQ} onChange={e => { setSearchQ(e.target.value); setSearchResults(null) }}
-                style={{ minWidth: 0 }} />
-              <button className="btn" type="submit" disabled={searching || !searchQ.trim()} style={{ flexShrink: 0 }}>
-                {searching ? '...' : 'Хайх'}
-              </button>
-            </form>
-
-            {searchResults !== null && (
-              searchResults.length === 0
-                ? <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Олдсонгүй.</p>
-                : <div className="card" style={{ overflow: 'hidden' }}>
-                    {searchResults.map((s, i) => (
-                      <div key={s.id} style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '0.6rem 1rem', gap: '0.5rem',
-                        borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
-                        fontSize: '0.83rem',
-                      }}>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                            <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
-                            <span style={{ color: 'var(--muted)' }}>
-                              {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
-                            </span>
-                          </div>
-                          {s.adminNote && <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{s.adminNote}</div>}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-                          {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)' }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
-                          <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
-                          <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-            )}
-          </div>
         </div>
       </div>
 
