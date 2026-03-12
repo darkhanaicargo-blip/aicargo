@@ -144,11 +144,19 @@ textarea.input { resize: vertical; }
   box-sizing: border-box;
 }
 .page-wide {
-  max-width: 920px;
+  max-width: 1100px;
   width: 100%;
   margin: 0 auto;
   padding: 2.5rem 5%;
   box-sizing: border-box;
+}
+
+/* ── ARRIVED GRID ── */
+.arrived-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  align-items: start;
 }
 
 /* ── CARD ── */
@@ -334,6 +342,7 @@ textarea.input { resize: vertical; }
   .admin-nav { padding: 0 3%; gap: 0; }
   .admin-nav-link { padding: 0.8rem 0.85rem; font-size: 0.82rem; }
   .handover-grid { grid-template-columns: 1fr !important; }
+  .arrived-grid { grid-template-columns: 1fr !important; }
 }
 
 /* Mobile (≤500px) */

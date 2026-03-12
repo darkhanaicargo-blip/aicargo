@@ -8,7 +8,7 @@ export default async function OrdersPage() {
   if (!user) redirect('/login')
 
   const shipments = await prisma.shipment.findMany({
-    where: { userId: user.userId, archived: false },
+    where: { userId: user.userId },
     orderBy: { createdAt: 'desc' },
   })
 
