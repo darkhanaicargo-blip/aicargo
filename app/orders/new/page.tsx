@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
 import Link from 'next/link'
+import NavLogo from '@/app/components/NavLogo'
 
 export default function NewOrderPage() {
   const [form, setForm] = useState({ trackCode: '', description: '' })
@@ -30,7 +31,7 @@ export default function NewOrderPage() {
   return (
     <>
       <nav className="nav">
-        <Link href="/" className="nav-logo">Aicargo</Link>
+        <Link href="/"><NavLogo /></Link>
         <div className="nav-links">
           <Link href="/orders">← Захиалга руу буцах</Link>
         </div>

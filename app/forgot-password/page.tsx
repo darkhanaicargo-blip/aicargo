@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import NavLogo from '@/app/components/NavLogo'
 import { useRouter } from 'next/navigation'
 
 export default function ForgotPasswordPage() {
@@ -25,7 +26,7 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <nav className="nav">
-        <Link href="/" className="nav-logo">Aicargo</Link>
+        <Link href="/"><NavLogo /></Link>
       </nav>
       <div className="page" style={{ maxWidth: 420 }}>
         <h1 className="section-title">Нууц үг сэргээх</h1>

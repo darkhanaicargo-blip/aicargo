@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import SiteFooter from './components/SiteFooter'
 import ChatWidget from './components/ChatWidget'
+import NavLogo from './components/NavLogo'
 
 const STATUS_LABEL: Record<string, string> = {
   REGISTERED: 'Бүртгүүлсэн',
@@ -128,7 +129,7 @@ export default function LandingClient() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <nav className="nav">
-        <span className="nav-logo">Aicargo</span>
+        <NavLogo />
         <div className="nav-links">
           <button onClick={() => setFaqOpen(o => !o)} style={{
             background: 'none', border: 'none', cursor: 'pointer',

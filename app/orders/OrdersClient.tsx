@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import SiteFooter from '../components/SiteFooter'
 import ChatWidget from '../components/ChatWidget'
+import NavLogo from '../components/NavLogo'
 
 function fmtDate(iso: string) {
   const d = new Date(iso)
@@ -180,7 +181,7 @@ export default function OrdersClient({
   return (
     <>
       <nav className="nav">
-        <Link href="/" className="nav-logo">Aicargo</Link>
+        <Link href="/"><NavLogo /></Link>
         <div className="nav-links">
           <button onClick={() => setFaqOpen(o => !o)} style={{
             background: 'none', border: 'none', cursor: 'pointer',

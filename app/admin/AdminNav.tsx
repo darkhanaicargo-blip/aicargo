@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import NavLogo from '@/app/components/NavLogo'
 
 const links = [
   { href: '/admin/registered', label: 'Бүртгүүлсэн' },
@@ -35,7 +36,7 @@ export default function AdminNav({
   return (
     <header>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem 5%', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-        <Link href="/admin/import" style={{ fontWeight: 800, color: 'var(--accent)', fontSize: '1.1rem', letterSpacing: '-0.5px' }}>Aicargo Admin</Link>
+        <Link href="/admin/import"><NavLogo /></Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {devices && onDevice && (
             <div style={{ display: 'flex', gap: '0.2rem', background: 'var(--surface2)', borderRadius: '8px', padding: '0.2rem', border: '1px solid var(--border)' }}>
