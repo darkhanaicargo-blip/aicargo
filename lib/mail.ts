@@ -1,21 +1,13 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-})
+const resend = new Resend(process.env.RESEND_API_KEY)
+const FROM = process.env.MAIL_FROM || 'Aicargo <onboarding@resend.dev>'
 
 export async function sendOtpEmail(email: string, code: string) {
-  await transporter.sendMail({
-    from: process.env.MAIL_FROM,
+  await resend.emails.send({
+    from: FROM,
     to: email,
     subject: 'Aicargo — Нууц үг сэргээх код',
-    text: `Таны нэг удаагийн код: ${code}\n\nЭнэ код 10 минутын дараа хүчингүй болно.\nТа өөрөө хүсэлт гаргаагүй бол энэ имэйлийг үл тоомсорлоно уу.`,
     html: `
       <div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:32px;background:#111;color:#f0f0f0;border-radius:12px;">
         <h2 style="color:#e8f000;margin-bottom:8px;">Aicargo</h2>
@@ -36,11 +28,10 @@ export async function sendNotificationEmail(
   cargoCount: number,
   totalAmount: number
 ) {
-  await transporter.sendMail({
-    from: process.env.MAIL_FROM,
+  await resend.emails.send({
+    from: FROM,
     to: email,
     subject: 'Aicargo — Таны ачаа ирлээ',
-    text: `Сайн байна уу, ${name},\n\nТаны ачааны мэдээлэл:\n  Ирсэн ачааны тоо: ${cargoCount} ширхэг\n  Нийт төлбөр: ₮${totalAmount.toLocaleString()}\n\nАчаагаа авахаар ирнэ үү.`,
     html: `
       <div style="font-family:sans-serif;max-width:420px;margin:0 auto;padding:32px;background:#111;color:#f0f0f0;border-radius:12px;">
         <h2 style="color:#e8f000;margin-bottom:4px;">Aicargo</h2>
