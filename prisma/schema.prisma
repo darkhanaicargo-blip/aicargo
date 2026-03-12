@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  phone     String     @unique
+  email     String?    @unique
+  password  String
+  role      Role       @default(USER)
+  createdAt DateTime   @default(now())
+  shipments Shipment[]
+}
+
+model Shipment {
+  id          Int      @id @default(autoincrement())
+  trackCode   String   @unique
+  description String?
+  status      Status   @default(REGISTERED)
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  phone       String?
+  adminPrice  Decimal? @db.Decimal(10, 2)
+  adminNote   String?
+  archived    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Faq {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
+  order    Int    @default(0)
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  email     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  REGISTERED
+  EREEN_ARRIVED
+  ARRIVED
+  PICKED_UP
+}

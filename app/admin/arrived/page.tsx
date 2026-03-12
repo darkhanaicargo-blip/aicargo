@@ -1,0 +1,288 @@
+'use client'
+import { useState, useRef } from 'react'
+
+interface Form { trackCode: string; phone: string; adminPrice: string; adminNote: string }
+const EMPTY: Form = { trackCode: '', phone: '', adminPrice: '', adminNote: '' }
+
+interface SearchResult {
+  id: number; trackCode: string; phone: string | null; adminPrice: number | null
+  adminNote: string | null; createdAt: string; user?: { name: string; phone: string } | null
+}
+
+export default function ArrivedPage() {
+  const [form, setForm] = useState<Form>(EMPTY)
+  const [result, setResult] = useState<any>(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [phoneLocked, setPhoneLocked] = useState(false)
+  const [touched, setTouched] = useState<Partial<Record<keyof Form, boolean>>>({})
+  const trackRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
+  const priceRef = useRef<HTMLInputElement>(null)
+  const noteRef = useRef<HTMLTextAreaElement>(null)
+  const [searchQ, setSearchQ] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null)
+  const [searching, setSearching] = useState(false)
+  const [editing, setEditing] = useState<SearchResult | null>(null)
+  const [editForm, setEditForm] = useState({ adminPrice: '', adminNote: '', phone: '' })
+  const [editLoading, setEditLoading] = useState(false)
+
+  function openEdit(s: SearchResult) {
+    setEditing(s)
+    setEditForm({
+      adminPrice: s.adminPrice ? String(s.adminPrice) : '',
+      adminNote: s.adminNote ?? '',
+      phone: s.phone ?? '',
+    })
+  }
+
+  async function saveEdit() {
+    if (!editing) return
+    setEditLoading(true)
+    const res = await fetch('/api/admin/arrived', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editing.id, ...editForm }),
+    })
+    setEditLoading(false)
+    if (res.ok) {
+      const updated = await res.json()
+      setSearchResults(prev => prev?.map(s => s.id === editing.id ? { ...s, adminPrice: updated.adminPrice, adminNote: updated.adminNote, phone: updated.phone } : s) ?? null)
+      setEditing(null)
+    }
+  }
+
+  async function revert(id: number) {
+    if (!confirm('Энэ барааг Эрээнд ирсэн төлөвт буцаах уу?')) return
+    const res = await fetch('/api/admin/arrived', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) setSearchResults(prev => prev?.filter(s => s.id !== id) ?? null)
+  }
+
+  async function search(e: React.FormEvent) {
+    e.preventDefault()
+    setSearching(true)
+    const res = await fetch(`/api/admin/arrived/search?q=${encodeURIComponent(searchQ)}`)
+    setSearching(false)
+    if (res.ok) setSearchResults(await res.json())
+  }
+
+  function set(k: keyof Form, v: string) {
+    setForm(f => ({ ...f, [k]: v }))
+    setTouched(t => ({ ...t, [k]: true }))
+  }
+
+  async function lookupCode(code: string) {
+    const c = code.trim().toUpperCase()
+    if (!c) return
+    try {
+      const res = await fetch(`/api/track/${encodeURIComponent(c)}`)
+      if (!res.ok) return
+      const data = await res.json()
+      const phone = data.user?.phone || data.phone || ''
+      if (phone) { setForm(f => ({ ...f, phone })); setPhoneLocked(true) }
+      else setPhoneLocked(false)
+      if (data.adminPrice) setForm(f => ({ ...f, adminPrice: String(data.adminPrice) }))
+      if (data.adminNote) setForm(f => ({ ...f, adminNote: data.adminNote }))
+    } catch {}
+  }
+
+  const valid = {
+    trackCode: form.trackCode.trim().length >= 4,
+    phone: form.phone.trim().length >= 8,
+    adminPrice: form.adminPrice.trim() !== '' && Number(form.adminPrice) >= 0,
+  }
+  const canSave = valid.trackCode && valid.phone && valid.adminPrice
+
+  function fe(k: keyof typeof valid) { return touched[k] && !valid[k] }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    setTouched({ trackCode: true, phone: true, adminPrice: true })
+    if (!canSave) return
+    setLoading(true)
+    setError('')
+    setResult(null)
+    const res = await fetch('/api/admin/arrived', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    })
+    const data = await res.json()
+    setLoading(false)
+    if (!res.ok) { setError(data.error); return }
+    setResult(data)
+    setForm(EMPTY)
+    setTouched({})
+    setPhoneLocked(false)
+    setTimeout(() => trackRef.current?.focus(), 50)
+  }
+
+  return (
+    <div className="page" style={{ maxWidth: 520 }}>
+      <h1 className="section-title">Ирсэн</h1>
+
+      <form onSubmit={submit} noValidate>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>Трак код <span style={{ color: 'var(--danger)' }}>*</span></label>
+            <input ref={trackRef} className="input" placeholder="CX-2024-00123"
+              value={form.trackCode}
+              onChange={e => { set('trackCode', e.target.value); setPhoneLocked(false) }}
+              onBlur={e => lookupCode(e.target.value)}
+              onKeyDown={async e => { if (e.key === 'Enter') { e.preventDefault(); await lookupCode((e.target as HTMLInputElement).value); phoneRef.current?.focus() } }}
+              style={{ borderColor: fe('trackCode') ? 'var(--danger)' : undefined }} />
+            {fe('trackCode') && <p style={{ fontSize: '0.75rem', color: 'var(--danger)', marginTop: '0.3rem' }}>Хамгийн багадаа 4 тэмдэгт</p>}
+          </div>
+
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>
+              Утасны дугаар <span style={{ color: 'var(--danger)' }}>*</span>
+              {phoneLocked && <span style={{ fontSize: '0.72rem', color: 'var(--muted)', marginLeft: '0.4rem' }}>— олдлоо</span>}
+            </label>
+            <input ref={phoneRef} className="input" type="tel" placeholder="99001122"
+              value={form.phone}
+              onChange={e => { set('phone', e.target.value); setPhoneLocked(false) }}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); priceRef.current?.focus() } }}
+              readOnly={phoneLocked}
+              style={{
+                borderColor: fe('phone') ? 'var(--danger)' : undefined,
+                background: phoneLocked ? 'var(--surface2)' : undefined,
+              }} />
+            {fe('phone') && <p style={{ fontSize: '0.75rem', color: 'var(--danger)', marginTop: '0.3rem' }}>Утасны дугаар оруулна уу</p>}
+          </div>
+
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>Үнэ (₮) <span style={{ color: 'var(--danger)' }}>*</span></label>
+            <input ref={priceRef} className="input" type="number" placeholder="0" min="0"
+              value={form.adminPrice}
+              onChange={e => set('adminPrice', e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); noteRef.current?.focus() } }}
+              style={{ borderColor: fe('adminPrice') ? 'var(--danger)' : undefined }} />
+            {fe('adminPrice') && <p style={{ fontSize: '0.75rem', color: 'var(--danger)', marginTop: '0.3rem' }}>Үнэ оруулна уу</p>}
+          </div>
+
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>Тайлбар</label>
+            <textarea ref={noteRef} className="input" placeholder="Тэмдэглэл..." rows={1}
+              value={form.adminNote} onChange={e => set('adminNote', e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (canSave) submit(e as any) } }} />
+          </div>
+        </div>
+
+        {error && <p className="msg-error" style={{ marginTop: '0.5rem' }}>{error}</p>}
+
+        <button className="btn" type="submit" disabled={loading || !canSave}
+          style={{ opacity: canSave ? 1 : 0.5, marginTop: '0.75rem' }}>
+          {loading ? 'Хадгалж байна...' : 'Хадгалах'}
+        </button>
+      </form>
+
+      {result && (
+        <div className="card" style={{ marginTop: '1.2rem' }}>
+          <div className="card-row">
+            <span className="label">Трак код</span>
+            <strong style={{ fontFamily: 'monospace' }}>{result.trackCode}</strong>
+          </div>
+          <div className="card-row">
+            <span className="label">Статус</span>
+            <span className="badge badge-ARRIVED">Ирсэн</span>
+          </div>
+          {(result.phone || result.user?.phone) && (
+            <div className="card-row">
+              <span className="label">Утас</span>
+              <span>{result.user?.phone || result.phone}</span>
+            </div>
+          )}
+          {result.user && (
+            <div className="card-row">
+              <span className="label">Хэрэглэгч</span>
+              <span>{result.user.name}</span>
+            </div>
+          )}
+          {result.adminPrice && (
+            <div className="card-row">
+              <span className="label">Үнэ</span>
+              <strong style={{ color: 'var(--accent)' }}>₮{Number(result.adminPrice).toLocaleString()}</strong>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Search */}
+      <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+        <h2 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.8rem' }}>Бүртгэгдсэн бараа хайх</h2>
+        <form onSubmit={search} style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem' }}>
+          <input className="input" placeholder="Утасны дугаар эсвэл трак код"
+            value={searchQ} onChange={e => { setSearchQ(e.target.value); setSearchResults(null) }}
+            style={{ minWidth: 0 }} />
+          <button className="btn" type="submit" disabled={searching || !searchQ.trim()} style={{ flexShrink: 0 }}>
+            {searching ? '...' : 'Хайх'}
+          </button>
+        </form>
+
+        {searchResults !== null && (
+          searchResults.length === 0
+            ? <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Олдсонгүй.</p>
+            : <div className="card" style={{ overflow: 'hidden' }}>
+                {searchResults.map((s, i) => (
+                  <div key={s.id} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.6rem 1rem', gap: '0.5rem',
+                    borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
+                    fontSize: '0.83rem',
+                  }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
+                        <span style={{ color: 'var(--muted)' }}>
+                          {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
+                        </span>
+                      </div>
+                      {s.adminNote && <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{s.adminNote}</div>}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                      {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)' }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
+                      <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
+                      <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+        )}
+      </div>
+
+      {editing && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
+          <div className="card" style={{ width: '100%', maxWidth: 380, padding: '1.5rem' }}>
+            <h3 style={{ margin: '0 0 1rem', fontSize: '0.95rem', fontWeight: 700 }}>Засах — <span style={{ fontFamily: 'monospace' }}>{editing.trackCode}</span></h3>
+            <div className="form-group">
+              <label>Утас</label>
+              <input className="input" value={editForm.phone} onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} placeholder="99001122" />
+            </div>
+            <div className="form-group">
+              <label>Үнэ (₮)</label>
+              <input className="input" type="number" min="0" value={editForm.adminPrice} onChange={e => setEditForm(f => ({ ...f, adminPrice: e.target.value }))} placeholder="0" />
+            </div>
+            <div className="form-group">
+              <label>Тайлбар</label>
+              <textarea className="input" rows={2} value={editForm.adminNote} onChange={e => setEditForm(f => ({ ...f, adminNote: e.target.value }))} placeholder="Тэмдэглэл..." />
+            </div>
+            <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.5rem' }}>
+              <button className="btn" onClick={saveEdit} disabled={editLoading} style={{ flex: 1 }}>{editLoading ? 'Хадгалж байна...' : 'Хадгалах'}</button>
+              <button onClick={() => setEditing(null)} style={{ flex: 1, padding: '0.6rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>Болих</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const iconBtn: React.CSSProperties = {
+  background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem 0.35rem',
+  borderRadius: '4px', fontSize: '0.9rem', lineHeight: 1,
+}
