@@ -237,8 +237,8 @@ export default function OrdersClient({
         <div style={{ position: 'fixed', inset: 0, zIndex: 200 }}>
           <div onClick={() => setAddOpen(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }} />
           <div style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%, -60%)',
+            position: 'absolute', top: '12%', left: '50%',
+            transform: 'translateX(-50%)',
             background: 'var(--surface)', borderRadius: '16px',
             padding: '1.5rem',
             boxShadow: '0 8px 40px rgba(0,0,0,0.18)',
