@@ -22,6 +22,13 @@ export async function POST(req: NextRequest) {
 
   const resolvedPhone = existing?.user?.phone || existing?.phone || manualPhone || null
 
+  // Auto-link userId if a user with this phone exists
+  let resolvedUserId = existing?.userId ?? null
+  if (!resolvedUserId && resolvedPhone) {
+    const matchedUser = await prisma.user.findUnique({ where: { phone: resolvedPhone } })
+    if (matchedUser) resolvedUserId = matchedUser.id
+  }
+
   const shipment = await prisma.shipment.upsert({
     where: { trackCode: code },
     update: {
@@ -29,6 +36,7 @@ export async function POST(req: NextRequest) {
       adminPrice: adminPrice ? Number(adminPrice) : null,
       adminNote: adminNote || null,
       phone: resolvedPhone,
+      ...(resolvedUserId ? { userId: resolvedUserId } : {}),
     },
     create: {
       trackCode: code,
@@ -36,6 +44,7 @@ export async function POST(req: NextRequest) {
       adminPrice: adminPrice ? Number(adminPrice) : null,
       adminNote: adminNote || null,
       phone: resolvedPhone,
+      ...(resolvedUserId ? { userId: resolvedUserId } : {}),
     },
     include: { user: { select: { name: true, phone: true } } },
   })
