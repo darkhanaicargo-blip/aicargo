@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       groups,
       totalShipments: all.length,
       totalCustomers: groups.length,
-      totalValue: all.reduce((s, r) => s + (r.adminPrice ? Number(r.adminPrice) : 0), 0),
+      totalValue: all.reduce((s: number, r) => s + (r.adminPrice ? Number(r.adminPrice) : 0), 0),
     })
   }
 
