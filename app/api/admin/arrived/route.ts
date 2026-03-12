@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
     include: { user: { select: { phone: true } } },
   })
 
+  if (existing?.status === 'PICKED_UP') {
+    return NextResponse.json({ error: 'Энэ бараа аль хэдийн олгогдсон байна' }, { status: 400 })
+  }
+
   const resolvedPhone = existing?.user?.phone || existing?.phone || manualPhone || null
 
   // Auto-link userId if a user with this phone exists

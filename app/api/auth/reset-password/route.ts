@@ -23,7 +23,11 @@ export async function POST(req: NextRequest) {
   }
 
   const hashed = await bcrypt.hash(newPassword, 10)
-  await prisma.user.update({ where: { email }, data: { password: hashed } })
+  try {
+    await prisma.user.update({ where: { email }, data: { password: hashed } })
+  } catch {
+    return NextResponse.json({ error: 'Хэрэглэгч олдсонгүй' }, { status: 404 })
+  }
 
   return NextResponse.json({ ok: true })
 }

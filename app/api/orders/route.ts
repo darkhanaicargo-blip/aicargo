@@ -25,12 +25,7 @@ export async function DELETE(req: NextRequest) {
   if (!shipment || shipment.userId !== user.userId) {
     return NextResponse.json({ error: 'Олдсонгүй' }, { status: 404 })
   }
-  if (shipment.status === 'PICKED_UP') {
-    await prisma.shipment.update({ where: { id: Number(id) }, data: { archived: true } })
-    return NextResponse.json({ ok: true, archived: true })
-  }
-
-  if (shipment.status !== 'REGISTERED') {
+  if (shipment.status !== 'REGISTERED' && shipment.status !== 'PICKED_UP') {
     return NextResponse.json({ error: 'Зөвхөн бүртгүүлсэн эсвэл авсан барааг устгах боломжтой' }, { status: 400 })
   }
 
