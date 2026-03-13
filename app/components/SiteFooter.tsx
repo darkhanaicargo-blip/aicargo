@@ -1,12 +1,12 @@
 'use client'
 import { useState } from 'react'
 
-const NAME = 'darkhan8520'
+const NAME = 'darkhan+ өөрийн утас'
 const PHONE = '18647933620'
 
 const CONTACT = [
-  { label: '收货人 (Нэр)',    value: NAME },
-  { label: '手机号 (Утас)',   value: PHONE },
+  { label: '收货人 (Нэр)', value: NAME },
+  { label: '手机号 (Утас)', value: PHONE },
   { label: '详细地址 (Хаяг)', value: `环宇商贸城9栋24号нэр+утас+darkhan` },
 ]
 
