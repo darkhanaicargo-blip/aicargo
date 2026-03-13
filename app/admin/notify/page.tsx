@@ -6,11 +6,19 @@ export default function NotifyPage() {
   const [result, setResult] = useState<{ sent: number; noEmail: number; failed: number } | null>(null)
   const [error, setError] = useState('')
   const [closingTime, setClosingTime] = useState('18:00')
+  const [confirmData, setConfirmData] = useState<{ count: number } | null>(null)
 
-  async function send() {
-    if (!confirm('Мэдэгдэл илгээхдээ итгэлтэй байна уу?')) return
-    setLoading(true)
+  async function handleSendClick() {
     setError('')
+    const res = await fetch('/api/admin/notify-all')
+    if (!res.ok) { setError('Алдаа гарлаа'); return }
+    const data = await res.json()
+    setConfirmData({ count: data.count })
+  }
+
+  async function confirmSend() {
+    setConfirmData(null)
+    setLoading(true)
     setResult(null)
     const res = await fetch('/api/admin/notify-all', {
       method: 'POST',
@@ -34,9 +42,24 @@ export default function NotifyPage() {
           style={{ maxWidth: 160 }} />
       </div>
 
-      <button className="btn" onClick={send} disabled={loading || !closingTime} style={{ marginTop: '0.5rem' }}>
+      <button className="btn" onClick={handleSendClick} disabled={loading || !closingTime} style={{ marginTop: '0.5rem' }}>
         {loading ? 'Илгээж байна...' : 'Мэдэгдэл илгээх'}
       </button>
+
+      {confirmData !== null && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
+          <div className="card" style={{ width: '100%', maxWidth: 340, padding: '1.5rem', textAlign: 'center' }}>
+            <p style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>Мэдэгдэл илгээх</p>
+            <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1.25rem' }}>
+              <strong style={{ color: 'var(--text)', fontSize: '1.2rem' }}>{confirmData.count}</strong> хэрэглэгчид мэдэгдэл илгээх үү?
+            </p>
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
+              <button className="btn" onClick={confirmSend} style={{ flex: 1 }}>Илгээх</button>
+              <button onClick={() => setConfirmData(null)} style={{ flex: 1, padding: '0.6rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>Болих</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && <p className="msg-error" style={{ marginTop: '1rem' }}>{error}</p>}
 

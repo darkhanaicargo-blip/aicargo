@@ -3,6 +3,20 @@ import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 import { sendNotificationEmail } from '@/lib/mail'
 
+export async function GET(req: NextRequest) {
+  const admin = getAuthUserFromRequest(req)
+  if (!admin) return unauthorized()
+  if (admin.role !== 'ADMIN') return forbidden()
+
+  const count = await prisma.user.count({
+    where: {
+      email: { not: null },
+      shipments: { some: { status: 'ARRIVED' } },
+    },
+  })
+  return NextResponse.json({ count })
+}
+
 export async function POST(req: NextRequest) {
   const admin = getAuthUserFromRequest(req)
   if (!admin) return unauthorized()

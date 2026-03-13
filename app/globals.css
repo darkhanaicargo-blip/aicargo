@@ -154,7 +154,7 @@ textarea.input { resize: vertical; }
 /* ── ARRIVED GRID ── */
 .arrived-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1.8fr;
   gap: 1.75rem;
   align-items: start;
 }
