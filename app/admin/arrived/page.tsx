@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 
 function fmtDT(iso: string) {
   const d = new Date(iso)
-  return `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 interface Form { trackCode: string; phone: string; adminPrice: string; adminNote: string }
@@ -142,7 +142,7 @@ export default function ArrivedPage() {
       else setPhoneLocked(false)
       if (data.adminPrice) setForm(f => ({ ...f, adminPrice: String(data.adminPrice) }))
       if (data.adminNote) setForm(f => ({ ...f, adminNote: data.adminNote }))
-    } catch {}
+    } catch { }
   }
 
   const valid = {
@@ -284,25 +284,25 @@ export default function ArrivedPage() {
             searchResults.length === 0
               ? <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Олдсонгүй.</p>
               : <div className="card" style={{ overflow: 'hidden', marginBottom: '1.5rem' }}>
-                  {searchResults.map((s, i) => (
-                    <div key={s.id} style={{
-                      display: 'flex', alignItems: 'center', gap: '0.5rem',
-                      padding: '0.45rem 0.9rem',
-                      borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
-                      fontSize: '0.82rem',
-                    }}>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 700, flexShrink: 0 }}>{s.trackCode}</span>
-                      <span style={{ color: 'var(--muted)', flexShrink: 0 }}>
-                        {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
-                      </span>
-                      {s.adminNote && <span style={{ color: 'var(--muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.78rem' }}>{s.adminNote}</span>}
-                      {s.updatedAt && <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace', flexShrink: 0 }}>{fmtDT(s.updatedAt)}</span>}
-                      {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
-                      <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
-                      <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
-                    </div>
-                  ))}
-                </div>
+                {searchResults.map((s, i) => (
+                  <div key={s.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '0.5rem',
+                    padding: '0.45rem 0.9rem',
+                    borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
+                    fontSize: '0.82rem',
+                  }}>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 700, flexShrink: 0 }}>{s.trackCode}</span>
+                    <span style={{ color: 'var(--muted)', flexShrink: 0 }}>
+                      {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
+                    </span>
+                    {s.adminNote && <span style={{ color: 'var(--muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.78rem' }}>{s.adminNote}</span>}
+                    {s.updatedAt && <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace', flexShrink: 0 }}>{fmtDT(s.updatedAt)}</span>}
+                    {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
+                    <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
+                    <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+                  </div>
+                ))}
+              </div>
           )}
 
           {todayList.length > 0 && (
@@ -329,6 +329,7 @@ export default function ArrivedPage() {
             </>
           )}
         </div>
+
       </div>
 
       {editing && (
