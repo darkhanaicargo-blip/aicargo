@@ -11,13 +11,9 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, Number(req.nextUrl.searchParams.get('page') || '1'))
   const limit = 20
 
-  const isPhone = q && /^\d+$/.test(q)
-
-  // When no query: show only EREEN_ARRIVED. When searching: search all statuses.
+  // When no query: show only EREEN_ARRIVED. When searching: search all statuses, both phone and trackCode.
   const where = q
-    ? isPhone
-      ? { phone: { contains: q } }
-      : { trackCode: { contains: q.toUpperCase() } }
+    ? { OR: [{ trackCode: { contains: q.toUpperCase() } }, { phone: { contains: q } }] }
     : { status: 'EREEN_ARRIVED' as const }
 
   const [total, shipments] = await Promise.all([
