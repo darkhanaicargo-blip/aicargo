@@ -307,6 +307,9 @@ export default function ImportPage() {
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                          {(() => { const d = new Date(s.createdAt); return `${d.getMonth()+1}.${String(d.getDate()).padStart(2,'0')}` })()}
+                        </span>
                         <span style={{
                           fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '100px',
                           background: s.status === 'EREEN_ARRIVED' ? 'var(--surface2)' : s.status === 'ARRIVED' ? '#fff3e6' : 'var(--surface2)',
