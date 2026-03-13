@@ -25,14 +25,21 @@ export default function ImportPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null)
   const [searching, setSearching] = useState(false)
 
-  useEffect(() => { inputRef.current?.focus() }, [])
+  useEffect(() => {
+    inputRef.current?.focus()
+    loadList()
+  }, [])
+
+  async function loadList(q = '') {
+    setSearching(true)
+    const res = await fetch(`/api/admin/ereen/recent?q=${encodeURIComponent(q)}`)
+    setSearching(false)
+    if (res.ok) setSearchResults(await res.json())
+  }
 
   async function search(e: React.FormEvent) {
     e.preventDefault()
-    setSearching(true)
-    const res = await fetch(`/api/admin/ereen/recent?q=${encodeURIComponent(searchQ)}`)
-    setSearching(false)
-    if (res.ok) setSearchResults(await res.json())
+    loadList(searchQ)
   }
 
   const MIN_LEN = 4
@@ -257,7 +264,7 @@ export default function ImportPage() {
           <input className="input" placeholder="Утасны дугаар эсвэл трак код"
             value={searchQ} onChange={e => { setSearchQ(e.target.value); setSearchResults(null) }}
             style={{ minWidth: 0 }} />
-          <button className="btn" type="submit" disabled={searching || !searchQ.trim()} style={{ flexShrink: 0 }}>
+          <button className="btn" type="submit" disabled={searching} style={{ flexShrink: 0 }}>
             {searching ? '...' : 'Хайх'}
           </button>
         </form>

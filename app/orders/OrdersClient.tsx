@@ -6,13 +6,6 @@ import SiteFooter from '../components/SiteFooter'
 import ChatWidget from '../components/ChatWidget'
 import NavLogo from '../components/NavLogo'
 
-function fmtDate(iso: string) {
-  const d = new Date(iso)
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}.${m}.${day}`
-}
 
 const STATUS_LABEL: Record<string, string> = {
   REGISTERED: 'Бүртгүүлсэн',
@@ -34,6 +27,7 @@ const PAGE_SIZE = 10
 interface Shipment {
   id: number
   trackCode: string
+  phone: string | null
   description: string | null
   status: string
   adminPrice: number | null
@@ -41,22 +35,18 @@ interface Shipment {
   createdAt: string
 }
 
-function CopyTrack({ code }: { code: string }) {
+function CopyText({ text, children, style }: { text: string; children: React.ReactNode; style?: React.CSSProperties }) {
   const [copied, setCopied] = useState(false)
   function copy(e: React.MouseEvent) {
     e.stopPropagation()
-    navigator.clipboard.writeText(code)
+    navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }
   return (
-    <button onClick={copy} title="Хуулах" style={{
-      background: 'none', border: 'none', cursor: 'pointer', padding: '0 0.25rem',
-      color: copied ? 'var(--green)' : 'var(--muted)', fontSize: '0.8rem',
-      transition: 'color 0.15s', lineHeight: 1,
-    }}>
-      {copied ? '✓' : '⎘'}
-    </button>
+    <span onClick={copy} title="Хуулах" style={{ cursor: 'pointer', ...style }}>
+      {copied ? <span style={{ color: 'var(--green)' }}>✓ Хуулагдлаа</span> : children}
+    </span>
   )
 }
 
@@ -132,7 +122,7 @@ export default function OrdersClient({
 
 
   const afterSearch = shipments
-    .filter(s => !searchQ.trim() || s.trackCode.toLowerCase().includes(searchQ.trim().toLowerCase()))
+    .filter(s => !searchQ.trim() || s.trackCode.toLowerCase().includes(searchQ.trim().toLowerCase()) || (s.phone || '').includes(searchQ.trim()))
 
   const filtered = activeTab === 'ALL' ? afterSearch : afterSearch.filter(s => s.status === activeTab)
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
@@ -376,9 +366,9 @@ export default function OrdersClient({
               {paged.map(s => (
                 <div key={s.id} className={`order-card order-card-${s.status}`}>
                   <div className="order-card-head">
-                    <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)' }}>
-                      {s.description || '—'}
-                    </span>
+                    <CopyText text={s.phone || userPhone} style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)' }}>
+                      {s.phone || userPhone}
+                    </CopyText>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span className={`badge badge-${s.status}`}>{STATUS_LABEL[s.status] ?? s.status}</span>
                       {(s.status === 'REGISTERED' || s.status === 'PICKED_UP') && (
@@ -396,14 +386,9 @@ export default function OrdersClient({
                   <div className="order-card-meta">
                     <div className="order-card-row">
                       <span>Трак код</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
-                        <CopyTrack code={s.trackCode} />
-                      </span>
-                    </div>
-                    <div className="order-card-row">
-                      <span>Огноо</span>
-                      <span>{fmtDate(s.createdAt)}</span>
+                      <CopyText text={s.trackCode} style={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                        {s.trackCode}
+                      </CopyText>
                     </div>
                     <div className="order-card-row">
                       <span>Карго төлбөр</span>
@@ -415,7 +400,7 @@ export default function OrdersClient({
                     {s.adminNote && (
                       <div className="order-card-row">
                         <span>Тэмдэглэл</span>
-                        <span>{s.adminNote}</span>
+                        <CopyText text={s.adminNote}>{s.adminNote}</CopyText>
                       </div>
                     )}
                   </div>
