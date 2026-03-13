@@ -3,13 +3,20 @@ import { useState, useRef, useEffect } from 'react'
 
 interface Row { trackCode: string }
 interface SearchResult {
-  id: number; trackCode: string; phone: string | null
+  id: number; trackCode: string; status: string; phone: string | null
   createdAt: string; user?: { name: string; phone: string } | null
 }
 
 const PAGE_SIZE = 20
 const COLS = 2
 const ROWS = PAGE_SIZE / COLS  // 10 rows
+
+const STATUS_LABEL: Record<string, string> = {
+  EREEN_ARRIVED: 'Эрээнд',
+  ARRIVED: 'Ирсэн',
+  PICKED_UP: 'Авсан',
+  REGISTERED: 'Бүртгүүлсэн',
+}
 
 export default function ImportPage() {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -23,23 +30,30 @@ export default function ImportPage() {
 
   const [searchQ, setSearchQ] = useState('')
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null)
+  const [searchTotal, setSearchTotal] = useState(0)
+  const [searchPage, setSearchPage] = useState(1)
   const [searching, setSearching] = useState(false)
 
   useEffect(() => {
     inputRef.current?.focus()
-    loadList()
+    loadList('', 1)
   }, [])
 
-  async function loadList(q = '') {
+  async function loadList(q: string, pg: number) {
     setSearching(true)
-    const res = await fetch(`/api/admin/ereen/recent?q=${encodeURIComponent(q)}`)
+    const res = await fetch(`/api/admin/ereen/recent?q=${encodeURIComponent(q)}&page=${pg}`)
     setSearching(false)
-    if (res.ok) setSearchResults(await res.json())
+    if (res.ok) {
+      const data = await res.json()
+      setSearchResults(data.items)
+      setSearchTotal(data.total)
+      setSearchPage(data.page)
+    }
   }
 
   async function search(e: React.FormEvent) {
     e.preventDefault()
-    loadList(searchQ)
+    loadList(searchQ, 1)
   }
 
   const MIN_LEN = 4
@@ -257,12 +271,17 @@ export default function ImportPage() {
         </>
       )}
 
-      {/* Search existing EREEN_ARRIVED */}
+      {/* Search existing */}
       <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-        <h2 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.8rem' }}>Бүртгэгдсэн бараа хайх</h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+          <h2 style={{ fontSize: '0.95rem', fontWeight: 700 }}>Бүртгэгдсэн бараа хайх</h2>
+          {searchResults !== null && (
+            <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Нийт {searchTotal}</span>
+          )}
+        </div>
         <form onSubmit={search} style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem' }}>
           <input className="input" placeholder="Утасны дугаар эсвэл трак код"
-            value={searchQ} onChange={e => { setSearchQ(e.target.value); setSearchResults(null) }}
+            value={searchQ} onChange={e => setSearchQ(e.target.value)}
             style={{ minWidth: 0 }} />
           <button className="btn" type="submit" disabled={searching} style={{ flexShrink: 0 }}>
             {searching ? '...' : 'Хайх'}
@@ -272,26 +291,48 @@ export default function ImportPage() {
         {searchResults !== null && (
           searchResults.length === 0
             ? <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Олдсонгүй.</p>
-            : <div className="card" style={{ overflow: 'hidden' }}>
-                {searchResults.map((s, i) => (
-                  <div key={s.id} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0.6rem 1rem', gap: '0.5rem',
-                    borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
-                    fontSize: '0.83rem',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
-                      <span style={{ color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
-                      </span>
+            : <>
+                <div className="card" style={{ overflow: 'hidden', marginBottom: '0.75rem' }}>
+                  {searchResults.map((s, i) => (
+                    <div key={s.id} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '0.55rem 1rem', gap: '0.5rem',
+                      borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
+                      fontSize: '0.83rem',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
+                        <span style={{ color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                        <span style={{
+                          fontSize: '0.7rem', padding: '0.1rem 0.5rem', borderRadius: '100px',
+                          background: s.status === 'EREEN_ARRIVED' ? 'var(--surface2)' : s.status === 'ARRIVED' ? '#fff3e6' : 'var(--surface2)',
+                          color: s.status === 'ARRIVED' ? 'var(--accent)' : 'var(--muted)',
+                          border: '1px solid var(--border)',
+                        }}>{STATUS_LABEL[s.status] ?? s.status}</span>
+                      </div>
                     </div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)', flexShrink: 0 }}>
-                      {new Date(s.createdAt).toLocaleDateString('mn-MN')}
-                    </span>
+                  ))}
+                </div>
+                {searchTotal > 20 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
+                    <button onClick={() => loadList(searchQ, searchPage - 1)} disabled={searchPage <= 1} style={{
+                      height: 30, padding: '0 0.65rem', borderRadius: '8px', border: '1px solid var(--border)',
+                      background: 'var(--surface)', cursor: searchPage <= 1 ? 'not-allowed' : 'pointer',
+                      opacity: searchPage <= 1 ? 0.4 : 1, fontSize: '0.82rem', color: 'var(--text)', fontFamily: 'inherit',
+                    }}>‹</button>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{searchPage} / {Math.ceil(searchTotal / 20)}</span>
+                    <button onClick={() => loadList(searchQ, searchPage + 1)} disabled={searchPage >= Math.ceil(searchTotal / 20)} style={{
+                      height: 30, padding: '0 0.65rem', borderRadius: '8px', border: '1px solid var(--border)',
+                      background: 'var(--surface)', cursor: searchPage >= Math.ceil(searchTotal / 20) ? 'not-allowed' : 'pointer',
+                      opacity: searchPage >= Math.ceil(searchTotal / 20) ? 0.4 : 1, fontSize: '0.82rem', color: 'var(--text)', fontFamily: 'inherit',
+                    }}>›</button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
         )}
       </div>
     </div>
