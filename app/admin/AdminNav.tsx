@@ -11,6 +11,7 @@ const links = [
   { href: '/admin/history', label: 'Олгосон' },
   { href: '/admin/notify', label: 'Мэдэгдэл' },
   { href: '/admin/faq', label: 'FAQ' },
+  { href: '/admin/users', label: 'Хэрэглэгчид' },
 ]
 
 interface Device { key: string; label: string; title: string }
