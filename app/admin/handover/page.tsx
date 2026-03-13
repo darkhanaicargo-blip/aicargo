@@ -8,6 +8,12 @@ interface Shipment {
   adminPrice: number | null
   adminNote: string | null
   phone: string | null
+  updatedAt: string
+}
+
+function fmtDT(iso: string) {
+  const d = new Date(iso)
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`
 }
 
 interface Group {
@@ -144,6 +150,7 @@ export default function HandoverPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{ fontSize: '0.88rem', color: 'var(--muted)', flexShrink: 0 }}>{s.phone ?? '—'}</span>
                   <strong style={{ fontFamily: 'monospace', fontSize: '0.88rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>{s.trackCode}</strong>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--muted)', flexShrink: 0, fontFamily: 'monospace' }}>{fmtDT(s.updatedAt)}</span>
                   <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.88rem' }}>
                     {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
                   </span>

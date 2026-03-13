@@ -1,6 +1,11 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 
+function fmtDT(iso: string) {
+  const d = new Date(iso)
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`
+}
+
 interface Form { trackCode: string; phone: string; adminPrice: string; adminNote: string }
 const EMPTY: Form = { trackCode: '', phone: '', adminPrice: '', adminNote: '' }
 
@@ -206,6 +211,7 @@ export default function ArrivedPage() {
                           <span style={{ color: 'var(--muted)' }}>
                             {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
                           </span>
+                          {s.updatedAt && <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace', flexShrink: 0 }}>{fmtDT(s.updatedAt)}</span>}
                         </div>
                         {s.adminNote && <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.15rem' }}>{s.adminNote}</div>}
                       </div>
