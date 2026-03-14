@@ -32,3 +32,21 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(shipments)
 }
+
+// PATCH /api/admin/history — revert PICKED_UP → ARRIVED
+export async function PATCH(req: NextRequest) {
+  const admin = getAuthUserFromRequest(req)
+  if (!admin) return unauthorized()
+  if (admin.role !== 'ADMIN') return forbidden()
+
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'ID шаардлагатай' }, { status: 400 })
+
+  const shipment = await prisma.shipment.findUnique({ where: { id: Number(id) } })
+  if (!shipment || shipment.status !== 'PICKED_UP') {
+    return NextResponse.json({ error: 'Олдсонгүй эсвэл буцаах боломжгүй' }, { status: 400 })
+  }
+
+  await prisma.shipment.update({ where: { id: Number(id) }, data: { status: 'ARRIVED' } })
+  return NextResponse.json({ ok: true })
+}

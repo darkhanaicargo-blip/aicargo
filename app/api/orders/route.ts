@@ -62,6 +62,9 @@ export async function POST(req: NextRequest) {
     if (existing.userId && existing.userId !== authUser.userId) {
       return NextResponse.json({ error: 'Энэ трак код өөр хэрэглэгчид бүртгэлтэй байна' }, { status: 409 })
     }
+    if (existing.userId === authUser.userId) {
+      return NextResponse.json({ error: 'Энэ трак код таны бүртгэлд аль хэдийн байна' }, { status: 409 })
+    }
     // Link to this user if not yet linked
     const updated = await prisma.shipment.update({
       where: { trackCode: code },

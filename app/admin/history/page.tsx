@@ -28,6 +28,12 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
 
+  async function revert(id: number) {
+    if (!confirm('ARRIVED төлөвт буцаах уу?')) return
+    const res = await fetch('/api/admin/history', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
+    if (res.ok) setRows(prev => prev.filter(r => r.id !== id))
+  }
+
   async function load(search = '') {
     setLoading(true)
     setPage(1)
@@ -99,6 +105,7 @@ export default function HistoryPage() {
                   <th style={th}>Олгосон огноо</th>
                   <th style={{ ...th, textAlign: 'right' }}>Үнэ</th>
                   <th style={th}>Тайлбар</th>
+                  <th style={th}></th>
                 </tr>
               </thead>
               <tbody>
@@ -112,6 +119,9 @@ export default function HistoryPage() {
                       {r.adminPrice ? `₮${Number(r.adminPrice).toLocaleString()}` : '—'}
                     </td>
                     <td style={{ ...td, color: 'var(--muted)' }}>{r.adminNote ?? '—'}</td>
+                    <td style={{ ...td, width: 40, padding: '0.4rem 0.6rem' }}>
+                      <button onClick={() => revert(r.id)} title="ARRIVED буцаах" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: '1rem', padding: 0 }}>↩</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
