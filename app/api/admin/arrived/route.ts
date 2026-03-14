@@ -85,7 +85,7 @@ export async function DELETE(req: NextRequest) {
 
   await prisma.shipment.update({
     where: { id: Number(id) },
-    data: { status: 'EREEN_ARRIVED', adminPrice: null, adminNote: null },
+    data: { status: 'EREEN_ARRIVED', adminPrice: null },
   })
   return NextResponse.json({ ok: true })
 }

@@ -397,6 +397,12 @@ export default function OrdersClient({
                         : '—'}
                       </span>
                     </div>
+                    {s.description && (
+                      <div className="order-card-row">
+                        <span>Тайлбар</span>
+                        <span style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>{s.description}</span>
+                      </div>
+                    )}
                     {s.adminNote && (
                       <div className="order-card-row">
                         <span>Тэмдэглэл</span>
