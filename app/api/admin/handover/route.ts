@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
   if (summary) {
     const all = await prisma.shipment.findMany({
       where: { status: 'ARRIVED' },
-      select: { id: true, trackCode: true, description: true, adminPrice: true, phone: true },
+      select: { id: true, trackCode: true, description: true, adminPrice: true, phone: true, adminNote: true },
       orderBy: { phone: 'asc' },
     })
 
