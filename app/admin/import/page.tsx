@@ -303,7 +303,7 @@ export default function ImportPage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
                         <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
                         <span style={{ color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
+                          {s.user ? s.user.phone : (s.phone || '—')}
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
