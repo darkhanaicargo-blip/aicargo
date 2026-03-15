@@ -146,25 +146,31 @@ export default function HandoverPage() {
         <div className="handover-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.5rem', alignItems: 'start', marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             {shipments.map(s => (
-              <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.65rem 1rem' }}>
+              <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.6rem 1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '0.88rem', color: 'var(--muted)', flexShrink: 0 }}>{s.phone ?? '—'}</span>
-                  <strong style={{ fontFamily: 'monospace', fontSize: '0.88rem', flexShrink: 0 }}>{s.trackCode}</strong>
-                  {s.adminNote
-                    ? <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.78rem', color: 'var(--muted)' }}>{s.adminNote}</span>
-                    : <span style={{ flex: 1 }} />}
-                  <span className="admin-item-date">{fmtDT(s.updatedAt)}</span>
-                  <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.88rem' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                      <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{s.trackCode}</strong>
+                      <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{s.phone ?? '—'}</span>
+                      <span className="admin-item-date">{fmtDT(s.updatedAt)}</span>
+                    </div>
+                    {s.adminNote && (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {s.adminNote}
+                      </div>
+                    )}
+                  </div>
+                  <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.9rem' }}>
                     {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
                   </span>
                   <input type="checkbox" checked={selected.includes(s.id)} onChange={() => toggle(s.id)}
-                    style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer', flexShrink: 0 }} />
+                    style={{ width: 18, height: 18, accentColor: 'var(--accent)', cursor: 'pointer', flexShrink: 0 }} />
                 </div>
               </label>
             ))}
           </div>
 
-          <div className="card" style={{ position: 'sticky', top: 80 }}>
+          <div className="card" style={{ position: 'sticky', top: 72 }}>
             <div style={{ padding: '1rem 1.2rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.9rem' }}>
               Сонгогдсон бараа
             </div>
