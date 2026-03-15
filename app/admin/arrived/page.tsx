@@ -209,8 +209,8 @@ export default function ArrivedPage() {
                     <span style={{ color: 'var(--muted)', flexShrink: 0 }}>
                       {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
                     </span>
-                    {s.adminNote && <span style={{ color: 'var(--muted)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.78rem' }}>{s.adminNote}</span>}
-                    {s.updatedAt && <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace', flexShrink: 0 }}>{fmtDT(s.updatedAt)}</span>}
+                    {s.adminNote && <span className="admin-item-note">{s.adminNote}</span>}
+                    {s.updatedAt && <span className="admin-item-date">{fmtDT(s.updatedAt)}</span>}
                     {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
                     <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
                     <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
@@ -247,7 +247,7 @@ export default function ArrivedPage() {
         {/* Col 2 — Form + result */}
         <div>
           <form onSubmit={submit} noValidate>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="admin-form-2col">
               <div className="form-group" style={{ margin: 0 }}>
                 <label>Трак код <span style={{ color: 'var(--danger)' }}>*</span></label>
                 <input ref={trackRef} className="input" placeholder="CX-2024-00123"

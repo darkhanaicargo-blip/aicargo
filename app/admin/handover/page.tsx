@@ -150,9 +150,9 @@ export default function HandoverPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{ fontSize: '0.88rem', color: 'var(--muted)', flexShrink: 0 }}>{s.phone ?? '—'}</span>
                   <strong style={{ fontFamily: 'monospace', fontSize: '0.88rem', flexShrink: 0 }}>{s.trackCode}</strong>
-                  {s.adminNote && <span style={{ flex: 1, fontSize: '0.78rem', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</span>}
-                  {!s.adminNote && <span style={{ flex: 1 }} />}
-                  <span style={{ fontSize: '0.72rem', color: 'var(--muted)', flexShrink: 0, fontFamily: 'monospace' }}>{fmtDT(s.updatedAt)}</span>
+                  {s.adminNote && <span className="admin-item-note">{s.adminNote}</span>}
+                  {!s.adminNote && <span className="admin-item-note" />}
+                  <span className="admin-item-date">{fmtDT(s.updatedAt)}</span>
                   <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.88rem' }}>
                     {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
                   </span>

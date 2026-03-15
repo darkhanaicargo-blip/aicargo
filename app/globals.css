@@ -244,6 +244,7 @@ textarea.input { resize: vertical; }
   border-bottom: 1px solid var(--border);
   background: var(--surface);
   overflow-x: auto;
+  flex-wrap: nowrap;
 }
 .admin-nav-link {
   padding: 0.9rem 1.1rem;
@@ -262,6 +263,17 @@ textarea.input { resize: vertical; }
 }
 .admin-nav-link:hover { color: var(--text); }
 .admin-nav-link.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* ── ADMIN FORM 2-COL GRID ── */
+.admin-form-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* ── ADMIN ITEM ROW — hide secondary info on mobile ── */
+.admin-item-note { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.78rem; color: var(--muted); }
+.admin-item-date { font-size: 0.72rem; color: var(--muted); font-family: monospace; flex-shrink: 0; }
 
 /* ── ORDER CARD ── */
 .order-card {
@@ -387,7 +399,14 @@ textarea.input { resize: vertical; }
   /* Section title */
   .section-title { font-size: 1.1rem; }
 
-  /* Admin nav — scroll horizontally */
-  .admin-nav { padding: 0 2%; }
-  .admin-nav-link { padding: 0.75rem 0.75rem; font-size: 0.8rem; min-height: 44px; }
+  /* Admin nav — wrap to 2 rows on mobile */
+  .admin-nav { padding: 0 2%; flex-wrap: wrap; overflow-x: visible; }
+  .admin-nav-link { padding: 0.55rem 0.65rem; font-size: 0.76rem; min-height: 40px; border-bottom-width: 2px; }
+
+  /* Admin form 2-col → single col */
+  .admin-form-2col { grid-template-columns: 1fr; }
+
+  /* Hide secondary columns in admin item rows */
+  .admin-item-note { display: none; }
+  .admin-item-date { display: none; }
 }
