@@ -33,6 +33,12 @@ interface Shipment {
   adminPrice: number | null
   adminNote: string | null
   createdAt: string
+  updatedAt: string
+}
+
+function fmtDT(iso: string) {
+  const d = new Date(iso)
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`
 }
 
 function CopyText({ text, children, style }: { text: string; children: React.ReactNode; style?: React.CSSProperties }) {
@@ -370,6 +376,7 @@ export default function OrdersClient({
                       {s.phone || userPhone}
                     </CopyText>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace' }}>{fmtDT(s.updatedAt)}</span>
                       <span className={`badge badge-${s.status}`}>{STATUS_LABEL[s.status] ?? s.status}</span>
                       {(s.status === 'REGISTERED' || s.status === 'PICKED_UP') && (
                         <button onClick={() => deleteShipment(s.id)} disabled={deleting === s.id} title={s.status === 'PICKED_UP' ? 'Архивлах' : 'Устгах'} style={{
