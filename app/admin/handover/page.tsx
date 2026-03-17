@@ -145,6 +145,19 @@ export default function HandoverPage() {
       {shipments.length > 0 && (
         <div className="handover-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.5rem', alignItems: 'start', marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: '0.95rem' }}>
+                {shipments[0].phone ?? q}
+              </span>
+              <span style={{ fontSize: '0.78rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.15rem 0.65rem', color: 'var(--muted)' }}>
+                Нийт <strong style={{ color: 'var(--text)' }}>{shipments.length}</strong> ачаа
+              </span>
+              {shipments.reduce((s, x) => s + (x.adminPrice ? Number(x.adminPrice) : 0), 0) > 0 && (
+                <span style={{ fontSize: '0.78rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.15rem 0.65rem', color: 'var(--muted)' }}>
+                  ₮<strong style={{ color: 'var(--accent)' }}>{shipments.reduce((s, x) => s + (x.adminPrice ? Number(x.adminPrice) : 0), 0).toLocaleString()}</strong>
+                </span>
+              )}
+            </div>
             {shipments.map(s => (
               <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.6rem 1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
