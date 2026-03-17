@@ -200,20 +200,23 @@ export default function ArrivedPage() {
               : <div className="card" style={{ overflow: 'hidden', marginBottom: '1.5rem' }}>
                 {searchResults.map((s, i) => (
                   <div key={s.id} style={{
-                    display: 'flex', alignItems: 'center', gap: '0.5rem',
                     padding: '0.45rem 0.9rem',
                     borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
                     fontSize: '0.82rem',
                   }}>
-                    <span style={{ fontFamily: 'monospace', fontWeight: 700, flexShrink: 0 }}>{s.trackCode}</span>
-                    <span style={{ color: 'var(--muted)', flexShrink: 0 }}>
-                      {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
-                    </span>
-                    {s.adminNote && <span className="admin-item-note">{s.adminNote}</span>}
-                    {s.updatedAt && <span className="admin-item-date">{fmtDT(s.updatedAt)}</span>}
-                    {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
-                    <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
-                    <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 700, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.trackCode}</span>
+                      {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
+                      <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
+                      <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem', color: 'var(--muted)', fontSize: '0.78rem' }}>
+                      <span style={{ flexShrink: 0 }}>
+                        {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
+                      </span>
+                      {s.adminNote && <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</span>}
+                      {s.updatedAt && <span style={{ fontFamily: 'monospace', flexShrink: 0, marginLeft: 'auto' }}>{fmtDT(s.updatedAt)}</span>}
+                    </div>
                   </div>
                 ))}
               </div>
