@@ -62,12 +62,18 @@ export default function OrdersClient({
   userEmail,
   userPhone,
   cargoName,
+  ereemReceiver,
+  ereemPhone,
+  ereemAddress,
 }: {
   shipments: Shipment[]
   userName: string
   userEmail: string | null
   userPhone: string
   cargoName: string
+  ereemReceiver: string
+  ereemPhone: string
+  ereemAddress: string
 }) {
   const router = useRouter()
   const [shipments, setShipments] = useState(initialShipments)
@@ -436,7 +442,7 @@ export default function OrdersClient({
         )}
 
       </div>
-      <SiteFooter />
+      <SiteFooter ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemAddress={ereemAddress} />
     </>
   )
 }

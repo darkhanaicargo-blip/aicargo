@@ -14,7 +14,10 @@ export default async function OrdersPage() {
 
   const userRecord = await prisma.user.findUnique({
     where: { id: user.userId },
-    select: { name: true, email: true, phone: true, cargo: { select: { name: true } } },
+    select: {
+      name: true, email: true, phone: true,
+      cargo: { select: { name: true, ereemReceiver: true, ereemPhone: true, ereemAddress: true } },
+    },
   })
 
   return (
@@ -24,6 +27,9 @@ export default async function OrdersPage() {
       userEmail={userRecord?.email ?? null}
       userPhone={userRecord?.phone ?? ''}
       cargoName={userRecord?.cargo?.name ?? ''}
+      ereemReceiver={userRecord?.cargo?.ereemReceiver ?? ''}
+      ereemPhone={userRecord?.cargo?.ereemPhone ?? ''}
+      ereemAddress={userRecord?.cargo?.ereemAddress ?? ''}
     />
   )
 }

@@ -102,7 +102,7 @@ function RegionDisplay() {
   )
 }
 
-export default function LandingClient() {
+export default function LandingClient({ ereemReceiver, ereemPhone, ereemAddress }: { ereemReceiver: string; ereemPhone: string; ereemAddress: string }) {
   const [code, setCode] = useState('')
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
@@ -269,7 +269,7 @@ export default function LandingClient() {
         </div>
       </div>
 
-      <SiteFooter />
+      <SiteFooter ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemAddress={ereemAddress} />
     </div>
   )
 }
