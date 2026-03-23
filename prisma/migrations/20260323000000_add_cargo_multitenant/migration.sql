@@ -14,7 +14,7 @@ CREATE UNIQUE INDEX "Cargo_slug_key" ON "Cargo"("slug");
 
 -- Seed: Darkhan cargo (id = 1)
 INSERT INTO "Cargo" ("name", "slug", "ereemReceiver", "ereemPhone", "ereemAddress")
-VALUES ('Darkhan Cargo', 'darkhan', 'darkhan+ өөрийн утас', '18647933620', '环宇商贸城9栋24号нэр+утас+darkhan');
+VALUES ('Дарханы бусийн карго', 'darkhan', 'darkhan+ өөрийн утас', '18647933620', '环宇商贸城9栋24号нэр+утас+darkhan');
 
 -- Add cargoId to User (default 1 = Darkhan, then drop default)
 ALTER TABLE "User" ADD COLUMN "cargoId" INTEGER NOT NULL DEFAULT 1;
