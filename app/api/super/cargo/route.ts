@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 
@@ -7,21 +8,47 @@ export async function POST(req: NextRequest) {
   if (!user) return unauthorized()
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 
-  const { name, slug, ereemReceiver, ereemPhone, ereemAddress } = await req.json()
+  const { name, slug, ereemReceiver, ereemPhone, ereemAddress, adminName, adminPhone, adminPassword } = await req.json()
 
   if (!name || !slug || !ereemReceiver || !ereemPhone || !ereemAddress) {
-    return NextResponse.json({ error: 'Бүх талбарыг бөглөнө үү' }, { status: 400 })
+    return NextResponse.json({ error: 'Карго мэдээллийг бүрэн бөглөнө үү' }, { status: 400 })
+  }
+  if (!adminName || !adminPhone || !adminPassword) {
+    return NextResponse.json({ error: 'Админы мэдээллийг бүрэн бөглөнө үү' }, { status: 400 })
   }
 
   const slugClean = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
 
-  const existing = await prisma.cargo.findUnique({ where: { slug: slugClean } })
-  if (existing) {
+  const existingSlug = await prisma.cargo.findUnique({ where: { slug: slugClean } })
+  if (existingSlug) {
     return NextResponse.json({ error: 'Энэ slug аль хэдийн байна' }, { status: 409 })
   }
 
+  const existingPhone = await prisma.user.findUnique({ where: { phone: adminPhone.trim() } })
+  if (existingPhone) {
+    return NextResponse.json({ error: 'Энэ утасны дугаар бүртгэлтэй байна' }, { status: 409 })
+  }
+
+  const hashedPassword = await bcrypt.hash(adminPassword, 10)
+
+  // Create cargo + admin user in one transaction
   const cargo = await prisma.cargo.create({
-    data: { name: name.trim(), slug: slugClean, ereemReceiver: ereemReceiver.trim(), ereemPhone: ereemPhone.trim(), ereemAddress: ereemAddress.trim() },
+    data: {
+      name: name.trim(),
+      slug: slugClean,
+      ereemReceiver: ereemReceiver.trim(),
+      ereemPhone: ereemPhone.trim(),
+      ereemAddress: ereemAddress.trim(),
+      users: {
+        create: {
+          name: adminName.trim(),
+          phone: adminPhone.trim(),
+          password: hashedPassword,
+          role: 'ADMIN',
+        },
+      },
+    },
+    include: { users: { select: { id: true, name: true, phone: true, role: true } } },
   })
 
   return NextResponse.json(cargo, { status: 201 })

@@ -5,11 +5,26 @@ import Link from 'next/link'
 
 export default function NewCargoPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemAddress: '' })
+  const [form, setForm] = useState({
+    name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemAddress: '',
+    adminName: '', adminPhone: '', adminPassword: '',
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })) }
+
+  // Auto-generate slug from cargo name
+  function handleName(v: string) {
+    setForm(f => ({
+      ...f,
+      name: v,
+      slug: f.slug === '' || f.slug === toSlug(f.name) ? toSlug(v) : f.slug,
+    }))
+  }
+  function toSlug(s: string) {
+    return s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -33,33 +48,40 @@ export default function NewCargoPage() {
         <h1 className="section-title" style={{ margin: 0 }}>Шинэ карго нэмэх</h1>
       </div>
 
-      <div style={{ maxWidth: 520 }}>
+      <div style={{ maxWidth: 540 }}>
         <form onSubmit={submit}>
+
+          {/* Cargo info */}
+          <p style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.8rem' }}>Карго мэдээлэл</p>
+
           <div className="form-group">
             <label>Карго нэр</label>
-            <input className="input" placeholder="Дарханы бусийн карго" required
-              value={form.name} onChange={e => set('name', e.target.value)} />
+            <input className="input" placeholder="Стар карго" required
+              value={form.name} onChange={e => handleName(e.target.value)} />
           </div>
           <div className="form-group">
-            <label>Slug (URL)</label>
-            <input className="input" placeholder="darkhan" required pattern="[a-z0-9-]+"
+            <label>Slug</label>
+            <input className="input" placeholder="star" required
               value={form.slug} onChange={e => set('slug', e.target.value)} />
-            <small style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>Жижиг латин үсэг, тоо, зураас</small>
+            <small style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>Жижиг латин үсэг, тоо, зураас — URL-д ашиглагдана</small>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border)', margin: '1.2rem 0', paddingTop: '1rem' }}>
-            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '0.8rem' }}>Эрээний хаяг (footer-д харагдана)</p>
+          {/* Ereen address */}
+          <div style={{ borderTop: '1px solid var(--border)', margin: '1.2rem 0 0.8rem', paddingTop: '1rem' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.8rem' }}>Эрээний хаяг</p>
           </div>
 
-          <div className="form-group">
-            <label>收货人 (Хүлээн авагч)</label>
-            <input className="input" placeholder="Нэр + утас" required
-              value={form.ereemReceiver} onChange={e => set('ereemReceiver', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>手机号 (Утасны дугаар)</label>
-            <input className="input" placeholder="18600000000" required
-              value={form.ereemPhone} onChange={e => set('ereemPhone', e.target.value)} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 0.75rem' }}>
+            <div className="form-group">
+              <label>收货人 (Хүлээн авагч)</label>
+              <input className="input" placeholder="Нэр + утас" required
+                value={form.ereemReceiver} onChange={e => set('ereemReceiver', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>手机号 (Утасны дугаар)</label>
+              <input className="input" placeholder="18600000000" required
+                value={form.ereemPhone} onChange={e => set('ereemPhone', e.target.value)} />
+            </div>
           </div>
           <div className="form-group">
             <label>详细地址 (Дэлгэрэнгүй хаяг)</label>
@@ -67,11 +89,34 @@ export default function NewCargoPage() {
               value={form.ereemAddress} onChange={e => set('ereemAddress', e.target.value)} />
           </div>
 
+          {/* Admin user */}
+          <div style={{ borderTop: '1px solid var(--border)', margin: '1.2rem 0 0.8rem', paddingTop: '1rem' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.8rem' }}>Админ бүртгэл</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 0.75rem' }}>
+            <div className="form-group">
+              <label>Нэр</label>
+              <input className="input" placeholder="Овог Нэр" required
+                value={form.adminName} onChange={e => set('adminName', e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Утас</label>
+              <input className="input" placeholder="99000000" required
+                value={form.adminPhone} onChange={e => set('adminPhone', e.target.value)} />
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Нууц үг</label>
+            <input className="input" type="password" placeholder="Хамгийн багадаа 6 тэмдэгт" required minLength={6}
+              value={form.adminPassword} onChange={e => set('adminPassword', e.target.value)} />
+          </div>
+
           {error && <p className="msg-error">{error}</p>}
 
           <div className="form-actions" style={{ marginTop: '1.5rem' }}>
-            <button className="btn" type="submit" disabled={loading} style={{ minWidth: 140 }}>
-              {loading ? 'Хадгалж байна...' : 'Карго нэмэх'}
+            <button className="btn" type="submit" disabled={loading} style={{ width: '100%' }}>
+              {loading ? 'Үүсгэж байна...' : 'Карго + Админ үүсгэх'}
             </button>
           </div>
         </form>
