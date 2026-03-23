@@ -8,8 +8,9 @@ interface Cargo { id: number; name: string }
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', cargoId: '' })
   const [cargos, setCargos] = useState<Cargo[]>([])
+  const [selectedCargo, setSelectedCargo] = useState<Cargo | null>(null)
+  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -26,7 +27,7 @@ export default function RegisterPage() {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, cargoId: Number(form.cargoId) }),
+      body: JSON.stringify({ ...form, cargoId: selectedCargo!.id }),
     })
     const data = await res.json()
     setLoading(false)
@@ -40,46 +41,96 @@ export default function RegisterPage() {
         <Link href="/"><NavLogo /></Link>
       </nav>
       <div className="page" style={{ maxWidth: 420 }}>
-        <h1 className="section-title">Бүртгүүлэх</h1>
-        <form onSubmit={submit}>
-          <div className="form-group">
-            <label>Карго сонгох</label>
-            <select className="input" required value={form.cargoId} onChange={e => set('cargoId', e.target.value)}>
-              <option value="">— Карго сонгоно уу —</option>
-              {cargos.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Нэр</label>
-            <input className="input" placeholder="Овог Нэр" required
-              value={form.name} onChange={e => set('name', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Утасны дугаар</label>
-            <input className="input" type="tel" placeholder="99000000" required
-              value={form.phone} onChange={e => set('phone', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>И-мэйл</label>
-            <input className="input" type="email" placeholder="example@gmail.com" required
-              value={form.email} onChange={e => set('email', e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Нууц үг</label>
-            <input className="input" type="password" placeholder="Хамгийн багадаа 6 тэмдэгт" required
-              value={form.password} onChange={e => set('password', e.target.value)} />
-          </div>
-          {error && <p className="msg-error">{error}</p>}
-          <div className="form-actions" style={{ marginTop: '1rem' }}>
-            <button className="btn" type="submit" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Түр хүлээнэ үү...' : 'Бүртгүүлэх'}
-            </button>
-          </div>
-        </form>
-        <hr className="divider" />
-        <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
-          Бүртгэлтэй юу? <Link href="/login" style={{ color: 'var(--accent)' }}>Нэвтрэх</Link>
-        </p>
+
+        {!selectedCargo ? (
+          /* ── Step 1: карго сонгох ── */
+          <>
+            <h1 className="section-title">Карго сонгох</h1>
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '1.2rem' }}>
+              Та аль карго компанийн хэрэглэгч бэ?
+            </p>
+            <div style={{ display: 'grid', gap: '0.6rem' }}>
+              {cargos.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedCargo(c)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '1rem 1.2rem',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)',
+                    color: 'var(--text)',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                    fontFamily: 'inherit',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'border-color 0.15s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+            <hr className="divider" />
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
+              Бүртгэлтэй юу? <Link href="/login" style={{ color: 'var(--accent)' }}>Нэвтрэх</Link>
+            </p>
+          </>
+        ) : (
+          /* ── Step 2: бүртгэлийн форм ── */
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.2rem' }}>
+              <button
+                onClick={() => { setSelectedCargo(null); setError('') }}
+                style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem', fontFamily: 'inherit', padding: 0 }}
+              >
+                ←
+              </button>
+              <div>
+                <h1 className="section-title" style={{ margin: 0 }}>Бүртгүүлэх</h1>
+                <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 600 }}>{selectedCargo.name}</span>
+              </div>
+            </div>
+
+            <form onSubmit={submit}>
+              <div className="form-group">
+                <label>Нэр</label>
+                <input className="input" placeholder="Овог Нэр" required
+                  value={form.name} onChange={e => set('name', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Утасны дугаар</label>
+                <input className="input" type="tel" placeholder="99000000" required
+                  value={form.phone} onChange={e => set('phone', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>И-мэйл</label>
+                <input className="input" type="email" placeholder="example@gmail.com" required
+                  value={form.email} onChange={e => set('email', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>Нууц үг</label>
+                <input className="input" type="password" placeholder="Хамгийн багадаа 6 тэмдэгт" required
+                  value={form.password} onChange={e => set('password', e.target.value)} />
+              </div>
+              {error && <p className="msg-error">{error}</p>}
+              <div className="form-actions" style={{ marginTop: '1rem' }}>
+                <button className="btn" type="submit" disabled={loading} style={{ width: '100%' }}>
+                  {loading ? 'Түр хүлээнэ үү...' : 'Бүртгүүлэх'}
+                </button>
+              </div>
+            </form>
+            <hr className="divider" />
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
+              Бүртгэлтэй юу? <Link href="/login" style={{ color: 'var(--accent)' }}>Нэвтрэх</Link>
+            </p>
+          </>
+        )}
       </div>
     </>
   )
