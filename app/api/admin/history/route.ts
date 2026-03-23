@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
 
-  const where: any = { status: 'PICKED_UP' }
+  const where: any = { status: 'PICKED_UP', cargoId: admin.cargoId! }
   if (q) {
     where.OR = [
       { phone: { contains: q } },
@@ -43,7 +43,7 @@ export async function PATCH(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'ID шаардлагатай' }, { status: 400 })
 
   const shipment = await prisma.shipment.findUnique({ where: { id: Number(id) } })
-  if (!shipment || shipment.status !== 'PICKED_UP') {
+  if (!shipment || shipment.status !== 'PICKED_UP' || shipment.cargoId !== admin.cargoId) {
     return NextResponse.json({ error: 'Олдсонгүй эсвэл буцаах боломжгүй' }, { status: 400 })
   }
 

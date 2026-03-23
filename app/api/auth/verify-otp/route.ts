@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   await prisma.otp.update({ where: { id: otp.id }, data: { used: true } })
 
-  const resetToken = signToken({ userId: 0, role: 'USER' }, '15m')
+  const resetToken = signToken({ userId: 0, role: 'USER', cargoId: null }, '15m')
   // Store email in a short-lived way via token — we use a separate JWT with email claim
   const { sign } = await import('jsonwebtoken')
   const token = sign({ email }, process.env.JWT_SECRET!, { expiresIn: '15m' })

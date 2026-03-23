@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
   const code = trackCode.trim().toUpperCase()
 
   const shipment = await prisma.shipment.upsert({
-    where: { trackCode: code },
+    where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
     update: { status: 'EREEN_ARRIVED' },
-    create: { trackCode: code, status: 'EREEN_ARRIVED' },
+    create: { trackCode: code, status: 'EREEN_ARRIVED', cargoId: admin.cargoId! },
     include: { user: { select: { name: true, phone: true } } },
   })
 

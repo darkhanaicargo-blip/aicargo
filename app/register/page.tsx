@@ -1,14 +1,21 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NavLogo from '@/app/components/NavLogo'
 import { useRouter } from 'next/navigation'
 
+interface Cargo { id: number; name: string }
+
 export default function RegisterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' })
+  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '', cargoId: '' })
+  const [cargos, setCargos] = useState<Cargo[]>([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/cargos').then(r => r.json()).then(setCargos).catch(() => {})
+  }, [])
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })) }
 
@@ -19,7 +26,7 @@ export default function RegisterPage() {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, cargoId: Number(form.cargoId) }),
     })
     const data = await res.json()
     setLoading(false)
@@ -35,6 +42,13 @@ export default function RegisterPage() {
       <div className="page" style={{ maxWidth: 420 }}>
         <h1 className="section-title">Бүртгүүлэх</h1>
         <form onSubmit={submit}>
+          <div className="form-group">
+            <label>Карго сонгох</label>
+            <select className="input" required value={form.cargoId} onChange={e => set('cargoId', e.target.value)}>
+              <option value="">— Карго сонгоно уу —</option>
+              {cargos.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
           <div className="form-group">
             <label>Нэр</label>
             <input className="input" placeholder="Овог Нэр" required

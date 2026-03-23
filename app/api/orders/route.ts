@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   if (!user) return unauthorized()
 
   const shipments = await prisma.shipment.findMany({
-    where: { userId: user.userId },
+    where: { userId: user.userId, cargoId: user.cargoId! },
     orderBy: { createdAt: 'desc' },
   })
 
@@ -56,7 +56,9 @@ export async function POST(req: NextRequest) {
     select: { phone: true },
   })
 
-  const existing = await prisma.shipment.findUnique({ where: { trackCode: code } })
+  const existing = await prisma.shipment.findUnique({
+    where: { trackCode_cargoId: { trackCode: code, cargoId: authUser.cargoId! } },
+  })
 
   if (existing) {
     if (existing.userId && existing.userId !== authUser.userId) {
@@ -65,9 +67,8 @@ export async function POST(req: NextRequest) {
     if (existing.userId === authUser.userId) {
       return NextResponse.json({ error: 'Энэ трак код таны бүртгэлд аль хэдийн байна' }, { status: 409 })
     }
-    // Link to this user if not yet linked
     const updated = await prisma.shipment.update({
-      where: { trackCode: code },
+      where: { trackCode_cargoId: { trackCode: code, cargoId: authUser.cargoId! } },
       data: {
         userId: authUser.userId,
         description: description || existing.description,
@@ -85,6 +86,7 @@ export async function POST(req: NextRequest) {
       status: 'REGISTERED',
       userId: authUser.userId,
       phone: userRecord?.phone,
+      cargoId: authUser.cargoId!,
     },
   })
 

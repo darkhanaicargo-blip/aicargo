@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
   const shipments = await prisma.shipment.findMany({
     where: {
       status: 'ARRIVED',
+      cargoId: admin.cargoId!,
       ...(q ? isPhone
         ? { phone: { contains: q } }
         : { trackCode: { contains: q.toUpperCase() } }

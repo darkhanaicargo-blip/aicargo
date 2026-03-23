@@ -10,8 +10,9 @@ export async function GET(req: NextRequest) {
 
   const count = await prisma.user.count({
     where: {
+      cargoId: admin.cargoId!,
       email: { not: null },
-      shipments: { some: { status: 'ARRIVED' } },
+      shipments: { some: { status: 'ARRIVED', cargoId: admin.cargoId! } },
     },
   })
   return NextResponse.json({ count })
@@ -25,11 +26,12 @@ export async function POST(req: NextRequest) {
   // Get all users with ARRIVED shipments who have email
   const usersWithCargo = await prisma.user.findMany({
     where: {
+      cargoId: admin.cargoId!,
       email: { not: null },
-      shipments: { some: { status: 'ARRIVED' } },
+      shipments: { some: { status: 'ARRIVED', cargoId: admin.cargoId! } },
     },
     include: {
-      shipments: { where: { status: 'ARRIVED' } },
+      shipments: { where: { status: 'ARRIVED', cargoId: admin.cargoId! } },
     },
   })
 

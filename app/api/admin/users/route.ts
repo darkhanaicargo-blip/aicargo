@@ -10,11 +10,12 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get('q')?.trim()
 
   const where = q ? {
+    cargoId: admin.cargoId!,
     OR: [
       { name: { contains: q } },
       { phone: { contains: q } },
     ],
-  } : {}
+  } : { cargoId: admin.cargoId! }
 
   const [total, users] = await Promise.all([
     prisma.user.count({ where }),

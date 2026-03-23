@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   // Try to find existing shipment to get user's phone
   const existing = await prisma.shipment.findUnique({
-    where: { trackCode: code },
+    where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
     include: { user: { select: { phone: true } } },
   })
 
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   const shipment = await prisma.shipment.upsert({
-    where: { trackCode: code },
+    where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
     update: {
       status: 'ARRIVED',
       adminPrice: adminPrice ? Number(adminPrice) : null,
@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
       adminPrice: adminPrice ? Number(adminPrice) : null,
       adminNote: adminNote || null,
       phone: resolvedPhone,
+      cargoId: admin.cargoId!,
       ...(resolvedUserId ? { userId: resolvedUserId } : {}),
     },
     include: { user: { select: { name: true, phone: true } } },
@@ -65,7 +66,7 @@ export async function PATCH(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'ID шаардлагатай' }, { status: 400 })
 
   const shipment = await prisma.shipment.update({
-    where: { id: Number(id) },
+    where: { id: Number(id), cargoId: admin.cargoId! },
     data: {
       adminPrice: adminPrice !== undefined ? (adminPrice ? Number(adminPrice) : null) : undefined,
       adminNote: adminNote !== undefined ? (adminNote || null) : undefined,
@@ -84,7 +85,7 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'ID шаардлагатай' }, { status: 400 })
 
   await prisma.shipment.update({
-    where: { id: Number(id) },
+    where: { id: Number(id), cargoId: admin.cargoId! },
     data: { status: 'EREEN_ARRIVED', adminPrice: null },
   })
   return NextResponse.json({ ok: true })

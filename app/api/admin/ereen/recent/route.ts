@@ -13,8 +13,11 @@ export async function GET(req: NextRequest) {
 
   // When no query: show only EREEN_ARRIVED. When searching: search all statuses, both phone and trackCode.
   const where = q
-    ? { OR: [{ trackCode: { contains: q.toUpperCase() } }, { phone: { contains: q } }] }
-    : { status: 'EREEN_ARRIVED' as const }
+    ? {
+        cargoId: admin.cargoId!,
+        OR: [{ trackCode: { contains: q.toUpperCase() } }, { phone: { contains: q } }],
+      }
+    : { cargoId: admin.cargoId!, status: 'EREEN_ARRIVED' as const }
 
   const [total, shipments] = await Promise.all([
     prisma.shipment.count({ where }),
