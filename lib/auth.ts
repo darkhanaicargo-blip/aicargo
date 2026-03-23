@@ -7,7 +7,8 @@ const COOKIE_NAME = 'cargo_token'
 
 export interface JwtPayload {
   userId: number
-  role: 'USER' | 'ADMIN'
+  role: 'USER' | 'ADMIN' | 'SUPER_ADMIN'
+  cargoId: number | null
 }
 
 export function signToken(payload: JwtPayload, expiresIn = '7d'): string {

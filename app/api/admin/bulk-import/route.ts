@@ -23,9 +23,9 @@ export async function POST(req: NextRequest) {
     rows.map(async ({ trackCode, status }) => {
       const code = trackCode.trim().toUpperCase()
       return prisma.shipment.upsert({
-        where: { trackCode: code },
+        where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
         update: { status },
-        create: { trackCode: code, status },
+        create: { trackCode: code, status, cargoId: admin.cargoId! },
       })
     })
   )

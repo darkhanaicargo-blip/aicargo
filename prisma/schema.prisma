@@ -6,6 +6,19 @@ datasource db {
   provider = "postgresql"
 }
 
+model Cargo {
+  id            Int        @id @default(autoincrement())
+  name          String
+  slug          String     @unique
+  ereemReceiver String
+  ereemPhone    String
+  ereemAddress  String
+  createdAt     DateTime   @default(now())
+  users         User[]
+  shipments     Shipment[]
+  faqs          Faq[]
+}
+
 model User {
   id        Int        @id @default(autoincrement())
   name      String
@@ -13,13 +26,15 @@ model User {
   email     String?    @unique
   password  String
   role      Role       @default(USER)
+  cargoId   Int
+  cargo     Cargo      @relation(fields: [cargoId], references: [id])
   createdAt DateTime   @default(now())
   shipments Shipment[]
 }
 
 model Shipment {
   id          Int      @id @default(autoincrement())
-  trackCode   String   @unique
+  trackCode   String
   description String?
   status      Status   @default(REGISTERED)
   userId      Int?
@@ -28,8 +43,12 @@ model Shipment {
   adminPrice  Decimal? @db.Decimal(10, 2)
   adminNote   String?
   archived    Boolean  @default(false)
+  cargoId     Int
+  cargo       Cargo    @relation(fields: [cargoId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([trackCode, cargoId])
 }
 
 model Faq {
@@ -37,6 +56,8 @@ model Faq {
   question String
   answer   String
   order    Int    @default(0)
+  cargoId  Int
+  cargo    Cargo  @relation(fields: [cargoId], references: [id])
 }
 
 model Otp {
@@ -50,6 +71,7 @@ model Otp {
 enum Role {
   USER
   ADMIN
+  SUPER_ADMIN
 }
 
 enum Status {

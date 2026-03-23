@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Утас эсвэл нууц үг буруу' }, { status: 401 })
   }
 
-  const token = signToken({ userId: user.id, role: user.role })
+  const cargoId = user.role === 'SUPER_ADMIN' ? null : user.cargoId
+  const token = signToken({ userId: user.id, role: user.role, cargoId })
   const res = NextResponse.json({ ok: true, role: user.role })
   setAuthCookie(res, token)
   return res

@@ -20,10 +20,12 @@ export default function AdminNav({
   device,
   onDevice,
   devices,
+  cargoName,
 }: {
   device?: string
   onDevice?: (d: string) => void
   devices?: Device[]
+  cargoName?: string
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -37,7 +39,12 @@ export default function AdminNav({
   return (
     <header>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.8rem 5%', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-        <Link href="/admin/import"><NavLogo /></Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href="/admin/import"><NavLogo /></Link>
+          {cargoName && (
+            <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 500 }}>{cargoName}</span>
+          )}
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {devices && onDevice && (
             <div style={{ display: 'flex', gap: '0.2rem', background: 'var(--surface2)', borderRadius: '8px', padding: '0.2rem', border: '1px solid var(--border)' }}>

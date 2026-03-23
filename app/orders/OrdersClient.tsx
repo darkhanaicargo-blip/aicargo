@@ -61,11 +61,19 @@ export default function OrdersClient({
   userName,
   userEmail,
   userPhone,
+  cargoName,
+  ereemReceiver,
+  ereemPhone,
+  ereemAddress,
 }: {
   shipments: Shipment[]
   userName: string
   userEmail: string | null
   userPhone: string
+  cargoName: string
+  ereemReceiver: string
+  ereemPhone: string
+  ereemAddress: string
 }) {
   const router = useRouter()
   const [shipments, setShipments] = useState(initialShipments)
@@ -217,6 +225,12 @@ export default function OrdersClient({
                     <div>
                       <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>И-мэйл</span>
                       <p style={{ fontSize: '0.85rem', marginTop: '0.1rem' }}>{userEmail}</p>
+                    </div>
+                  )}
+                  {cargoName && (
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.35rem', marginTop: '0.1rem' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Карго</span>
+                      <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent)', marginTop: '0.1rem' }}>{cargoName}</p>
                     </div>
                   )}
                 </div>
@@ -428,7 +442,7 @@ export default function OrdersClient({
         )}
 
       </div>
-      <SiteFooter />
+      <SiteFooter ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemAddress={ereemAddress} />
     </>
   )
 }

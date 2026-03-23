@@ -1,15 +1,6 @@
 'use client'
 import { useState } from 'react'
 
-const NAME = 'darkhan+ өөрийн утас'
-const PHONE = '18647933620'
-
-const CONTACT = [
-  { label: '收货人 (Нэр)', value: NAME },
-  { label: '手机号 (Утас)', value: PHONE },
-  { label: '详细地址 (Хаяг)', value: `环宇商贸城9栋24号нэр+утас+darkhan` },
-]
-
 const REGION_OPTIONS = ['内蒙古自治区', '锡林郭勒盟', '二连浩特市']
 
 function CopyItem({ label, value }: { label: string; value: string }) {
@@ -41,7 +32,13 @@ function CopyItem({ label, value }: { label: string; value: string }) {
   )
 }
 
-export default function SiteFooter() {
+interface FooterProps {
+  ereemReceiver: string
+  ereemPhone: string
+  ereemAddress: string
+}
+
+export default function SiteFooter({ ereemReceiver, ereemPhone, ereemAddress }: FooterProps) {
   return (
     <footer style={{
       borderTop: '1px solid var(--border)',
@@ -57,7 +54,8 @@ export default function SiteFooter() {
         }}>Aicargo хаяг холбох</p>
 
         <div style={{ borderTop: '1px solid var(--border)' }}>
-          {CONTACT.slice(0, 2).map(c => <CopyItem key={c.label} label={c.label} value={c.value} />)}
+          <CopyItem label="收货人 (Нэр)" value={ereemReceiver} />
+          <CopyItem label="手机号 (Утас)" value={ereemPhone} />
           {/* Region breadcrumb */}
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -77,7 +75,7 @@ export default function SiteFooter() {
               ))}
             </div>
           </div>
-          {CONTACT.slice(2).map(c => <CopyItem key={c.label} label={c.label} value={c.value} />)}
+          <CopyItem label="详细地址 (Хаяг)" value={ereemAddress} />
           <div style={{ paddingTop: '0.7rem' }}>
             <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>© 2024 Aicargo</span>
           </div>

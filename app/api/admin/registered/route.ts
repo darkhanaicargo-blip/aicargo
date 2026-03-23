@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
 
-  const where: any = { status: 'REGISTERED' }
+  const where: any = { status: 'REGISTERED', cargoId: admin.cargoId! }
   if (q) {
     where.OR = [
       { trackCode: { contains: q.toUpperCase() } },

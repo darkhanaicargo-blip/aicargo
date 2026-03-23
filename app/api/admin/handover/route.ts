@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const start = new Date()
     start.setHours(0, 0, 0, 0)
     const todayShipments = await prisma.shipment.findMany({
-      where: { status: 'PICKED_UP', updatedAt: { gte: start } },
+      where: { status: 'PICKED_UP', updatedAt: { gte: start }, cargoId: admin.cargoId! },
       select: { adminPrice: true, phone: true },
     })
     const phones = new Set(todayShipments.map((s: { phone: string | null; adminPrice: unknown }) => s.phone ?? '—'))
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   const summary = req.nextUrl.searchParams.get('summary')
   if (summary) {
     const all = await prisma.shipment.findMany({
-      where: { status: 'ARRIVED' },
+      where: { status: 'ARRIVED', cargoId: admin.cargoId! },
       select: { id: true, trackCode: true, description: true, adminPrice: true, phone: true, adminNote: true },
       orderBy: { phone: 'asc' },
     })
@@ -60,8 +60,8 @@ export async function GET(req: NextRequest) {
   const isPhone = /^\d+$/.test(q.trim())
   const shipments = await prisma.shipment.findMany({
     where: isPhone
-      ? { phone: { contains: q.trim() }, status: 'ARRIVED' }
-      : { trackCode: { contains: q.trim().toUpperCase() }, status: 'ARRIVED' },
+      ? { phone: { contains: q.trim() }, status: 'ARRIVED', cargoId: admin.cargoId! }
+      : { trackCode: { contains: q.trim().toUpperCase() }, status: 'ARRIVED', cargoId: admin.cargoId! },
     orderBy: { createdAt: 'desc' },
   })
 
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
   }
 
   await prisma.shipment.updateMany({
-    where: { id: { in: shipmentIds }, status: 'ARRIVED' },
+    where: { id: { in: shipmentIds }, status: 'ARRIVED', cargoId: admin.cargoId! },
     data: { status: 'PICKED_UP' },
   })
 
