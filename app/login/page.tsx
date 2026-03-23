@@ -22,7 +22,7 @@ export default function LoginPage() {
     const data = await res.json()
     setLoading(false)
     if (!res.ok) { setError(data.error); return }
-    router.push(data.role === 'ADMIN' ? '/admin/ereen' : '/orders')
+    router.push(data.role === 'SUPER_ADMIN' ? '/super' : data.role === 'ADMIN' ? '/admin/import' : '/orders')
   }
 
   return (
