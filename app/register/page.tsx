@@ -15,19 +15,20 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetch('/api/cargos').then(r => r.json()).then(setCargos).catch(() => {})
+    fetch('/api/cargos').then(r => r.json()).then(d => { if (Array.isArray(d)) setCargos(d) }).catch(() => {})
   }, [])
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })) }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
+    if (!selectedCargo) return
     setLoading(true)
     setError('')
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, cargoId: selectedCargo!.id }),
+      body: JSON.stringify({ ...form, cargoId: selectedCargo.id }),
     })
     const data = await res.json()
     setLoading(false)
