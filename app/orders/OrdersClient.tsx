@@ -185,7 +185,7 @@ export default function OrdersClient({
   return (
     <>
       <nav className="nav">
-        <Link href="/"><NavLogo /></Link>
+        <Link href="/"><NavLogo name={cargoName || undefined} /></Link>
         <div className="nav-links">
           <button onClick={() => setFaqOpen(o => !o)} style={{
             background: 'none', border: 'none', cursor: 'pointer',
