@@ -8,10 +8,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) redirect('/login')
 
   let cargoName = ''
+  let logoUrl = ''
   if (user.cargoId) {
-    const cargo = await prisma.cargo.findUnique({ where: { id: user.cargoId }, select: { name: true } })
+    const cargo = await (prisma.cargo.findUnique as any)({ where: { id: user.cargoId }, select: { name: true, logoUrl: true } })
     cargoName = cargo?.name ?? ''
+    logoUrl = cargo?.logoUrl ?? ''
   }
 
-  return <AdminShell cargoName={cargoName}>{children}</AdminShell>
+  return <AdminShell cargoName={cargoName} logoUrl={logoUrl}>{children}</AdminShell>
 }

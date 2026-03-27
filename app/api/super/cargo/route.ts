@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   if (!user) return unauthorized()
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 
-  const { name, slug, ereemReceiver, ereemPhone, ereemAddress, adminName, adminPhone, adminPassword } = await req.json()
+  const { name, slug, ereemReceiver, ereemPhone, ereemAddress, logoUrl, adminName, adminPhone, adminPassword } = await req.json()
 
   if (!name || !slug || !ereemReceiver || !ereemPhone || !ereemAddress) {
     return NextResponse.json({ error: 'Карго мэдээллийг бүрэн бөглөнө үү' }, { status: 400 })
@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
   // Create cargo + admin user in one transaction
   const cargo = await prisma.cargo.create({
     data: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...(logoUrl ? { logoUrl } : {}),
       name: name.trim(),
       slug: slugClean,
       ereemReceiver: ereemReceiver.trim(),

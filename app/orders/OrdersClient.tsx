@@ -62,6 +62,7 @@ export default function OrdersClient({
   userEmail,
   userPhone,
   cargoName,
+  logoUrl,
   ereemReceiver,
   ereemPhone,
   ereemAddress,
@@ -71,6 +72,7 @@ export default function OrdersClient({
   userEmail: string | null
   userPhone: string
   cargoName: string
+  logoUrl?: string
   ereemReceiver: string
   ereemPhone: string
   ereemAddress: string
@@ -185,7 +187,7 @@ export default function OrdersClient({
   return (
     <>
       <nav className="nav">
-        <Link href="/"><NavLogo name={cargoName || undefined} /></Link>
+        <Link href="/"><NavLogo name={cargoName || undefined} logoUrl={logoUrl || undefined} /></Link>
         <div className="nav-links">
           <button onClick={() => setFaqOpen(o => !o)} style={{
             background: 'none', border: 'none', cursor: 'pointer',
