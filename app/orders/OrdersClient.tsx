@@ -444,7 +444,7 @@ export default function OrdersClient({
         )}
 
       </div>
-      <SiteFooter ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemAddress={ereemAddress} />
+      <SiteFooter cargoName={cargoName} ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemAddress={ereemAddress} />
     </>
   )
 }
