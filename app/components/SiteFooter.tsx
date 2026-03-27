@@ -33,12 +33,13 @@ function CopyItem({ label, value }: { label: string; value: string }) {
 }
 
 interface FooterProps {
+  cargoName?: string
   ereemReceiver: string
   ereemPhone: string
   ereemAddress: string
 }
 
-export default function SiteFooter({ ereemReceiver, ereemPhone, ereemAddress }: FooterProps) {
+export default function SiteFooter({ cargoName, ereemReceiver, ereemPhone, ereemAddress }: FooterProps) {
   return (
     <footer style={{
       borderTop: '1px solid var(--border)',
@@ -51,12 +52,11 @@ export default function SiteFooter({ ereemReceiver, ereemPhone, ereemAddress }: 
           textAlign: 'center', fontWeight: 700, fontSize: '0.78rem',
           color: 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase',
           marginBottom: '1rem',
-        }}>Aicargo хаяг холбох</p>
+        }}>{cargoName ? `${cargoName} хаяг холбох` : 'Хаяг холбох'}</p>
 
         <div style={{ borderTop: '1px solid var(--border)' }}>
           <CopyItem label="收货人 (Нэр)" value={ereemReceiver} />
           <CopyItem label="手机号 (Утас)" value={ereemPhone} />
-          {/* Region breadcrumb */}
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             padding: '0.7rem 0', borderBottom: '1px solid var(--border)', gap: '1rem',
@@ -76,9 +76,6 @@ export default function SiteFooter({ ereemReceiver, ereemPhone, ereemAddress }: 
             </div>
           </div>
           <CopyItem label="详细地址 (Хаяг)" value={ereemAddress} />
-          <div style={{ paddingTop: '0.7rem' }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>© 2024 Aicargo</span>
-          </div>
         </div>
       </div>
     </footer>

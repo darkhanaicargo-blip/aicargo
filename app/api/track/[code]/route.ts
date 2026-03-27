@@ -1,26 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getAuthUserFromRequest } from '@/lib/auth'
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ code: string }> }
 ) {
   const { code } = await params
   const q = code.toUpperCase().trim()
 
-  const selectFields = { trackCode: true, description: true, status: true, phone: true, adminPrice: true, adminNote: true, createdAt: true, updatedAt: true, user: { select: { name: true, phone: true } } }
+  // If logged in, scope to their cargo only
+  const authUser = getAuthUserFromRequest(req)
+  const cargoFilter = authUser?.cargoId ? { cargoId: authUser.cargoId } : {}
 
-  // Try exact match first
+  const selectFields = {
+    trackCode: true, description: true, status: true, phone: true,
+    adminPrice: true, adminNote: true, createdAt: true, updatedAt: true,
+    cargo: { select: { name: true } },
+    user: { select: { name: true, phone: true } },
+  }
+
   let shipment = await prisma.shipment.findFirst({
-    where: { trackCode: q },
+    where: { trackCode: q, ...cargoFilter },
     select: selectFields,
     orderBy: { updatedAt: 'desc' },
   })
 
-  // Fall back to partial match
   if (!shipment) {
     shipment = await prisma.shipment.findFirst({
-      where: { trackCode: { contains: q } },
+      where: { trackCode: { contains: q }, ...cargoFilter },
       orderBy: { updatedAt: 'desc' },
       select: selectFields,
     })

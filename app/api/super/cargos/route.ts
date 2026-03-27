@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
       ereemReceiver: c.ereemReceiver,
       ereemPhone: c.ereemPhone,
       ereemAddress: c.ereemAddress,
+      logoUrl: (c as any).logoUrl ?? null,
       createdAt: c.createdAt,
       totalUsers: c._count.users,
       totalShipments: c._count.shipments,

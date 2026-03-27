@@ -9,10 +9,24 @@ export default function NewCargoPage() {
     name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemAddress: '',
     adminName: '', adminPhone: '', adminPassword: '',
   })
+  const [logoUrl, setLogoUrl] = useState('')
+  const [logoPreview, setLogoPreview] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })) }
+
+  function handleLogo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const result = ev.target?.result as string
+      setLogoUrl(result)
+      setLogoPreview(result)
+    }
+    reader.readAsDataURL(file)
+  }
 
   // Auto-generate slug from cargo name
   function handleName(v: string) {
@@ -33,7 +47,7 @@ export default function NewCargoPage() {
     const res = await fetch('/api/super/cargo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, logoUrl }),
     })
     const data = await res.json()
     setLoading(false)
@@ -53,6 +67,17 @@ export default function NewCargoPage() {
 
           {/* Cargo info */}
           <p style={{ fontSize: '0.75rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.8rem' }}>Карго мэдээлэл</p>
+
+          <div className="form-group">
+            <label>Лого (заавал биш)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {logoPreview && (
+                <img src={logoPreview} alt="preview" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 6, border: '1px solid var(--border)' }} />
+              )}
+              <input type="file" accept="image/*" onChange={handleLogo}
+                style={{ fontSize: '0.85rem', color: 'var(--muted)' }} />
+            </div>
+          </div>
 
           <div className="form-group">
             <label>Карго нэр</label>

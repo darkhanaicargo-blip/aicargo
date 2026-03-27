@@ -10,6 +10,7 @@ interface CargoStat {
   ereemReceiver: string
   ereemPhone: string
   ereemAddress: string
+  logoUrl: string | null
   createdAt: string
   admins: Admin[]
 }
@@ -19,13 +20,14 @@ interface EditState {
   ereemReceiver: string
   ereemPhone: string
   ereemAddress: string
+  logoUrl: string
 }
 
 export default function SuperPage() {
   const [cargos, setCargos] = useState<CargoStat[]>([])
   const [loading, setLoading] = useState(true)
   const [editId, setEditId] = useState<number | null>(null)
-  const [editForm, setEditForm] = useState<EditState>({ name: '', ereemReceiver: '', ereemPhone: '', ereemAddress: '' })
+  const [editForm, setEditForm] = useState<EditState>({ name: '', ereemReceiver: '', ereemPhone: '', ereemAddress: '', logoUrl: '' })
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
 
@@ -41,7 +43,7 @@ export default function SuperPage() {
 
   function startEdit(c: CargoStat) {
     setEditId(c.id)
-    setEditForm({ name: c.name, ereemReceiver: c.ereemReceiver, ereemPhone: c.ereemPhone, ereemAddress: c.ereemAddress })
+    setEditForm({ name: c.name, ereemReceiver: c.ereemReceiver, ereemPhone: c.ereemPhone, ereemAddress: c.ereemAddress, logoUrl: c.logoUrl ?? '' })
     setEditError('')
   }
 
@@ -80,6 +82,31 @@ export default function SuperPage() {
               {editId === c.id ? (
                 /* ── Edit mode ── */
                 <div>
+                  {/* Logo upload */}
+                  <div style={{ marginBottom: '0.75rem' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '0.4rem' }}>Лого</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      {editForm.logoUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={editForm.logoUrl} alt="logo" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 4, border: '1px solid var(--border)' }} />
+                      )}
+                      <input type="file" accept="image/*" style={{ fontSize: '0.82rem' }}
+                        onChange={e => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          const reader = new FileReader()
+                          reader.onload = ev => setEditForm(f => ({ ...f, logoUrl: ev.target?.result as string }))
+                          reader.readAsDataURL(file)
+                        }} />
+                      {editForm.logoUrl && (
+                        <button onClick={() => setEditForm(f => ({ ...f, logoUrl: '' }))}
+                          style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.78rem' }}>
+                          Устгах
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
                     <div className="form-group" style={{ margin: 0 }}>
                       <label style={{ fontSize: '0.75rem' }}>Нэр</label>

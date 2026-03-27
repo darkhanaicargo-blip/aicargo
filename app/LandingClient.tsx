@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import SiteFooter from './components/SiteFooter'
 import ChatWidget from './components/ChatWidget'
 import NavLogo from './components/NavLogo'
 
@@ -102,7 +101,7 @@ function RegionDisplay() {
   )
 }
 
-export default function LandingClient({ ereemReceiver, ereemPhone, ereemAddress }: { ereemReceiver: string; ereemPhone: string; ereemAddress: string }) {
+export default function LandingClient() {
   const [code, setCode] = useState('')
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
@@ -269,7 +268,6 @@ export default function LandingClient({ ereemReceiver, ereemPhone, ereemAddress 
         </div>
       </div>
 
-      <SiteFooter ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemAddress={ereemAddress} />
     </div>
   )
 }

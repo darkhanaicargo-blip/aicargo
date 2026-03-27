@@ -13,6 +13,7 @@ model Cargo {
   ereemReceiver String
   ereemPhone    String
   ereemAddress  String
+  logoUrl       String?
   createdAt     DateTime   @default(now())
   users         User[]
   shipments     Shipment[]
