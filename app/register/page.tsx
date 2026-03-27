@@ -85,16 +85,31 @@ export default function RegisterPage() {
         ) : (
           /* ── Step 2: бүртгэлийн форм ── */
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.2rem' }}>
-              <button
-                onClick={() => { setSelectedCargo(null); setError('') }}
-                style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem', fontFamily: 'inherit', padding: 0 }}
-              >
-                ←
-              </button>
-              <div>
+            <div style={{ marginBottom: '1.2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <button
+                  onClick={() => { setSelectedCargo(null); setError('') }}
+                  style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem', fontFamily: 'inherit', padding: 0 }}
+                >
+                  ←
+                </button>
                 <h1 className="section-title" style={{ margin: 0 }}>Бүртгүүлэх</h1>
-                <span style={{ fontSize: '0.78rem', color: 'var(--accent)', fontWeight: 600 }}>{selectedCargo.name}</span>
+              </div>
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: 'var(--surface)', border: '1.5px solid var(--accent)',
+                borderRadius: 'var(--radius)', padding: '0.65rem 1rem',
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '0.1rem' }}>Сонгосон карго</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{selectedCargo.name}</div>
+                </div>
+                <button
+                  onClick={() => { setSelectedCargo(null); setError('') }}
+                  style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: 6, padding: '0.25rem 0.6rem', cursor: 'pointer', fontSize: '0.75rem', fontFamily: 'inherit' }}
+                >
+                  Өөрчлөх
+                </button>
               </div>
             </div>
 
