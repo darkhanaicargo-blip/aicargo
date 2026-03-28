@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function NotifyPage() {
   const [loading, setLoading] = useState(false)
@@ -7,12 +7,22 @@ export default function NotifyPage() {
   const [error, setError] = useState('')
   const [closingTime, setClosingTime] = useState('18:00')
   const [confirmData, setConfirmData] = useState<{ count: number } | null>(null)
+  const [canSend, setCanSend] = useState(true)
+  const [nextAllowedAt, setNextAllowedAt] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/admin/notify-all')
+      .then(r => r.json())
+      .then(d => { setCanSend(d.canSend); setNextAllowedAt(d.nextAllowedAt ?? null) })
+      .catch(() => {})
+  }, [])
 
   async function handleSendClick() {
     setError('')
     const res = await fetch('/api/admin/notify-all')
     if (!res.ok) { setError('Алдаа гарлаа'); return }
     const data = await res.json()
+    if (!data.canSend) { setCanSend(false); setNextAllowedAt(data.nextAllowedAt); return }
     setConfirmData({ count: data.count })
   }
 
@@ -42,9 +52,17 @@ export default function NotifyPage() {
           style={{ maxWidth: 160 }} />
       </div>
 
-      <button className="btn" onClick={handleSendClick} disabled={loading || !closingTime} style={{ marginTop: '0.5rem' }}>
+      <button className="btn" onClick={handleSendClick} disabled={loading || !closingTime || !canSend} style={{ marginTop: '0.5rem' }}>
         {loading ? 'Илгээж байна...' : 'Мэдэгдэл илгээх'}
       </button>
+
+      {!canSend && nextAllowedAt && (
+        <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.6rem' }}>
+          Дараагийн илгээлт: <strong style={{ color: 'var(--text)' }}>
+            {new Date(nextAllowedAt).toLocaleString('mn-MN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </strong>
+        </p>
+      )}
 
       {confirmData !== null && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem' }}>
