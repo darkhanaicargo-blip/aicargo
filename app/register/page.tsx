@@ -4,7 +4,7 @@ import Link from 'next/link'
 import NavLogo from '@/app/components/NavLogo'
 import { useRouter } from 'next/navigation'
 
-interface Cargo { id: number; name: string }
+interface Cargo { id: number; name: string; logoUrl?: string | null }
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -56,24 +56,25 @@ export default function RegisterPage() {
                   key={c.id}
                   onClick={() => setSelectedCargo(c)}
                   style={{
-                    display: 'block',
-                    width: '100%',
-                    padding: '1rem 1.2rem',
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius)',
-                    color: 'var(--text)',
-                    fontSize: '0.95rem',
-                    fontWeight: 600,
-                    fontFamily: 'inherit',
-                    cursor: 'pointer',
-                    textAlign: 'left',
+                    display: 'flex', alignItems: 'center', gap: '0.9rem',
+                    width: '100%', padding: '0.85rem 1.1rem',
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius)', color: 'var(--text)',
+                    fontFamily: 'inherit', cursor: 'pointer', textAlign: 'left',
                     transition: 'border-color 0.15s',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--accent)')}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border)')}
                 >
-                  {c.name}
+                  {c.logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.logoUrl} alt="" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 6, flexShrink: 0 }} />
+                  ) : (
+                    <div style={{ width: 36, height: 36, borderRadius: 6, background: 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent)' }}>
+                      {c.name.charAt(0)}
+                    </div>
+                  )}
+                  <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{c.name}</span>
                 </button>
               ))}
             </div>
@@ -101,8 +102,20 @@ export default function RegisterPage() {
                 borderRadius: 'var(--radius)', padding: '0.65rem 1rem',
               }}>
                 <div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '0.1rem' }}>Сонгосон карго</div>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{selectedCargo.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    {selectedCargo.logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={selectedCargo.logoUrl} alt="" style={{ width: 32, height: 32, objectFit: 'contain', borderRadius: 5 }} />
+                    ) : (
+                      <div style={{ width: 32, height: 32, borderRadius: 5, background: 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: 'var(--accent)' }}>
+                        {selectedCargo.name.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '0.1rem' }}>Сонгосон карго</div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{selectedCargo.name}</div>
+                    </div>
+                  </div>
                 </div>
                 <button
                   onClick={() => { setSelectedCargo(null); setError('') }}
