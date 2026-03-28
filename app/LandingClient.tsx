@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import ChatWidget from './components/ChatWidget'
 import NavLogo from './components/NavLogo'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -106,7 +105,6 @@ export default function LandingClient() {
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [faqOpen, setFaqOpen] = useState(false)
 
   async function search() {
     const val = code.trim()
@@ -130,22 +128,12 @@ export default function LandingClient() {
       <nav className="nav">
         <NavLogo />
         <div className="nav-links">
-          <button onClick={() => setFaqOpen(o => !o)} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: faqOpen ? 'var(--accent)' : 'var(--muted)',
-            fontWeight: 600, fontSize: '0.82rem', fontFamily: 'inherit',
-            padding: '0.25rem 0.5rem', borderRadius: '6px',
-            transition: 'color 0.12s', display: 'flex', alignItems: 'center', gap: '0.25rem',
-          }}>
-            <span style={{ fontWeight: 800 }}>?</span><span className="nav-faq-text"> Асуулт хариулт</span>
-          </button>
           <Link href="/login">Нэвтрэх</Link>
           <Link href="/register" className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>
             Бүртгүүлэх
           </Link>
         </div>
       </nav>
-      <ChatWidget open={faqOpen} onClose={() => setFaqOpen(false)} />
 
       <div className="page" style={{ flex: 1 }}>
 
