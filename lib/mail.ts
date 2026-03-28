@@ -22,16 +22,17 @@ export async function sendNotificationEmail(
   phone: string,
   cargoCount: number,
   totalAmount: number,
-  closingTime: string
+  closingTime: string,
+  cargoName = 'Cargo'
 ) {
   const plain = `Сайн байна уу? Танд энэ өдрийн мэнд хүргэе!
 
 Таны ${phone} дугаар дээр ${cargoCount} ачаа ирсэн байна.
 Нийт үнийн дүн ${totalAmount.toLocaleString()} төгрөг.
 
-Манай карго өнөөдөр ${closingTime} цаг хүртэл ажиллаж байна.
+${cargoName} өнөөдөр ${closingTime} цаг хүртэл ажиллаж байна.
 
-— Aicargo`
+— ${cargoName}`
 
   await resend.emails.send({
     from: FROM,
@@ -41,7 +42,7 @@ export async function sendNotificationEmail(
     html: `<p>Сайн байна уу? Танд энэ өдрийн мэнд хүргэе!</p>
 <p>Таны <strong>${phone}</strong> дугаар дээр <strong>${cargoCount} ачаа</strong> ирсэн байна.<br>
 Нийт үнийн дүн <strong>₮${totalAmount.toLocaleString()}</strong> төгрөг.</p>
-<p>Манай карго өнөөдөр <strong>${closingTime}</strong> цаг хүртэл ажиллаж байна.</p>
-<p style="color:#888;font-size:0.85rem;">— Aicargo</p>`,
+<p>${cargoName} өнөөдөр <strong>${closingTime}</strong> цаг хүртэл ажиллаж байна.</p>
+<p style="color:#888;font-size:0.85rem;">— ${cargoName}</p>`,
   })
 }

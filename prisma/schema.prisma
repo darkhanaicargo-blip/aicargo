@@ -13,8 +13,9 @@ model Cargo {
   ereemReceiver String
   ereemPhone    String
   ereemAddress  String
-  logoUrl       String?
-  createdAt     DateTime   @default(now())
+  logoUrl          String?
+  lastNotifiedAt   DateTime?
+  createdAt        DateTime   @default(now())
   users         User[]
   shipments     Shipment[]
   faqs          Faq[]
