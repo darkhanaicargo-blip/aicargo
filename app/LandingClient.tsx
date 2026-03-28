@@ -10,95 +10,6 @@ const STATUS_LABEL: Record<string, string> = {
   PICKED_UP: 'Авсан',
 }
 
-const CONTACT = [
-  { label: '收货人 (Нэр)',    value: 'Aicargo' },
-  { label: '手机号 (Утас)',   value: '18647933620' },
-  { label: '详细地址 (Хаяг)', value: '环宇商贸城9栋24号' },
-]
-
-const REGION_OPTIONS = ['内蒙古自治区', '锡林郭勒盟', '二连浩特市']
-
-function CopyAll() {
-  const [copied, setCopied] = useState(false)
-  function copy() {
-    const text = CONTACT.map(c => c.value).join('\n')
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
-  }
-  return (
-    <button onClick={copy} style={{
-      background: copied ? 'var(--accent)' : 'transparent',
-      color: copied ? '#fff' : 'var(--accent)',
-      border: '1px solid var(--accent)',
-      borderRadius: '6px', padding: '0.3rem 0.8rem',
-      fontSize: '0.75rem', fontWeight: 600,
-      cursor: 'pointer', fontFamily: 'inherit',
-      transition: 'background 0.15s, color 0.15s',
-    }}>
-      {copied ? 'Хуулагдлаа ✓' : 'Бүгдийг хуулах'}
-    </button>
-  )
-}
-
-function CopyItem({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false)
-
-  function copy() {
-    navigator.clipboard.writeText(value)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
-  }
-
-  return (
-    <div style={{
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '0.7rem 0', borderBottom: '1px solid var(--border)',
-      gap: '1rem',
-    }}>
-      <span style={{ fontSize: '0.8rem', color: 'var(--muted)', flexShrink: 0 }}>{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{value}</span>
-        <button onClick={copy} style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: copied ? 'var(--green)' : 'var(--muted)',
-          fontSize: '0.72rem', fontFamily: 'inherit', fontWeight: 600,
-          padding: '0.15rem 0.4rem', borderRadius: '4px',
-          transition: 'color 0.15s', flexShrink: 0,
-        }}>
-          {copied ? '✓' : 'Хуулах'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function RegionDisplay() {
-  return (
-    <div style={{
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '0.7rem 0', borderBottom: '1px solid var(--border)',
-      gap: '1rem',
-    }}>
-      <span style={{ fontSize: '0.8rem', color: 'var(--muted)', flexShrink: 0 }}>地区 (Бүс)</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-        {REGION_OPTIONS.map((opt, i) => (
-          <span key={opt} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <span style={{
-              fontSize: '0.78rem', fontWeight: 500,
-              background: 'var(--surface)', border: '1px solid var(--border)',
-              borderRadius: '5px', padding: '0.2rem 0.5rem',
-              color: 'var(--text)',
-            }}>{opt}</span>
-            {i < REGION_OPTIONS.length - 1 && (
-              <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>›</span>
-            )}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 export default function LandingClient() {
   const [code, setCode] = useState('')
@@ -166,6 +77,12 @@ export default function LandingClient() {
 
           {result && (
             <div className="card" style={{ marginTop: '1rem' }}>
+              {result.cargo?.name && (
+                <div className="card-row">
+                  <span className="label">Карго</span>
+                  <strong style={{ color: 'var(--accent)' }}>{result.cargo.name}</strong>
+                </div>
+              )}
               <div className="card-row">
                 <span className="label">Трак код</span>
                 <strong style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{result.trackCode}</strong>
