@@ -15,7 +15,7 @@ export default function NavLogo({ name, logoUrl }: { name?: string; logoUrl?: st
         ) : (
           <>
             <span style={{ color: 'var(--accent)' }}>Ai</span>
-            <span style={{ color: 'var(--text)' }}> cargo</span>
+            <span style={{ color: 'var(--text)' }}> cargohub</span>
           </>
         )}
       </span>
