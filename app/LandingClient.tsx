@@ -49,7 +49,7 @@ export default function LandingClient() {
         {/* Track search */}
         <div style={{ marginBottom: '2.5rem', marginTop: '2rem' }}>
           <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>
-            Aicargo — Ачаа хянах систем
+            Aicargohub — Ачаа хянах систем
           </p>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.5px', marginBottom: '0.5rem' }}>
             Ачаа шалгах
@@ -60,7 +60,7 @@ export default function LandingClient() {
           <div style={{ display: 'flex', gap: '0.6rem', maxWidth: '100%' }}>
             <input
               className="input"
-              placeholder="жш: AI-2024-00123"
+              placeholder="JT5364974054841"
               value={code}
               onChange={e => setCode(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && search()}
@@ -118,7 +118,7 @@ export default function LandingClient() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.2rem' }}>Миний захиалгууд</h2>
-              <p style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Нэвтэрвэл иймэрхүү харагдана</p>
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Нэвтэрвэл ингэж харагдана</p>
             </div>
           </div>
 
@@ -140,7 +140,7 @@ export default function LandingClient() {
               </div>
               {/* Card mocks */}
               {[
-                { desc: 'Гутал, хувцас', track: 'AI-2024-00312', status: 'REGISTERED', label: 'Бүртгүүлсэн', date: '3/8/2026' },
+                { desc: 'Гутал', track: 'JT5364974054841', status: 'REGISTERED', label: 'Бүртгүүлсэн', date: '3/8/2026' },
                 { desc: 'Гэрийн хэрэгсэл', track: 'AI-2024-00289', status: 'REGISTERED', label: 'Бүртгүүлсэн', date: '3/7/2026' },
               ].map((s, i) => (
                 <div key={i} className={`order-card order-card-${s.status}`} style={{ marginBottom: '0.6rem' }}>
@@ -170,6 +170,22 @@ export default function LandingClient() {
           </div>
         </div>
       </div>
+      <footer style={{
+        borderTop: '1px solid var(--border)',
+        padding: '1rem 5%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '1.5rem',
+        flexWrap: 'wrap',
+        fontSize: '0.75rem',
+        color: 'var(--muted)',
+      }}>
+        <span>"Бизнес интеллижэнс" ХХК хөгжүүлж байна</span>
+        <span>·</span>
+        <span>Утас: 85205258</span>
+      </footer>
+
 
     </div>
   )
