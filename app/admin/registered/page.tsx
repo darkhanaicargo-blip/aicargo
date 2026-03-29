@@ -23,27 +23,39 @@ function fmtDate(iso: string) {
 
 export default function RegisteredPage() {
   const [rows, setRows] = useState<Row[]>([])
+  const [total, setTotal] = useState(0)
   const [q, setQ] = useState('')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
 
-  async function load(search = '') {
+  async function load(pg: number, s: string) {
     setLoading(true)
-    setPage(1)
-    const res = await fetch(`/api/admin/registered?q=${encodeURIComponent(search)}`)
-    if (res.ok) setRows(await res.json())
+    const res = await fetch(`/api/admin/registered?q=${encodeURIComponent(s)}&page=${pg}`)
+    if (res.ok) {
+      const data = await res.json()
+      setRows(data.items)
+      setTotal(data.total)
+    }
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load(1, '') }, [])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
-    load(q)
+    setPage(1)
+    setSearch(q)
+    load(1, q)
   }
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
-  const paged = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  function goPage(p: number) {
+    setPage(p)
+    load(p, search)
+  }
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const paged = rows
 
   return (
     <div className="page-wide">
@@ -51,7 +63,7 @@ export default function RegisteredPage() {
         <h1 className="section-title" style={{ margin: 0 }}>Бүртгүүлсэн ачаа</h1>
         {!loading && (
           <span style={{ fontSize: '0.75rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
-            Нийт <strong style={{ color: 'var(--text)' }}>{rows.length}</strong> ачаа
+            Нийт <strong style={{ color: 'var(--text)' }}>{total}</strong> ачаа
           </span>
         )}
       </div>
@@ -96,11 +108,11 @@ export default function RegisteredPage() {
 
           {totalPages > 1 && (
             <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', alignItems: 'center' }}>
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={pgBtn}>‹</button>
+              <button onClick={() => goPage(Math.max(1, page - 1))} disabled={page === 1} style={pgBtn}>‹</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                <button key={p} onClick={() => setPage(p)} style={{ ...pgBtn, fontWeight: page === p ? 700 : 400, background: page === p ? 'var(--accent)' : 'var(--surface)', color: page === p ? '#fff' : 'var(--text)', borderColor: page === p ? 'var(--accent)' : 'var(--border)' }}>{p}</button>
+                <button key={p} onClick={() => goPage(p)} style={{ ...pgBtn, fontWeight: page === p ? 700 : 400, background: page === p ? 'var(--accent)' : 'var(--surface)', color: page === p ? '#fff' : 'var(--text)', borderColor: page === p ? 'var(--accent)' : 'var(--border)' }}>{p}</button>
               ))}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={pgBtn}>›</button>
+              <button onClick={() => goPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} style={pgBtn}>›</button>
             </div>
           )}
         </>

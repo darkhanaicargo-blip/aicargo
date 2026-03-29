@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 
+const PAGE_SIZE = 20
+
 export async function GET(req: NextRequest) {
   const admin = getAuthUserFromRequest(req)
   if (!admin) return unauthorized()
   if (admin.role !== 'ADMIN') return forbidden()
 
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
+  const page = Math.max(1, Number(req.nextUrl.searchParams.get('page') || '1'))
 
   const where: any = { status: 'PICKED_UP', cargoId: admin.cargoId! }
   if (q) {
@@ -17,20 +20,25 @@ export async function GET(req: NextRequest) {
     ]
   }
 
-  const shipments = await prisma.shipment.findMany({
-    where,
-    orderBy: { updatedAt: 'desc' },
-    select: {
-      id: true,
-      trackCode: true,
-      phone: true,
-      adminPrice: true,
-      adminNote: true,
-      updatedAt: true,
-    },
-  })
+  const [total, items] = await Promise.all([
+    prisma.shipment.count({ where }),
+    prisma.shipment.findMany({
+      where,
+      orderBy: { updatedAt: 'desc' },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      select: {
+        id: true,
+        trackCode: true,
+        phone: true,
+        adminPrice: true,
+        adminNote: true,
+        updatedAt: true,
+      },
+    }),
+  ])
 
-  return NextResponse.json(shipments)
+  return NextResponse.json({ items, total, page, pageSize: PAGE_SIZE })
 }
 
 // PATCH /api/admin/history — revert PICKED_UP → ARRIVED

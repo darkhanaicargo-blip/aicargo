@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface Row {
   id: number
@@ -24,63 +24,57 @@ function fmtDate(iso: string) {
 
 export default function HistoryPage() {
   const [rows, setRows] = useState<Row[]>([])
+  const [total, setTotal] = useState(0)
   const [q, setQ] = useState('')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
 
   async function revert(id: number) {
     if (!confirm('ARRIVED төлөвт буцаах уу?')) return
     const res = await fetch('/api/admin/history', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })
-    if (res.ok) setRows(prev => prev.filter(r => r.id !== id))
+    if (res.ok) {
+      setRows(prev => prev.filter(r => r.id !== id))
+      setTotal(t => t - 1)
+    }
   }
 
-  async function load(search = '') {
+  const load = useCallback(async (pg: number, s: string) => {
     setLoading(true)
-    setPage(1)
-    const res = await fetch(`/api/admin/history?q=${encodeURIComponent(search)}`)
-    if (res.ok) setRows(await res.json())
+    const res = await fetch(`/api/admin/history?q=${encodeURIComponent(s)}&page=${pg}`)
+    if (res.ok) {
+      const data = await res.json()
+      setRows(data.items)
+      setTotal(data.total)
+    }
     setLoading(false)
-  }
+  }, [])
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load(1, '') }, [load])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
-    load(q)
+    setPage(1)
+    setSearch(q)
+    load(1, q)
   }
 
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
-  const todayRows = rows.filter(r => new Date(r.updatedAt) >= todayStart)
-  const todayCustomers = new Set(todayRows.map(r => r.phone ?? '—')).size
-  const todayTotal = todayRows.reduce((s, r) => s + (r.adminPrice ? Number(r.adminPrice) : 0), 0)
+  function goPage(p: number) {
+    setPage(p)
+    load(p, search)
+  }
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
-  const paged = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const paged = rows
 
   return (
     <div className="page-wide">
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <h1 className="section-title" style={{ margin: 0 }}>Олгосон ачаа</h1>
         {!loading && (
-          <>
-            <span style={{ fontSize: '0.75rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
-              Нийт <strong style={{ color: 'var(--text)' }}>{rows.length}</strong> ачаа
-            </span>
-            {todayRows.length > 0 && (
-              <>
-                <span style={{ fontSize: '0.75rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
-                  Өнөөдөр <strong style={{ color: 'var(--text)' }}>{todayCustomers}</strong> хэрэглэгч
-                </span>
-                <span style={{ fontSize: '0.75rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
-                  <strong style={{ color: 'var(--text)' }}>{todayRows.length}</strong> ачаа
-                </span>
-                <span style={{ fontSize: '0.75rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
-                  ₮<strong style={{ color: 'var(--accent)' }}>{todayTotal.toLocaleString()}</strong>
-                </span>
-              </>
-            )}
-          </>
+          <span style={{ fontSize: '0.75rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.2rem 0.75rem', color: 'var(--muted)' }}>
+            Нийт <strong style={{ color: 'var(--text)' }}>{total}</strong> ачаа
+          </span>
         )}
       </div>
 
@@ -130,11 +124,11 @@ export default function HistoryPage() {
 
           {totalPages > 1 && (
             <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', alignItems: 'center' }}>
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={pgBtn}>‹</button>
+              <button onClick={() => goPage(Math.max(1, page - 1))} disabled={page === 1} style={pgBtn}>‹</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                <button key={p} onClick={() => setPage(p)} style={{ ...pgBtn, fontWeight: page === p ? 700 : 400, background: page === p ? 'var(--accent)' : 'var(--surface)', color: page === p ? '#fff' : 'var(--text)', borderColor: page === p ? 'var(--accent)' : 'var(--border)' }}>{p}</button>
+                <button key={p} onClick={() => goPage(p)} style={{ ...pgBtn, fontWeight: page === p ? 700 : 400, background: page === p ? 'var(--accent)' : 'var(--surface)', color: page === p ? '#fff' : 'var(--text)', borderColor: page === p ? 'var(--accent)' : 'var(--border)' }}>{p}</button>
               ))}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={pgBtn}>›</button>
+              <button onClick={() => goPage(Math.min(totalPages, page + 1))} disabled={page === totalPages} style={pgBtn}>›</button>
             </div>
           )}
         </>
