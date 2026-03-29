@@ -25,9 +25,12 @@ interface Group {
 
 interface Summary {
   groups: Group[]
+  totalGroups: number
   totalShipments: number
   totalCustomers: number
   totalValue: number
+  page: number
+  pageSize: number
 }
 
 interface TodayStats { shipments: number; customers: number; value: number }
@@ -41,13 +44,14 @@ export default function HandoverPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [summary, setSummary] = useState<Summary | null>(null)
+  const [summaryPage, setSummaryPage] = useState(1)
   const [expandedPhone, setExpandedPhone] = useState<string | null>(null)
   const [today, setToday] = useState<TodayStats | null>(null)
 
-  function loadSummary() {
-    fetch('/api/admin/handover?summary=1')
+  function loadSummary(pg = 1) {
+    fetch(`/api/admin/handover?summary=1&page=${pg}`)
       .then(r => r.json())
-      .then(setSummary)
+      .then(data => { setSummary(data); setSummaryPage(pg) })
       .catch(() => {})
   }
 
@@ -230,7 +234,7 @@ export default function HandoverPage() {
 
           <div className="card" style={{ overflow: 'hidden' }}>
             {summary.groups.map((g, i) => (
-              <div key={g.phone}>
+              <div key={g.phone} style={{ position: 'relative' }}>
                 <div
                   onClick={() => setExpandedPhone(expandedPhone === g.phone ? null : g.phone)}
                   style={{
@@ -244,6 +248,9 @@ export default function HandoverPage() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)', width: 22, textAlign: 'right', flexShrink: 0 }}>
+                      {(summaryPage - 1) * 20 + i + 1}
+                    </span>
                     <span style={{
                       fontSize: '0.65rem', color: 'var(--muted)', display: 'inline-block',
                       transform: expandedPhone === g.phone ? 'rotate(90deg)' : 'none',
@@ -281,6 +288,21 @@ export default function HandoverPage() {
               </div>
             ))}
           </div>
+
+          {summary.totalGroups > 20 && (
+            <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', alignItems: 'center', marginTop: '1rem' }}>
+              {Array.from({ length: Math.ceil(summary.totalGroups / 20) }, (_, i) => i + 1).map(p => (
+                <button key={p} onClick={() => { setExpandedPhone(null); loadSummary(p) }} style={{
+                  padding: '0.3rem 0.65rem', borderRadius: '6px',
+                  border: `1px solid ${summaryPage === p ? 'var(--accent)' : 'var(--border)'}`,
+                  background: summaryPage === p ? 'var(--accent)' : 'var(--surface)',
+                  color: summaryPage === p ? '#fff' : 'var(--text)',
+                  fontWeight: summaryPage === p ? 700 : 400,
+                  cursor: 'pointer', fontSize: '0.82rem', fontFamily: 'inherit',
+                }}>{p}</button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

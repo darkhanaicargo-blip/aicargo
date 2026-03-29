@@ -28,6 +28,9 @@ export async function GET(req: NextRequest) {
 
   const summary = req.nextUrl.searchParams.get('summary')
   if (summary) {
+    const PAGE = 20
+    const page = Math.max(1, Number(req.nextUrl.searchParams.get('page') || '1'))
+
     const all = await prisma.shipment.findMany({
       where: { status: 'ARRIVED', cargoId: admin.cargoId! },
       select: { id: true, trackCode: true, description: true, adminPrice: true, phone: true, adminNote: true },
@@ -45,12 +48,17 @@ export async function GET(req: NextRequest) {
       g.shipments.push(s)
     }
 
-    const groups = Array.from(map.values())
+    const allGroups = Array.from(map.values())
+    const groups = allGroups.slice((page - 1) * PAGE, page * PAGE)
+
     return NextResponse.json({
       groups,
+      totalGroups: allGroups.length,
       totalShipments: all.length,
-      totalCustomers: groups.length,
+      totalCustomers: allGroups.length,
       totalValue: all.reduce((s: number, r: { adminPrice: unknown }) => s + (r.adminPrice ? Number(r.adminPrice) : 0), 0),
+      page,
+      pageSize: PAGE,
     })
   }
 
