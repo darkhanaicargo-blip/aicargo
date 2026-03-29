@@ -6,7 +6,6 @@ import NavLogo from '@/app/components/NavLogo'
 const links = [
   { href: '/super', label: 'Карго жагсаалт' },
   { href: '/super/cargo/new', label: '+ Шинэ карго' },
-  { href: '/super/assign-admin', label: 'Админ томилох' },
 ]
 
 export default function SuperNav() {
