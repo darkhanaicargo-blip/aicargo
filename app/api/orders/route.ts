@@ -50,14 +50,19 @@ export async function POST(req: NextRequest) {
 
   const code = trackCode.trim().toUpperCase()
 
-  // Fetch user's phone for linking
+  // Fetch user's phone and cargoId (cargoId may be missing in old tokens)
   const userRecord = await prisma.user.findUnique({
     where: { id: authUser.userId },
-    select: { phone: true },
+    select: { phone: true, cargoId: true },
   })
 
+  const cargoId = authUser.cargoId ?? userRecord?.cargoId
+  if (!cargoId) {
+    return NextResponse.json({ error: 'Та гараад дахин нэвтэрнэ үү' }, { status: 403 })
+  }
+
   const existing = await prisma.shipment.findUnique({
-    where: { trackCode_cargoId: { trackCode: code, cargoId: authUser.cargoId! } },
+    where: { trackCode_cargoId: { trackCode: code, cargoId } },
   })
 
   if (existing) {
@@ -68,7 +73,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Энэ трак код таны бүртгэлд аль хэдийн байна' }, { status: 409 })
     }
     const updated = await prisma.shipment.update({
-      where: { trackCode_cargoId: { trackCode: code, cargoId: authUser.cargoId! } },
+      where: { trackCode_cargoId: { trackCode: code, cargoId } },
       data: {
         userId: authUser.userId,
         description: description || existing.description,
@@ -86,7 +91,7 @@ export async function POST(req: NextRequest) {
       status: 'REGISTERED',
       userId: authUser.userId,
       phone: userRecord?.phone,
-      cargoId: authUser.cargoId!,
+      cargoId,
     },
   })
 
