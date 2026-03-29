@@ -140,7 +140,7 @@ export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
             <form onSubmit={submit}>
               <div className="form-group">
                 <label>Нэр</label>
-                <input className="input" placeholder="Овог Нэр" required
+                <input className="input" placeholder="Нэр" required
                   value={form.name} onChange={e => set('name', e.target.value)} />
               </div>
               <div className="form-group">

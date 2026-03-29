@@ -184,6 +184,8 @@ export default function LandingClient() {
         <span>"Бизнес интеллижэнс" ХХК хөгжүүлж байна</span>
         <span>·</span>
         <span>Утас: 85205258</span>
+        <span>·</span>
+        <span>2026 он</span>
       </footer>
 
 
