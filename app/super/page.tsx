@@ -13,6 +13,8 @@ interface CargoStat {
   logoUrl: string | null
   createdAt: string
   admins: Admin[]
+  totalUsers: number
+  totalShipments: number
 }
 
 interface EditState {
@@ -160,22 +162,34 @@ export default function SuperPage() {
                     </button>
                   </div>
 
-                  {/* Admins row */}
-                  <div style={{ marginBottom: '0.9rem' }}>
-                    {c.admins.length > 0 ? (
-                      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        {c.admins.map(a => (
-                          <span key={a.id} style={{ fontSize: '0.82rem', color: 'var(--text)' }}>
-                            {a.name} <span style={{ color: 'var(--muted)', fontFamily: 'monospace' }}>{a.phone}</span>
-                          </span>
-                        ))}
-                        <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>— Админ</span>
+                  {/* Stats + Admins row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.9rem', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div>
+                      {c.admins.length > 0 ? (
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                          {c.admins.map(a => (
+                            <span key={a.id} style={{ fontSize: '0.82rem', color: 'var(--text)' }}>
+                              {a.name} <span style={{ color: 'var(--muted)', fontFamily: 'monospace' }}>{a.phone}</span>
+                            </span>
+                          ))}
+                          <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>— Админ</span>
+                        </div>
+                      ) : (
+                        <Link href="/super/assign-admin" style={{ fontSize: '0.82rem', color: 'var(--accent)' }}>
+                          + Админ томилох
+                        </Link>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '1.2rem', flexShrink: 0 }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>{c.totalUsers}</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: '0.15rem' }}>хэрэглэгч</div>
                       </div>
-                    ) : (
-                      <Link href="/super/assign-admin" style={{ fontSize: '0.82rem', color: 'var(--accent)' }}>
-                        + Админ томилох
-                      </Link>
-                    )}
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{c.totalShipments}</div>
+                        <div style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: '0.15rem' }}>ачаа</div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Ereen address */}
