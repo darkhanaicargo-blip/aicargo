@@ -188,24 +188,28 @@ export default function OrdersClient({
     <>
       <nav className="nav">
         <Link href="/"><NavLogo name={cargoName || undefined} logoUrl={logoUrl || undefined} /></Link>
-        <div className="nav-links">
-          <button onClick={() => setFaqOpen(o => !o)} style={{
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.1rem' }}>
+          <button onClick={() => setFaqOpen(o => !o)} title="Асуулт хариулт" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 38, height: 38, borderRadius: '50%',
             background: 'none', border: 'none', cursor: 'pointer',
             color: faqOpen ? 'var(--accent)' : 'var(--muted)',
-            fontWeight: 600, fontSize: '0.82rem', fontFamily: 'inherit',
-            padding: '0.25rem 0.5rem', borderRadius: '6px',
-            transition: 'color 0.12s', display: 'flex', alignItems: 'center', gap: '0.25rem',
           }}>
-            <span style={{ fontWeight: 800 }}>?</span><span className="nav-faq-text"> Асуулт хариулт</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/>
+            </svg>
           </button>
           <div style={{ position: 'relative' }}>
-            <button onClick={() => setProfileOpen(o => !o)} style={{
+            <button onClick={() => setProfileOpen(o => !o)} title={userName} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 38, height: 38, borderRadius: '50%',
               background: 'none', border: 'none', cursor: 'pointer',
-              color: profileOpen ? 'var(--accent)' : 'var(--text)',
-              fontWeight: 600, fontSize: '0.85rem', fontFamily: 'inherit',
-              padding: '0.25rem 0.5rem', borderRadius: '6px',
-              transition: 'color 0.12s',
-            }}>{userName}</button>
+              color: profileOpen ? 'var(--accent)' : 'var(--muted)',
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+            </button>
             {profileOpen && (
               <div style={{
                 position: 'absolute', top: 'calc(100% + 0.5rem)', right: 0,
@@ -239,7 +243,16 @@ export default function OrdersClient({
               </div>
             )}
           </div>
-          <button onClick={logout}>Гарах</button>
+          <button onClick={logout} title="Гарах" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 38, height: 38, borderRadius: '50%',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--muted)',
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
         </div>
       </nav>
       <ChatWidget open={faqOpen} onClose={() => setFaqOpen(false)} />
