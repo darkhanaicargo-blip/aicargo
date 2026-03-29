@@ -174,17 +174,16 @@ export default function LandingClient() {
         borderTop: '1px solid var(--border)',
         padding: '1rem 5%',
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: '1.5rem',
-        flexWrap: 'wrap',
+        gap: '0.25rem',
+        textAlign: 'center',
         fontSize: '0.75rem',
         color: 'var(--muted)',
       }}>
         <span>"Бизнес интеллижэнс" ХХК хөгжүүлж байна</span>
-        <span>·</span>
         <span>Утас: 85205258</span>
-        <span>·</span>
         <span>2026 он</span>
       </footer>
 
