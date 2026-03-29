@@ -38,6 +38,10 @@ export default function LandingClient() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <nav className="nav">
         <NavLogo />
+        <div className="nav-links">
+          <Link href="/login">Нэвтрэх</Link>
+          <Link href="/register" className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>Бүртгүүлэх</Link>
+        </div>
       </nav>
 
       <div className="page" style={{ flex: 1 }}>
