@@ -9,9 +9,14 @@ interface Cargo { id: number; name: string; logoUrl?: string | null }
 export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
   const router = useRouter()
   const [selectedCargo, setSelectedCargo] = useState<Cargo | null>(null)
+  const [cargoSearch, setCargoSearch] = useState('')
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const filteredCargos = cargoSearch.trim()
+    ? cargos.filter(c => c.name.toLowerCase().includes(cargoSearch.toLowerCase()))
+    : cargos
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })) }
 
@@ -42,11 +47,22 @@ export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
           /* ── Step 1: карго сонгох ── */
           <>
             <h1 className="section-title">Карго сонгох</h1>
-            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '1.2rem' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '1rem' }}>
               Та аль карго компанийн хэрэглэгч бэ?
             </p>
+            <input
+              className="input"
+              placeholder="Карго хайх..."
+              value={cargoSearch}
+              onChange={e => setCargoSearch(e.target.value)}
+              style={{ marginBottom: '0.75rem' }}
+              autoFocus
+            />
             <div style={{ display: 'grid', gap: '0.6rem' }}>
-              {cargos.map(c => (
+              {filteredCargos.length === 0 && (
+                <p style={{ fontSize: '0.85rem', color: 'var(--muted)', textAlign: 'center', padding: '1rem 0' }}>Олдсонгүй</p>
+              )}
+              {filteredCargos.map(c => (
                 <button
                   key={c.id}
                   onClick={() => setSelectedCargo(c)}
