@@ -38,19 +38,6 @@ export default function LandingClient() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <nav className="nav">
         <NavLogo />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.1rem' }}>
-          <Link href="/register" title="Бүртгүүлэх" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: '50%', color: 'var(--muted)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="10" cy="8" r="4"/><path d="M3 20c0-4 3.1-7 7-7s7 3 7 7"/>
-              <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
-            </svg>
-          </Link>
-          <Link href="/login" title="Нэвтрэх" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: '50%', color: 'var(--muted)' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
-          </Link>
-        </div>
       </nav>
 
       <div className="page" style={{ flex: 1 }}>
