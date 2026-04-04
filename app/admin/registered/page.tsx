@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import SkeletonTable from '@/app/components/SkeletonTable'
 
 interface Row {
   id: number
@@ -74,7 +75,7 @@ export default function RegisteredPage() {
       </form>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Ачааллаж байна...</p>
+        <SkeletonTable rows={8} cols={5} />
       ) : rows.length === 0 ? (
         <p className="empty">Бүртгүүлсэн ачаа байхгүй байна.</p>
       ) : (

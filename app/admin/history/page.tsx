@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import SkeletonTable from '@/app/components/SkeletonTable'
 
 interface Row {
   id: number
@@ -84,7 +85,7 @@ export default function HistoryPage() {
       </form>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Ачааллаж байна...</p>
+        <SkeletonTable rows={8} cols={6} />
       ) : rows.length === 0 ? (
         <p className="empty">Олгосон ачаа байхгүй байна.</p>
       ) : (
