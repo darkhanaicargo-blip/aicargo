@@ -10,7 +10,7 @@ export async function uploadLogo(base64: string, publicId: string): Promise<stri
   const result = await cloudinary.uploader.upload(base64, {
     public_id: `cargo-logos/${publicId}`,
     overwrite: true,
-    transformation: [{ width: 200, height: 200, crop: 'fit', quality: 'auto', fetch_format: 'auto' }],
+    transformation: [{ width: 400, height: 400, crop: 'fit', quality: 'auto', fetch_format: 'png' }],
   })
   return result.secure_url
 }

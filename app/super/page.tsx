@@ -102,13 +102,16 @@ export default function SuperPage() {
                           const img = new Image()
                           const url = URL.createObjectURL(file)
                           img.onload = () => {
-                            const size = Math.min(img.width, img.height, 400)
+                            const MAX = 400
+                            const scale = Math.min(MAX / img.width, MAX / img.height, 1)
+                            const w = Math.round(img.width * scale)
+                            const h = Math.round(img.height * scale)
                             const canvas = document.createElement('canvas')
-                            canvas.width = size
-                            canvas.height = size
+                            canvas.width = w
+                            canvas.height = h
                             const ctx = canvas.getContext('2d')!
-                            ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size)
-                            setEditForm(f => ({ ...f, logoUrl: canvas.toDataURL('image/jpeg', 0.85) }))
+                            ctx.drawImage(img, 0, 0, w, h)
+                            setEditForm(f => ({ ...f, logoUrl: canvas.toDataURL('image/png', 1) }))
                             URL.revokeObjectURL(url)
                           }
                           img.src = url
