@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import PwaRegister from './components/PwaRegister'
 
 export const metadata: Metadata = {
   title: 'Ai cargohub — Ачаа тээвэр',
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="mn">
-      <body>{children}</body>
+      <body>
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   )
 }
