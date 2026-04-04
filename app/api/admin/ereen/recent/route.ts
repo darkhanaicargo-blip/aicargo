@@ -39,3 +39,23 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ items: shipments, total, page, limit })
 }
+
+export async function DELETE(req: NextRequest) {
+  const admin = getAuthUserFromRequest(req)
+  if (!admin) return unauthorized()
+  if (admin.role !== 'ADMIN') return forbidden()
+
+  const { id } = await req.json()
+  if (!id) return NextResponse.json({ error: 'ID шаардлагатай' }, { status: 400 })
+
+  const shipment = await prisma.shipment.findUnique({ where: { id: Number(id) } })
+  if (!shipment || shipment.cargoId !== admin.cargoId) {
+    return NextResponse.json({ error: 'Олдсонгүй' }, { status: 404 })
+  }
+  if (shipment.status !== 'EREEN_ARRIVED') {
+    return NextResponse.json({ error: 'Зөвхөн эрээнд байгаа барааг устгах боломжтой' }, { status: 400 })
+  }
+
+  await prisma.shipment.delete({ where: { id: Number(id) } })
+  return NextResponse.json({ ok: true })
+}
