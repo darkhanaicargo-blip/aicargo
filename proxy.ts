@@ -14,36 +14,29 @@ function getSlug(host: string): string | null {
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Extract cargo slug from subdomain and pass to pages
   const host = req.headers.get('host') ?? ''
   const slug = getSlug(host)
-  const res = NextResponse.next()
-  if (slug) res.headers.set('x-cargo-slug', slug)
 
-  // Protect /orders and sub-routes
+  // Pass slug to server components via request header
+  const requestHeaders = new Headers(req.headers)
+  if (slug) requestHeaders.set('x-cargo-slug', slug)
+
+  // Protect /orders
   if (pathname.startsWith('/orders')) {
     const user = getAuthUserFromRequest(req)
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', req.url))
-    }
-    if (slug) res.headers.set('x-cargo-slug', slug)
-    return res
+    if (!user) return NextResponse.redirect(new URL('/login', req.url))
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
-  // Protect /admin routes
+  // Protect /admin
   if (pathname.startsWith('/admin')) {
     const user = getAuthUserFromRequest(req)
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', req.url))
-    }
-    if (user.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-    if (slug) res.headers.set('x-cargo-slug', slug)
-    return res
+    if (!user) return NextResponse.redirect(new URL('/login', req.url))
+    if (user.role !== 'ADMIN') return NextResponse.redirect(new URL('/', req.url))
+    return NextResponse.next({ request: { headers: requestHeaders } })
   }
 
-  return res
+  return NextResponse.next({ request: { headers: requestHeaders } })
 }
 
 export const config = {
