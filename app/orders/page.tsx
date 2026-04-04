@@ -20,7 +20,7 @@ export default async function OrdersPage() {
   const cargo = userRecord?.cargoId
     ? await (prisma.cargo.findUnique as any)({
         where: { id: userRecord.cargoId },
-        select: { name: true, logoUrl: true, ereemReceiver: true, ereemPhone: true, ereemAddress: true },
+        select: { name: true, logoUrl: true, ereemReceiver: true, ereemPhone: true, ereemRegion: true, ereemAddress: true, tariff: true, announcement: true, contactInfo: true },
       })
     : null
 
@@ -34,7 +34,11 @@ export default async function OrdersPage() {
       logoUrl={cargo?.logoUrl ?? ''}
       ereemReceiver={cargo?.ereemReceiver ?? ''}
       ereemPhone={cargo?.ereemPhone ?? ''}
+      ereemRegion={cargo?.ereemRegion ?? ''}
       ereemAddress={cargo?.ereemAddress ?? ''}
+      tariff={cargo?.tariff ?? null}
+      announcement={cargo?.announcement ?? null}
+      contactInfo={cargo?.contactInfo ?? null}
     />
   )
 }

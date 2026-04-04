@@ -65,7 +65,11 @@ export default function OrdersClient({
   logoUrl,
   ereemReceiver,
   ereemPhone,
+  ereemRegion,
   ereemAddress,
+  tariff,
+  announcement,
+  contactInfo,
 }: {
   shipments: Shipment[]
   userName: string
@@ -75,7 +79,11 @@ export default function OrdersClient({
   logoUrl?: string
   ereemReceiver: string
   ereemPhone: string
+  ereemRegion?: string
   ereemAddress: string
+  tariff?: string | null
+  announcement?: string | null
+  contactInfo?: string | null
 }) {
   const router = useRouter()
   const [shipments, setShipments] = useState(initialShipments)
@@ -457,7 +465,7 @@ export default function OrdersClient({
         )}
 
       </div>
-      <SiteFooter cargoName={cargoName} ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemAddress={ereemAddress} />
+      <SiteFooter cargoName={cargoName} ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemRegion={ereemRegion} ereemAddress={ereemAddress} tariff={tariff} announcement={announcement} contactInfo={contactInfo} />
     </>
   )
 }
