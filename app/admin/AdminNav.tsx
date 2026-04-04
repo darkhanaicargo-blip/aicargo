@@ -13,6 +13,7 @@ const links = [
   { href: '/admin/notify', label: 'Мэдэгдэл' },
   { href: '/admin/faq', label: 'FAQ' },
   { href: '/admin/users', label: 'Хэрэглэгчид' },
+  { href: '/admin/settings', label: 'Тохиргоо' },
 ]
 
 export default function AdminNav({

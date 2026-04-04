@@ -21,6 +21,9 @@ model Cargo {
   ereemAddress  String
   logoUrl          String?
   lastNotifiedAt   DateTime?
+  tariff           String?
+  announcement     String?
+  contactInfo      String?
   createdAt        DateTime   @default(now())
   groupId       Int?
   group         CargoGroup? @relation(fields: [groupId], references: [id])

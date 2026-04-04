@@ -8,6 +8,9 @@ export interface CargoInfo {
   ereemReceiver: string
   ereemPhone: string
   ereemAddress: string
+  tariff: string | null
+  announcement: string | null
+  contactInfo: string | null
 }
 
 export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
@@ -23,6 +26,9 @@ export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
       ereemReceiver: true,
       ereemPhone: true,
       ereemAddress: true,
+      tariff: true,
+      announcement: true,
+      contactInfo: true,
     },
   })
 }

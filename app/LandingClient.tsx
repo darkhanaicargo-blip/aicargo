@@ -17,9 +17,13 @@ interface CargoInfo {
   ereemReceiver: string
   ereemPhone: string
   ereemAddress: string
+  tariff: string | null
+  announcement: string | null
+  contactInfo: string | null
 }
 
 export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
+  const [activeTab, setActiveTab] = useState<string | null>(null)
   const [code, setCode] = useState('')
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
@@ -178,28 +182,71 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
           </div>
         </div>
       </div>
+      {cargo && (
+        <div style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
+          {/* 4 tab buttons */}
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
+            {[
+              { key: 'address', label: 'Хаяг' },
+              { key: 'tariff', label: 'Тариф' },
+              { key: 'announcement', label: 'Анхааруулга' },
+              { key: 'contact', label: 'Холбоо барих' },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(activeTab === tab.key ? null : tab.key)}
+                style={{
+                  flex: 1, padding: '0.75rem 0.25rem', border: 'none', cursor: 'pointer',
+                  fontSize: '0.75rem', fontWeight: 600, fontFamily: 'inherit',
+                  background: activeTab === tab.key ? 'var(--accent-light)' : 'transparent',
+                  color: activeTab === tab.key ? 'var(--accent)' : 'var(--muted)',
+                  borderBottom: activeTab === tab.key ? '2px solid var(--accent)' : '2px solid transparent',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          {activeTab && (
+            <div style={{ padding: '1rem 5%', fontSize: '0.83rem', lineHeight: 1.8, color: 'var(--text)' }}>
+              {activeTab === 'address' && (
+                <div>
+                  <div>收货人: <strong>{cargo.ereemReceiver}</strong></div>
+                  <div>手机号: <strong>{cargo.ereemPhone}</strong></div>
+                  <div>地址: <strong>{cargo.ereemAddress}</strong></div>
+                </div>
+              )}
+              {activeTab === 'tariff' && (
+                cargo.tariff
+                  ? <pre style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap', margin: 0 }}>{cargo.tariff}</pre>
+                  : <p style={{ color: 'var(--muted)' }}>Тариф оруулаагүй байна</p>
+              )}
+              {activeTab === 'announcement' && (
+                cargo.announcement
+                  ? <pre style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap', margin: 0 }}>{cargo.announcement}</pre>
+                  : <p style={{ color: 'var(--muted)' }}>Анхааруулга байхгүй</p>
+              )}
+              {activeTab === 'contact' && (
+                cargo.contactInfo
+                  ? <pre style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap', margin: 0 }}>{cargo.contactInfo}</pre>
+                  : <p style={{ color: 'var(--muted)' }}>Холбоо барих мэдээлэл оруулаагүй</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <footer style={{
         borderTop: '1px solid var(--border)',
-        padding: '1rem 5%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '0.25rem',
+        padding: '0.75rem 5%',
         textAlign: 'center',
-        fontSize: '0.75rem',
+        fontSize: '0.72rem',
         color: 'var(--muted)',
       }}>
-        {cargo && (
-          <>
-            <span style={{ fontWeight: 600, color: 'var(--text)' }}>{cargo.name} — Эрээн хаяг</span>
-            <span>{cargo.ereemReceiver} · {cargo.ereemPhone}</span>
-            <span>{cargo.ereemAddress}</span>
-            <span style={{ margin: '0.25rem 0', borderTop: '1px solid var(--border)', width: 60 }} />
-          </>
-        )}
-        <span>"Бизнес интеллижэнс" ХХК хөгжүүлж байна</span>
-        <span>Утас: 85205258 · 2026 он</span>
+        "Бизнес интеллижэнс" ХХК · 85205258 · 2026
       </footer>
 
 
