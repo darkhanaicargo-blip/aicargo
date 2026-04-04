@@ -50,7 +50,7 @@ export default function RegisterClient({ cargos, lockedCargoId }: { cargos: Carg
   return (
     <>
       <nav className="nav">
-        <Link href="/"><NavLogo /></Link>
+        <Link href="/"><NavLogo name={locked?.name ?? undefined} logoUrl={locked?.logoUrl ?? undefined} /></Link>
       </nav>
       <div className="page" style={{ maxWidth: 420 }}>
 
