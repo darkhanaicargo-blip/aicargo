@@ -3,6 +3,35 @@ import { useState } from 'react'
 import Link from 'next/link'
 import NavLogo from './components/NavLogo'
 
+function CopyItem({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false)
+  function copy() {
+    navigator.clipboard.writeText(value)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  return (
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      padding: '0.7rem 0', borderBottom: '1px solid var(--border)', gap: '1rem',
+    }}>
+      <span style={{ fontSize: '0.8rem', color: 'var(--muted)', flexShrink: 0 }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{value}</span>
+        <button onClick={copy} style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: copied ? 'var(--green)' : 'var(--muted)',
+          fontSize: '0.72rem', fontFamily: 'inherit', fontWeight: 600,
+          padding: '0.15rem 0.4rem', borderRadius: '4px',
+          transition: 'color 0.15s', flexShrink: 0,
+        }}>
+          {copied ? '✓' : 'Хуулах'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 const STATUS_LABEL: Record<string, string> = {
   REGISTERED: 'Бүртгүүлсэн',
   EREEN_ARRIVED: 'Эрээнд ирсэн',
@@ -60,14 +89,14 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
       <div className="page" style={{ flex: 1 }}>
 
         {/* Track search */}
-        <div style={{ marginBottom: '2.5rem', marginTop: '2rem' }}>
-          <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>
+        <div style={{ marginBottom: '1.5rem', marginTop: '1.2rem' }}>
+          <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
             {cargo ? cargo.name : 'Aicargohub'} — Ачаа хянах систем
           </p>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.5px', marginBottom: '0.5rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.5px', marginBottom: '0.3rem' }}>
             Ачаа шалгах
           </h1>
-          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginBottom: '1.4rem' }}>
+          <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
             Трак кодоороо бараагаа шалгана уу
           </p>
           <div style={{ display: 'flex', gap: '0.6rem', maxWidth: '100%' }}>
@@ -127,7 +156,7 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
         <hr className="divider" />
 
         {/* Orders preview */}
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '1.2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.2rem' }}>Миний захиалгууд</h2>
@@ -212,13 +241,35 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
 
           {/* Tab content */}
           {activeTab && (
-            <div style={{ padding: '1rem 5%', fontSize: '0.83rem', lineHeight: 1.8, color: 'var(--text)' }}>
+            <div style={{ padding: '0.75rem 5%', fontSize: '0.83rem', lineHeight: 1.8, color: 'var(--text)' }}>
               {activeTab === 'address' && (
-                <div>
-                  <div>收货人: <strong>{cargo.ereemReceiver}</strong></div>
-                  <div>手机号: <strong>{cargo.ereemPhone}</strong></div>
-                  {cargo.ereemRegion && <div>地区: <strong>{cargo.ereemRegion}</strong></div>}
-                  <div>详细地址: <strong>{cargo.ereemAddress}</strong></div>
+                <div style={{ borderTop: '1px solid var(--border)' }}>
+                  <CopyItem label="收货人 (Нэр)" value={cargo.ereemReceiver} />
+                  <CopyItem label="手机号 (Утас)" value={cargo.ereemPhone} />
+                  {cargo.ereemRegion && (() => {
+                    const parts = cargo.ereemRegion.split('·').map((s: string) => s.trim()).filter(Boolean)
+                    return (
+                      <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '0.7rem 0', borderBottom: '1px solid var(--border)', gap: '1rem',
+                      }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--muted)', flexShrink: 0 }}>地区 (Бүс)</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          {parts.map((part: string, i: number) => (
+                            <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <span style={{
+                                fontSize: '0.78rem', fontWeight: 500,
+                                background: 'var(--surface)', border: '1px solid var(--border)',
+                                borderRadius: '5px', padding: '0.2rem 0.5rem', color: 'var(--text)',
+                              }}>{part}</span>
+                              {i < parts.length - 1 && <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>›</span>}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })()}
+                  <CopyItem label="详细地址 (Хаяг)" value={cargo.ereemAddress} />
                 </div>
               )}
               {activeTab === 'tariff' && (
@@ -243,12 +294,14 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
 
       <footer style={{
         borderTop: '1px solid var(--border)',
-        padding: '0.75rem 5%',
+        padding: '1rem 5%',
         textAlign: 'center',
-        fontSize: '0.72rem',
+        fontSize: '0.7rem',
         color: 'var(--muted)',
+        lineHeight: 1.7,
       }}>
-        "Бизнес интеллижэнс" ХХК · 85205258 · 2026
+        <div style={{ fontWeight: 600, marginBottom: '0.1rem' }}>"Бизнес интеллижэнс" ХХК хөгжүүлж байна</div>
+        <div>Бүх эрх хуулиар хамгаалагдсан болно · 85205258 · 2026</div>
       </footer>
 
 
