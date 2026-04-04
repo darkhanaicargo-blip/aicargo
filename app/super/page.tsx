@@ -20,6 +20,7 @@ interface CargoStat {
 
 interface EditState {
   name: string
+  slug: string
   ereemReceiver: string
   ereemPhone: string
   ereemRegion: string
@@ -31,7 +32,7 @@ export default function SuperPage() {
   const [cargos, setCargos] = useState<CargoStat[]>([])
   const [loading, setLoading] = useState(true)
   const [editId, setEditId] = useState<number | null>(null)
-  const [editForm, setEditForm] = useState<EditState>({ name: '', ereemReceiver: '', ereemPhone: '', ereemRegion: '', ereemAddress: '', logoUrl: '' })
+  const [editForm, setEditForm] = useState<EditState>({ name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemRegion: '', ereemAddress: '', logoUrl: '' })
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
 
@@ -47,7 +48,7 @@ export default function SuperPage() {
 
   function startEdit(c: CargoStat) {
     setEditId(c.id)
-    setEditForm({ name: c.name, ereemReceiver: c.ereemReceiver, ereemPhone: c.ereemPhone, ereemRegion: (c as any).ereemRegion ?? '', ereemAddress: c.ereemAddress, logoUrl: c.logoUrl ?? '' })
+    setEditForm({ name: c.name, slug: c.slug, ereemReceiver: c.ereemReceiver, ereemPhone: c.ereemPhone, ereemRegion: (c as any).ereemRegion ?? '', ereemAddress: c.ereemAddress, logoUrl: c.logoUrl ?? '' })
     setEditError('')
   }
 
@@ -116,6 +117,13 @@ export default function SuperPage() {
                       <label style={{ fontSize: '0.75rem' }}>Нэр</label>
                       <input className="input" value={editForm.name}
                         onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} />
+                    </div>
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label style={{ fontSize: '0.75rem' }}>
+                        Slug <span style={{ color: 'var(--danger)', fontWeight: 400 }}>⚠ subdomain өөрчлөгдөнө</span>
+                      </label>
+                      <input className="input" value={editForm.slug}
+                        onChange={e => setEditForm(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') }))} />
                     </div>
                     <div className="form-group" style={{ margin: 0 }}>
                       <label style={{ fontSize: '0.75rem' }}>收货人</label>
