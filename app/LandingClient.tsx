@@ -16,6 +16,7 @@ interface CargoInfo {
   logoUrl: string | null
   ereemReceiver: string
   ereemPhone: string
+  ereemRegion: string
   ereemAddress: string
   tariff: string | null
   announcement: string | null
@@ -216,7 +217,8 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
                 <div>
                   <div>收货人: <strong>{cargo.ereemReceiver}</strong></div>
                   <div>手机号: <strong>{cargo.ereemPhone}</strong></div>
-                  <div>地址: <strong>{cargo.ereemAddress}</strong></div>
+                  {cargo.ereemRegion && <div>地区: <strong>{cargo.ereemRegion}</strong></div>}
+                  <div>详细地址: <strong>{cargo.ereemAddress}</strong></div>
                 </div>
               )}
               {activeTab === 'tariff' && (

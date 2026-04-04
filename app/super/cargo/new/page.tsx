@@ -6,7 +6,7 @@ import Link from 'next/link'
 export default function NewCargoPage() {
   const router = useRouter()
   const [form, setForm] = useState({
-    name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemAddress: '',
+    name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemRegion: '', ereemAddress: '',
     adminName: '', adminPhone: '', adminPassword: '',
   })
   const [logoUrl, setLogoUrl] = useState('')
@@ -107,6 +107,11 @@ export default function NewCargoPage() {
               <input className="input" placeholder="18600000000" required
                 value={form.ereemPhone} onChange={e => set('ereemPhone', e.target.value)} />
             </div>
+          </div>
+          <div className="form-group">
+            <label>地区 (Муж/Хот/Дүүрэг)</label>
+            <input className="input" placeholder="内蒙古·二连浩特市" required
+              value={form.ereemRegion} onChange={e => set('ereemRegion', e.target.value)} />
           </div>
           <div className="form-group">
             <label>详细地址 (Дэлгэрэнгүй хаяг)</label>

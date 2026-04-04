@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   if (!user) return unauthorized()
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 
-  const { name, slug, ereemReceiver, ereemPhone, ereemAddress, logoUrl, adminName, adminPhone, adminPassword } = await req.json()
+  const { name, slug, ereemReceiver, ereemPhone, ereemRegion, ereemAddress, logoUrl, adminName, adminPhone, adminPassword } = await req.json()
 
   if (!name || !slug || !ereemReceiver || !ereemPhone || !ereemAddress) {
     return NextResponse.json({ error: 'Карго мэдээллийг бүрэн бөглөнө үү' }, { status: 400 })
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       slug: slugClean,
       ereemReceiver: ereemReceiver.trim(),
       ereemPhone: ereemPhone.trim(),
+      ereemRegion: ereemRegion?.trim() ?? '',
       ereemAddress: ereemAddress.trim(),
       users: {
         create: {

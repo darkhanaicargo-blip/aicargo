@@ -18,6 +18,7 @@ model Cargo {
   slug          String      @unique
   ereemReceiver String
   ereemPhone    String
+  ereemRegion   String  @default("")
   ereemAddress  String
   logoUrl          String?
   lastNotifiedAt   DateTime?

@@ -7,6 +7,7 @@ export interface CargoInfo {
   logoUrl: string | null
   ereemReceiver: string
   ereemPhone: string
+  ereemRegion: string
   ereemAddress: string
   tariff: string | null
   announcement: string | null
@@ -25,6 +26,7 @@ export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
       logoUrl: true,
       ereemReceiver: true,
       ereemPhone: true,
+      ereemRegion: true,
       ereemAddress: true,
       tariff: true,
       announcement: true,

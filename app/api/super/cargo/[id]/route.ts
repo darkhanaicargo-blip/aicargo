@@ -15,7 +15,7 @@ export async function PATCH(
   const cargoId = Number(id)
   if (!cargoId) return NextResponse.json({ error: 'ID буруу' }, { status: 400 })
 
-  const { name, ereemReceiver, ereemPhone, ereemAddress, logoUrl } = await req.json()
+  const { name, ereemReceiver, ereemPhone, ereemRegion, ereemAddress, logoUrl } = await req.json()
 
   let finalLogoUrl = logoUrl
   if (logoUrl?.startsWith('data:')) {
@@ -28,6 +28,7 @@ export async function PATCH(
       ...(name ? { name: name.trim() } : {}),
       ...(ereemReceiver !== undefined ? { ereemReceiver: ereemReceiver.trim() } : {}),
       ...(ereemPhone !== undefined ? { ereemPhone: ereemPhone.trim() } : {}),
+      ...(ereemRegion !== undefined ? { ereemRegion: ereemRegion.trim() } : {}),
       ...(ereemAddress !== undefined ? { ereemAddress: ereemAddress.trim() } : {}),
       ...(finalLogoUrl !== undefined ? { logoUrl: finalLogoUrl || null } : {}),
     },
