@@ -49,16 +49,6 @@ export default function AdminNav({
           <Link href="/admin/import"><NavLogo name={cargoName} logoUrl={logoUrl} /></Link>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {cargoId && (
-            <button onClick={copyInvite} title="Урилгийн холбоос хуулах" style={{
-              background: 'none', border: '1px solid var(--border)', borderRadius: '8px',
-              color: copied ? 'var(--accent)' : 'var(--muted)',
-              cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit',
-              padding: '0.3rem 0.7rem', whiteSpace: 'nowrap',
-            }}>
-              {copied ? '✓ Хуулагдлаа' : '🔗 Урилга'}
-            </button>
-          )}
           <button onClick={logout} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.82rem', fontFamily: 'inherit' }}>
             Гарах
           </button>
@@ -70,6 +60,15 @@ export default function AdminNav({
             {l.label}
           </Link>
         ))}
+        {cargoId && (
+          <button onClick={copyInvite} className="admin-nav-link" style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: copied ? 'var(--accent)' : 'var(--muted)',
+            fontFamily: 'inherit', whiteSpace: 'nowrap',
+          }}>
+            {copied ? '✓ Хуулагдлаа' : '🔗 Урилга'}
+          </button>
+        )}
       </nav>
     </header>
   )
