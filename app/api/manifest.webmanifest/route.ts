@@ -5,8 +5,7 @@ export async function GET(req: NextRequest) {
   const slug = req.headers.get('x-cargo-slug')
   let name = 'Aicargo'
   let shortName = 'Aicargo'
-  let iconSrc = '/icon-192.png'
-  let iconType = 'image/png'
+  let hasLogo = false
 
   if (slug) {
     const cargo = await (prisma.cargo as any).findUnique({
@@ -16,10 +15,7 @@ export async function GET(req: NextRequest) {
     if (cargo) {
       name = cargo.name
       shortName = cargo.name.length > 12 ? cargo.name.split(' ')[0] : cargo.name
-      if (cargo.logoUrl) {
-        iconSrc = cargo.logoUrl
-        iconType = 'image/png'
-      }
+      hasLogo = !!cargo.logoUrl
     }
   }
 
@@ -32,11 +28,15 @@ export async function GET(req: NextRequest) {
     background_color: '#f5f4ef',
     theme_color: '#c05a2a',
     orientation: 'portrait',
-    icons: [
-      { src: iconSrc, sizes: 'any', type: iconType, purpose: 'any' },
-      { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-    ],
+    icons: hasLogo
+      ? [
+          { src: '/api/cargo-icon', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/api/cargo-icon', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ]
+      : [
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
   }
 
   return new Response(JSON.stringify(manifest), {
