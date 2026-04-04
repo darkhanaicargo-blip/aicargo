@@ -366,7 +366,6 @@ export default function ImportPage() {
                         {s.status === 'EREEN_ARRIVED' && (
                           <button
                             onClick={async () => {
-                              if (!confirm(`"${s.trackCode}" устгах уу?`)) return
                               const res = await fetch('/api/admin/ereen/recent', {
                                 method: 'DELETE',
                                 headers: { 'Content-Type': 'application/json' },
