@@ -93,6 +93,9 @@ export default function OrdersClient({
   const [searchQ, setSearchQ] = useState('')
   const [faqOpen, setFaqOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [installPrompt, setInstallPrompt] = useState<any>(null)
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [isIos, setIsIos] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
   const [addForm, setAddForm] = useState({ trackCode: '', description: '' })
   const [addLoading, setAddLoading] = useState(false)
@@ -104,6 +107,14 @@ export default function OrdersClient({
     if (addOpen) setTimeout(() => addInputRef.current?.focus(), 100)
     else { setAddForm({ trackCode: '', description: '' }); setAddError(''); setAddedCodes([]) }
   }, [addOpen])
+
+  useEffect(() => {
+    setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent) && !(window.navigator as any).standalone)
+    setIsInstalled(window.matchMedia('(display-mode: standalone)').matches)
+    const handler = (e: Event) => { e.preventDefault(); setInstallPrompt(e) }
+    window.addEventListener('beforeinstallprompt', handler)
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
 
   async function submitAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -248,6 +259,35 @@ export default function OrdersClient({
                     </div>
                   )}
                 </div>
+
+                {/* PWA install */}
+                {!isInstalled && (
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.6rem', marginTop: '0.5rem' }}>
+                    {installPrompt ? (
+                      <button
+                        onClick={async () => {
+                          installPrompt.prompt()
+                          const { outcome } = await installPrompt.userChoice
+                          if (outcome === 'accepted') { setInstallPrompt(null); setIsInstalled(true) }
+                        }}
+                        style={{
+                          width: '100%', padding: '0.5rem 0.75rem', borderRadius: '8px',
+                          border: '1px solid var(--accent)', background: 'var(--accent-light)',
+                          color: 'var(--accent)', fontWeight: 700, fontSize: '0.78rem',
+                          cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                          display: 'flex', alignItems: 'center', gap: '0.4rem',
+                        }}
+                      >
+                        <span>⊕</span> Нүүр дэлгэцэнд нэмэх
+                      </button>
+                    ) : isIos ? (
+                      <div style={{ fontSize: '0.72rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+                        <p style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '0.2rem' }}>📲 Нүүр дэлгэцэнд нэмэх</p>
+                        <p>Safari → <strong>□↑</strong> Share → <strong>Add to Home Screen</strong></p>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </div>
             )}
           </div>
