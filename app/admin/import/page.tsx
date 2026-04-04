@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
+import * as XLSX from 'xlsx'
 
 interface Row { trackCode: string }
 interface SearchResult {
@@ -20,7 +21,9 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function ImportPage() {
   const inputRef = useRef<HTMLInputElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
   const [input, setInput] = useState('')
+  const [xlsxMsg, setXlsxMsg] = useState('')
   const [rows, setRows] = useState<Row[]>([])
   const [page, setPage] = useState(1)
   const [saving, setSaving] = useState(false)
@@ -54,6 +57,33 @@ export default function ImportPage() {
   async function search(e: React.FormEvent) {
     e.preventDefault()
     loadList(searchQ, 1)
+  }
+
+  function handleExcel(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const wb = XLSX.read(ev.target?.result, { type: 'array' })
+        const ws = wb.Sheets[wb.SheetNames[0]]
+        const data: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1 })
+        const codes = data
+          .map(row => String(row[0] ?? '').trim().toUpperCase())
+          .filter(c => c.length >= 4)
+        if (codes.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
+        setRows(prev => {
+          const existing = new Set(prev.map(r => r.trackCode))
+          const newCodes = codes.filter(c => !existing.has(c)).map(c => ({ trackCode: c }))
+          const next = [...prev, ...newCodes]
+          setPage(Math.ceil(next.length / PAGE_SIZE))
+          setXlsxMsg(`✓ ${newCodes.length} трак код нэмэгдлээ`)
+          return next
+        })
+      } catch { setXlsxMsg('Файл уншихад алдаа гарлаа') }
+    }
+    reader.readAsArrayBuffer(file)
+    e.target.value = ''
   }
 
   const MIN_LEN = 4
@@ -120,6 +150,23 @@ export default function ImportPage() {
   return (
     <div className="page-wide" style={{ maxWidth: 560 }}>
       <h1 className="section-title">Эрээнд ирсэн — бараа оруулах</h1>
+
+      {/* Excel upload */}
+      <div style={{ marginBottom: '1rem' }}>
+        <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleExcel} style={{ display: 'none' }} />
+        <button onClick={() => fileRef.current?.click()} style={{
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          background: 'var(--surface)', border: '1px dashed var(--border)',
+          borderRadius: 'var(--radius)', padding: '0.55rem 1rem',
+          cursor: 'pointer', fontSize: '0.83rem', color: 'var(--muted)', fontFamily: 'inherit',
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          Excel файл оруулах (.xlsx, .xls, .csv)
+        </button>
+        {xlsxMsg && <p style={{ fontSize: '0.78rem', marginTop: '0.4rem', color: xlsxMsg.startsWith('✓') ? 'var(--accent)' : 'var(--danger)' }}>{xlsxMsg}</p>}
+      </div>
 
       {/* Input */}
       <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.5rem' }}>
