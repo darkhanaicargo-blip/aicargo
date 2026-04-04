@@ -8,13 +8,13 @@ const DEVICES = [
   { key: 'desktop', label: '🖥', title: 'Desktop', width: Infinity },
 ]
 
-export default function AdminShell({ children, cargoName, logoUrl }: { children: React.ReactNode; cargoName?: string; logoUrl?: string }) {
+export default function AdminShell({ children, cargoName, logoUrl, cargoId }: { children: React.ReactNode; cargoName?: string; logoUrl?: string; cargoId?: number }) {
   const [device, setDevice] = useState('desktop')
   const current = DEVICES.find(d => d.key === device)!
 
   return (
     <div style={{ minHeight: '100vh', background: device === 'desktop' ? 'var(--bg)' : '#d8d5ce' }}>
-      <AdminNav device={device} onDevice={setDevice} devices={DEVICES} cargoName={cargoName} logoUrl={logoUrl} />
+      <AdminNav device={device} onDevice={setDevice} devices={DEVICES} cargoName={cargoName} logoUrl={logoUrl} cargoId={cargoId} />
       <div style={{
         maxWidth: current.width === Infinity ? '100%' : current.width,
         margin: '0 auto',

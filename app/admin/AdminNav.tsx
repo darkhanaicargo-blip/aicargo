@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import NavLogo from '@/app/components/NavLogo'
 
@@ -22,15 +23,26 @@ export default function AdminNav({
   devices,
   cargoName,
   logoUrl,
+  cargoId,
 }: {
   device?: string
   onDevice?: (d: string) => void
   devices?: Device[]
   cargoName?: string
   logoUrl?: string
+  cargoId?: number
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [copied, setCopied] = useState(false)
+
+  function copyInvite() {
+    if (!cargoId) return
+    const url = `${window.location.origin}/register?cargo=${cargoId}`
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   async function logout() {
     if (!confirm('Гарахдаа итгэлтэй байна уу?')) return
@@ -63,6 +75,16 @@ export default function AdminNav({
                 </button>
               ))}
             </div>
+          )}
+          {cargoId && (
+            <button onClick={copyInvite} title="Урилгийн холбоос хуулах" style={{
+              background: 'none', border: '1px solid var(--border)', borderRadius: '8px',
+              color: copied ? 'var(--accent)' : 'var(--muted)',
+              cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit',
+              padding: '0.3rem 0.7rem', whiteSpace: 'nowrap',
+            }}>
+              {copied ? '✓ Хуулагдлаа' : '🔗 Урилга'}
+            </button>
           )}
           <button onClick={logout} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.82rem', fontFamily: 'inherit' }}>
             Гарах

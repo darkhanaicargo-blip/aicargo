@@ -1,15 +1,24 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NavLogo from '@/app/components/NavLogo'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Cargo { id: number; name: string; logoUrl?: string | null }
 
 export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [selectedCargo, setSelectedCargo] = useState<Cargo | null>(null)
   const [cargoSearch, setCargoSearch] = useState('')
+
+  useEffect(() => {
+    const cargoId = searchParams.get('cargo')
+    if (cargoId) {
+      const found = cargos.find(c => c.id === Number(cargoId))
+      if (found) setSelectedCargo(found)
+    }
+  }, [cargos, searchParams])
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)

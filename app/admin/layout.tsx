@@ -15,5 +15,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     logoUrl = cargo?.logoUrl ?? ''
   }
 
-  return <AdminShell cargoName={cargoName} logoUrl={logoUrl}>{children}</AdminShell>
+  return <AdminShell cargoName={cargoName} logoUrl={logoUrl} cargoId={user.cargoId ?? undefined}>{children}</AdminShell>
 }
