@@ -3,6 +3,8 @@ import { getCargoFromSubdomain } from '@/lib/cargo-context'
 import { redirect } from 'next/navigation'
 import LandingClient from './LandingClient'
 
+export const revalidate = 0
+
 export default async function Home() {
   const user = await getAuthUser()
   if (user) {
