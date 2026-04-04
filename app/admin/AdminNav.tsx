@@ -15,19 +15,11 @@ const links = [
   { href: '/admin/users', label: 'Хэрэглэгчид' },
 ]
 
-interface Device { key: string; label: string; title: string }
-
 export default function AdminNav({
-  device,
-  onDevice,
-  devices,
   cargoName,
   logoUrl,
   cargoId,
 }: {
-  device?: string
-  onDevice?: (d: string) => void
-  devices?: Device[]
   cargoName?: string
   logoUrl?: string
   cargoId?: number
@@ -57,25 +49,6 @@ export default function AdminNav({
           <Link href="/admin/import"><NavLogo name={cargoName} logoUrl={logoUrl} /></Link>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {devices && onDevice && (
-            <div style={{ display: 'flex', gap: '0.2rem', background: 'var(--surface2)', borderRadius: '8px', padding: '0.2rem', border: '1px solid var(--border)' }}>
-              {devices.map(d => (
-                <button key={d.key} onClick={() => onDevice(d.key)} title={d.title} style={{
-                  background: device === d.key ? 'var(--surface)' : 'transparent',
-                  border: device === d.key ? '1px solid var(--border)' : '1px solid transparent',
-                  borderRadius: '6px',
-                  padding: '0.2rem 0.5rem',
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                  lineHeight: 1.4,
-                  boxShadow: device === d.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-                  transition: 'background 0.12s',
-                }}>
-                  {d.label}
-                </button>
-              ))}
-            </div>
-          )}
           {cargoId && (
             <button onClick={copyInvite} title="Урилгийн холбоос хуулах" style={{
               background: 'none', border: '1px solid var(--border)', borderRadius: '8px',
