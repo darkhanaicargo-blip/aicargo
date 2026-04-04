@@ -9,11 +9,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   let cargoName = ''
   let logoUrl = ''
+  let cargoSlug = ''
   if (user.cargoId) {
-    const cargo = await (prisma.cargo.findUnique as any)({ where: { id: user.cargoId }, select: { name: true, logoUrl: true } })
+    const cargo = await (prisma.cargo.findUnique as any)({ where: { id: user.cargoId }, select: { name: true, logoUrl: true, slug: true } })
     cargoName = cargo?.name ?? ''
     logoUrl = cargo?.logoUrl ?? ''
+    cargoSlug = cargo?.slug ?? ''
   }
 
-  return <AdminShell cargoName={cargoName} logoUrl={logoUrl} cargoId={user.cargoId ?? undefined}>{children}</AdminShell>
+  return <AdminShell cargoName={cargoName} logoUrl={logoUrl} cargoSlug={cargoSlug}>{children}</AdminShell>
 }

@@ -19,20 +19,19 @@ const links = [
 export default function AdminNav({
   cargoName,
   logoUrl,
-  cargoId,
+  cargoSlug,
 }: {
   cargoName?: string
   logoUrl?: string
-  cargoId?: number
+  cargoSlug?: string
 }) {
   const pathname = usePathname()
   const router = useRouter()
   const [copied, setCopied] = useState(false)
 
   function copyInvite() {
-    if (!cargoId) return
-    const url = `${window.location.origin}/register?cargo=${cargoId}`
-    navigator.clipboard.writeText(url)
+    if (!cargoSlug) return
+    navigator.clipboard.writeText(`https://${cargoSlug}.aicargo.mn`)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -61,7 +60,7 @@ export default function AdminNav({
             {l.label}
           </Link>
         ))}
-        {cargoId && (
+        {cargoSlug && (
           <button onClick={copyInvite} className="admin-nav-link" style={{
             background: 'none', border: 'none', cursor: 'pointer',
             color: copied ? 'var(--accent)' : 'var(--muted)',
