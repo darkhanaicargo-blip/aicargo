@@ -99,9 +99,19 @@ export default function SuperPage() {
                         onChange={e => {
                           const file = e.target.files?.[0]
                           if (!file) return
-                          const reader = new FileReader()
-                          reader.onload = ev => setEditForm(f => ({ ...f, logoUrl: ev.target?.result as string }))
-                          reader.readAsDataURL(file)
+                          const img = new Image()
+                          const url = URL.createObjectURL(file)
+                          img.onload = () => {
+                            const size = Math.min(img.width, img.height, 400)
+                            const canvas = document.createElement('canvas')
+                            canvas.width = size
+                            canvas.height = size
+                            const ctx = canvas.getContext('2d')!
+                            ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size)
+                            setEditForm(f => ({ ...f, logoUrl: canvas.toDataURL('image/jpeg', 0.85) }))
+                            URL.revokeObjectURL(url)
+                          }
+                          img.src = url
                         }} />
                       {editForm.logoUrl && (
                         <button onClick={() => setEditForm(f => ({ ...f, logoUrl: '' }))}
