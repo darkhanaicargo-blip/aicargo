@@ -9,6 +9,7 @@ interface CargoStat {
   slug: string
   ereemReceiver: string
   ereemPhone: string
+  ereemRegion: string
   ereemAddress: string
   logoUrl: string | null
   createdAt: string
@@ -202,7 +203,8 @@ export default function SuperPage() {
                   <div style={{ fontSize: '0.75rem', color: 'var(--muted)', lineHeight: 1.7, borderTop: '1px solid var(--border)', paddingTop: '0.7rem' }}>
                     <span style={{ marginRight: '1.2rem' }}>收货人: <span style={{ color: 'var(--text)' }}>{c.ereemReceiver}</span></span>
                     <span style={{ marginRight: '1.2rem' }}>手机号: <span style={{ color: 'var(--text)' }}>{c.ereemPhone}</span></span>
-                    <span>地址: <span style={{ color: 'var(--text)' }}>{c.ereemAddress}</span></span>
+                    {c.ereemRegion && <span style={{ marginRight: '1.2rem' }}>地区: <span style={{ color: 'var(--text)' }}>{c.ereemRegion}</span></span>}
+                    <span>详细地址: <span style={{ color: 'var(--text)' }}>{c.ereemAddress}</span></span>
                   </div>
                 </div>
               )}

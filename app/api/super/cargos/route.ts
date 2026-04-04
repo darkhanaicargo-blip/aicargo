@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
       slug: c.slug,
       ereemReceiver: c.ereemReceiver,
       ereemPhone: c.ereemPhone,
+      ereemRegion: (c as any).ereemRegion ?? '',
       ereemAddress: c.ereemAddress,
       logoUrl: (c as any).logoUrl ?? null,
       createdAt: c.createdAt,
