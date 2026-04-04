@@ -20,19 +20,11 @@ export async function GET(
     user: { select: { name: true, phone: true } },
   }
 
-  let shipment = await prisma.shipment.findFirst({
+  const shipment = await prisma.shipment.findFirst({
     where: { trackCode: q, ...cargoFilter },
     select: selectFields,
     orderBy: { updatedAt: 'desc' },
   })
-
-  if (!shipment) {
-    shipment = await prisma.shipment.findFirst({
-      where: { trackCode: { contains: q }, ...cargoFilter },
-      orderBy: { updatedAt: 'desc' },
-      select: selectFields,
-    })
-  }
 
   if (!shipment) {
     return NextResponse.json({ error: 'Бараа олдсонгүй' }, { status: 404 })
