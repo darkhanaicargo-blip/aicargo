@@ -56,7 +56,6 @@ export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
               value={cargoSearch}
               onChange={e => setCargoSearch(e.target.value)}
               style={{ marginBottom: '0.75rem' }}
-              autoFocus
             />
             <div style={{ display: 'grid', gap: '0.6rem' }}>
               {filteredCargos.length === 0 && (
