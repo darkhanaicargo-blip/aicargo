@@ -5,6 +5,7 @@ import NavLogo from '@/app/components/NavLogo'
 
 const links = [
   { href: '/super', label: 'Карго жагсаалт' },
+  { href: '/super/groups', label: 'Группүүд' },
   { href: '/super/cargo/new', label: '+ Шинэ карго' },
 ]
 

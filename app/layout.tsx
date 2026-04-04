@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Ai cargo — Ачаа тээвэр',
+  title: 'Ai cargohub — Ачаа тээвэр',
   description: 'Карго бараа хянах систем',
   viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
   icons: { icon: '/favicon.svg', apple: '/logo.svg' },

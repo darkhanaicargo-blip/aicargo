@@ -6,16 +6,24 @@ datasource db {
   provider = "postgresql"
 }
 
+model CargoGroup {
+  id     Int     @id @default(autoincrement())
+  name   String
+  cargos Cargo[]
+}
+
 model Cargo {
-  id            Int        @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
-  slug          String     @unique
+  slug          String      @unique
   ereemReceiver String
   ereemPhone    String
   ereemAddress  String
   logoUrl          String?
   lastNotifiedAt   DateTime?
   createdAt        DateTime   @default(now())
+  groupId       Int?
+  group         CargoGroup? @relation(fields: [groupId], references: [id])
   users         User[]
   shipments     Shipment[]
   faqs          Faq[]
