@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { uploadLogo } from '@/lib/cloudinary'
 
 export async function POST(req: NextRequest) {
   const user = getAuthUserFromRequest(req)
@@ -19,6 +20,11 @@ export async function POST(req: NextRequest) {
 
   const slugClean = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')
 
+  let finalLogoUrl = logoUrl || null
+  if (logoUrl?.startsWith('data:')) {
+    finalLogoUrl = await uploadLogo(logoUrl, slugClean)
+  }
+
   const existingSlug = await prisma.cargo.findUnique({ where: { slug: slugClean } })
   if (existingSlug) {
     return NextResponse.json({ error: 'Энэ slug аль хэдийн байна' }, { status: 409 })
@@ -35,7 +41,7 @@ export async function POST(req: NextRequest) {
   const cargo = await prisma.cargo.create({
     data: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ...(logoUrl ? { logoUrl } : {}),
+      ...(finalLogoUrl ? { logoUrl: finalLogoUrl } : {}),
       name: name.trim(),
       slug: slugClean,
       ereemReceiver: ereemReceiver.trim(),

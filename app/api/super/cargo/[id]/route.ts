@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { uploadLogo } from '@/lib/cloudinary'
 
 export async function PATCH(
   req: NextRequest,
@@ -16,6 +17,11 @@ export async function PATCH(
 
   const { name, ereemReceiver, ereemPhone, ereemAddress, logoUrl } = await req.json()
 
+  let finalLogoUrl = logoUrl
+  if (logoUrl?.startsWith('data:')) {
+    finalLogoUrl = await uploadLogo(logoUrl, `cargo-${cargoId}`)
+  }
+
   const cargo = await (prisma.cargo.update as any)({
     where: { id: cargoId },
     data: {
@@ -23,7 +29,7 @@ export async function PATCH(
       ...(ereemReceiver !== undefined ? { ereemReceiver: ereemReceiver.trim() } : {}),
       ...(ereemPhone !== undefined ? { ereemPhone: ereemPhone.trim() } : {}),
       ...(ereemAddress !== undefined ? { ereemAddress: ereemAddress.trim() } : {}),
-      ...(logoUrl !== undefined ? { logoUrl: logoUrl || null } : {}),
+      ...(finalLogoUrl !== undefined ? { logoUrl: finalLogoUrl || null } : {}),
     },
   })
 
