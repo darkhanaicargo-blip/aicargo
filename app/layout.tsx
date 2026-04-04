@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Карго бараа хянах систем',
   viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
   icons: { icon: '/favicon.svg', apple: '/logo.svg' },
-  manifest: '/manifest.json',
+  manifest: '/api/manifest.webmanifest',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
