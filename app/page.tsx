@@ -1,4 +1,5 @@
 import { getAuthUser } from '@/lib/auth'
+import { getCargoFromSubdomain } from '@/lib/cargo-context'
 import { redirect } from 'next/navigation'
 import LandingClient from './LandingClient'
 
@@ -10,5 +11,6 @@ export default async function Home() {
     redirect('/orders')
   }
 
-  return <LandingClient />
+  const cargo = await getCargoFromSubdomain()
+  return <LandingClient cargo={cargo} />
 }

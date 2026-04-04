@@ -10,8 +10,16 @@ const STATUS_LABEL: Record<string, string> = {
   PICKED_UP: 'Авсан',
 }
 
+interface CargoInfo {
+  id: number
+  name: string
+  logoUrl: string | null
+  ereemReceiver: string
+  ereemPhone: string
+  ereemAddress: string
+}
 
-export default function LandingClient() {
+export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
   const [code, setCode] = useState('')
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
@@ -37,7 +45,7 @@ export default function LandingClient() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <nav className="nav">
-        <NavLogo />
+        <NavLogo name={cargo?.name} logoUrl={cargo?.logoUrl ?? undefined} />
         <div className="nav-links">
           <Link href="/login">Нэвтрэх</Link>
           <Link href="/register" className="btn" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>Бүртгүүлэх</Link>
@@ -49,7 +57,7 @@ export default function LandingClient() {
         {/* Track search */}
         <div style={{ marginBottom: '2.5rem', marginTop: '2rem' }}>
           <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>
-            Aicargohub — Ачаа хянах систем
+            {cargo ? cargo.name : 'Aicargohub'} — Ачаа хянах систем
           </p>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.5px', marginBottom: '0.5rem' }}>
             Ачаа шалгах
@@ -182,9 +190,16 @@ export default function LandingClient() {
         fontSize: '0.75rem',
         color: 'var(--muted)',
       }}>
+        {cargo && (
+          <>
+            <span style={{ fontWeight: 600, color: 'var(--text)' }}>{cargo.name} — Эрээн хаяг</span>
+            <span>{cargo.ereemReceiver} · {cargo.ereemPhone}</span>
+            <span>{cargo.ereemAddress}</span>
+            <span style={{ margin: '0.25rem 0', borderTop: '1px solid var(--border)', width: 60 }} />
+          </>
+        )}
         <span>"Бизнес интеллижэнс" ХХК хөгжүүлж байна</span>
-        <span>Утас: 85205258</span>
-        <span>2026 он</span>
+        <span>Утас: 85205258 · 2026 он</span>
       </footer>
 
 

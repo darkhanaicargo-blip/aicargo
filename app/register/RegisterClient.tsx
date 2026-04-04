@@ -6,19 +6,21 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Cargo { id: number; name: string; logoUrl?: string | null }
 
-export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
+export default function RegisterClient({ cargos, lockedCargoId }: { cargos: Cargo[]; lockedCargoId?: number }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedCargo, setSelectedCargo] = useState<Cargo | null>(null)
+  const locked = lockedCargoId ? cargos.find(c => c.id === lockedCargoId) ?? null : null
+  const [selectedCargo, setSelectedCargo] = useState<Cargo | null>(locked)
   const [cargoSearch, setCargoSearch] = useState('')
 
   useEffect(() => {
+    if (locked) return
     const cargoId = searchParams.get('cargo')
     if (cargoId) {
       const found = cargos.find(c => c.id === Number(cargoId))
       if (found) setSelectedCargo(found)
     }
-  }, [cargos, searchParams])
+  }, [cargos, searchParams, locked])
   const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -107,12 +109,14 @@ export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
           <>
             <div style={{ marginBottom: '1.2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                <button
-                  onClick={() => { setSelectedCargo(null); setError('') }}
-                  style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem', fontFamily: 'inherit', padding: 0 }}
-                >
-                  ←
-                </button>
+                {!locked && (
+                  <button
+                    onClick={() => { setSelectedCargo(null); setError('') }}
+                    style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem', fontFamily: 'inherit', padding: 0 }}
+                  >
+                    ←
+                  </button>
+                )}
                 <h1 className="section-title" style={{ margin: 0 }}>Бүртгүүлэх</h1>
               </div>
               <div style={{
@@ -136,12 +140,14 @@ export default function RegisterClient({ cargos }: { cargos: Cargo[] }) {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => { setSelectedCargo(null); setError('') }}
-                  style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: 6, padding: '0.25rem 0.6rem', cursor: 'pointer', fontSize: '0.75rem', fontFamily: 'inherit' }}
-                >
-                  Өөрчлөх
-                </button>
+                {!locked && (
+                  <button
+                    onClick={() => { setSelectedCargo(null); setError('') }}
+                    style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: 6, padding: '0.25rem 0.6rem', cursor: 'pointer', fontSize: '0.75rem', fontFamily: 'inherit' }}
+                  >
+                    Өөрчлөх
+                  </button>
+                )}
               </div>
             </div>
 

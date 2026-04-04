@@ -32,6 +32,8 @@ model User {
   cargo     Cargo      @relation(fields: [cargoId], references: [id])
   createdAt DateTime   @default(now())
   shipments Shipment[]
+
+  @@index([cargoId])
 }
 
 model Shipment {
@@ -51,6 +53,8 @@ model Shipment {
   updatedAt   DateTime @updatedAt
 
   @@unique([trackCode, cargoId])
+  @@index([cargoId, status])
+  @@index([cargoId, updatedAt])
 }
 
 model Faq {
