@@ -3,6 +3,19 @@ import { useState } from 'react'
 
 interface Faq { id: number; question: string; answer: string }
 
+function renderAnswer(text: string) {
+  return text.split(/(https?:\/\/[^\s]+)/).map((part, i) =>
+    part.match(/^https?:\/\//) ? (
+      <a key={i} href={part} target="_blank" rel="noopener noreferrer"
+        style={{ color: 'var(--accent)', wordBreak: 'break-all', textDecoration: 'underline' }}>
+        {part}
+      </a>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  )
+}
+
 export default function ChatWidget({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [faqs, setFaqs] = useState<Faq[]>([])
   const [selected, setSelected] = useState<Faq | null>(null)
@@ -50,7 +63,7 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
         {selected ? (
           <div>
             <p style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.45rem', lineHeight: 1.4, color: 'var(--text)' }}>{selected.question}</p>
-            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.6 }}>{selected.answer}</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.6 }}>{renderAnswer(selected.answer)}</p>
           </div>
         ) : faqs.length === 0 ? (
           <p style={{ fontSize: '0.78rem', color: 'var(--muted)', textAlign: 'center', padding: '0.8rem 0' }}>
