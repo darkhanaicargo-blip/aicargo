@@ -65,11 +65,19 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get('q') ?? req.nextUrl.searchParams.get('phone')
   if (!q) return NextResponse.json({ error: 'Утас эсвэл трак код оруулна уу' }, { status: 400 })
 
-  const isPhone = /^\d+$/.test(q.trim())
+  const trimmed = q.trim()
+  const isPhoneOnly = /^\d{8}$/.test(trimmed)
   const shipments = await prisma.shipment.findMany({
-    where: isPhone
-      ? { phone: { contains: q.trim() }, status: 'ARRIVED', cargoId: admin.cargoId! }
-      : { trackCode: { contains: q.trim().toUpperCase() }, status: 'ARRIVED', cargoId: admin.cargoId! },
+    where: {
+      status: 'ARRIVED',
+      cargoId: admin.cargoId!,
+      OR: isPhoneOnly
+        ? [{ phone: { contains: trimmed } }]
+        : [
+            { trackCode: { contains: trimmed.toUpperCase() } },
+            { phone: { contains: trimmed } },
+          ],
+    },
     orderBy: { createdAt: 'desc' },
   })
 
