@@ -36,7 +36,9 @@ export default function LoginClient({ cargoName, logoUrl }: { cargoName?: string
           <div className="form-group">
             <label>Утасны дугаар</label>
             <input className="input" type="tel" placeholder="99000000" required
-              value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+              maxLength={8}
+              value={form.phone}
+              onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 8) })} />
           </div>
           <div className="form-group">
             <label>Нууц үг</label>

@@ -160,7 +160,9 @@ export default function RegisterClient({ cargos, lockedCargoId }: { cargos: Carg
               <div className="form-group">
                 <label>Утасны дугаар</label>
                 <input className="input" type="tel" placeholder="99000000" required
-                  value={form.phone} onChange={e => set('phone', e.target.value)} />
+                  maxLength={8} pattern="\d{8}"
+                  value={form.phone}
+                  onChange={e => set('phone', e.target.value.replace(/\D/g, '').slice(0, 8))} />
               </div>
               <div className="form-group">
                 <label>И-мэйл</label>
