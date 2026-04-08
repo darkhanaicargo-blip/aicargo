@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react'
 import * as XLSX from 'xlsx'
 
-interface Row { trackCode: string }
+interface Row { trackCode: string; phone?: string }
 interface SearchResult {
   id: number; trackCode: string; status: string; phone: string | null
   createdAt: string; user?: { name: string; phone: string } | null
@@ -21,8 +21,11 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function ImportPage() {
   const inputRef = useRef<HTMLInputElement>(null)
+  const phoneRef = useRef<HTMLInputElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const [input, setInput] = useState('')
+  const [phoneInput, setPhoneInput] = useState('')
+  const [mode, setMode] = useState<'track' | 'track+phone'>('track')
   const [xlsxMsg, setXlsxMsg] = useState('')
   const [rows, setRows] = useState<Row[]>([])
   const [page, setPage] = useState(1)
@@ -68,16 +71,19 @@ export default function ImportPage() {
         const wb = XLSX.read(ev.target?.result, { type: 'array' })
         const ws = wb.Sheets[wb.SheetNames[0]]
         const data: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1 })
-        const codes = data
-          .map(row => String(row[0] ?? '').trim().toUpperCase())
-          .filter(c => c.length >= 4)
-        if (codes.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
+        const parsed = data
+          .map(row => ({
+            trackCode: String(row[0] ?? '').trim().toUpperCase(),
+            phone: String(row[1] ?? '').trim() || undefined,
+          }))
+          .filter(r => r.trackCode.length >= 4)
+        if (parsed.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
         setRows(prev => {
           const existing = new Set(prev.map(r => r.trackCode))
-          const newCodes = codes.filter(c => !existing.has(c)).map(c => ({ trackCode: c }))
-          const next = [...prev, ...newCodes]
+          const newRows = parsed.filter(r => !existing.has(r.trackCode))
+          const next = [...prev, ...newRows]
           setPage(Math.ceil(next.length / PAGE_SIZE))
-          setXlsxMsg(`✓ ${newCodes.length} трак код нэмэгдлээ`)
+          setXlsxMsg(`✓ ${newRows.length} трак код нэмэгдлээ`)
           return next
         })
       } catch { setXlsxMsg('Файл уншихад алдаа гарлаа') }
@@ -97,18 +103,22 @@ export default function ImportPage() {
     }
     if (rows.some(r => r.trackCode === code)) {
       setInput('')
+      setPhoneInput('')
       setLastAdded(`⚠ ${code} аль хэдийн нэмэгдсэн`)
       return
     }
+    const ph = mode === 'track+phone' ? phoneInput.trim() : undefined
     setRows(prev => {
-      const next = [...prev, { trackCode: code }]
-      // Go to last page
+      const next = [...prev, { trackCode: code, phone: ph || undefined }]
       setPage(Math.ceil(next.length / PAGE_SIZE))
       return next
     })
-    setLastAdded(code)
+    setLastAdded(ph ? `${code} — ${ph}` : code)
     setInput('')
+    setPhoneInput('')
     setDone(null)
+    // Focus back to track input
+    setTimeout(() => inputRef.current?.focus(), 50)
   }
 
   function removeRow(idx: number) {
@@ -128,7 +138,7 @@ export default function ImportPage() {
       const res = await fetch('/api/admin/bulk-import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rows: rows.map(r => ({ trackCode: r.trackCode, status: 'EREEN_ARRIVED' })) }),
+        body: JSON.stringify({ rows: rows.map(r => ({ trackCode: r.trackCode, status: 'EREEN_ARRIVED', phone: r.phone })) }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Алдаа гарлаа'); return }
@@ -168,21 +178,58 @@ export default function ImportPage() {
         {xlsxMsg && <p style={{ fontSize: '0.78rem', marginTop: '0.4rem', color: xlsxMsg.startsWith('✓') ? 'var(--accent)' : 'var(--danger)' }}>{xlsxMsg}</p>}
       </div>
 
+      {/* Mode toggle */}
+      <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.75rem' }}>
+        {(['track', 'track+phone'] as const).map(m => (
+          <button key={m} onClick={() => setMode(m)} style={{
+            padding: '0.3rem 0.85rem', borderRadius: '100px', fontSize: '0.78rem', fontFamily: 'inherit',
+            border: `1px solid ${mode === m ? 'var(--accent)' : 'var(--border)'}`,
+            background: mode === m ? 'var(--accent-light)' : 'var(--surface)',
+            color: mode === m ? 'var(--accent)' : 'var(--muted)',
+            cursor: 'pointer', fontWeight: mode === m ? 700 : 400,
+          }}>
+            {m === 'track' ? 'Трак код' : 'Трак + Утас'}
+          </button>
+        ))}
+      </div>
+
       {/* Input */}
-      <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.5rem', flexWrap: mode === 'track+phone' ? 'wrap' : 'nowrap' }}>
         <input
           ref={inputRef}
           className="input"
           placeholder="Трак код уншуулах эсвэл бичих..."
           value={input}
           onChange={e => { setInput(e.target.value); setLastAdded('') }}
-          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addRow() } }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              if (mode === 'track+phone' && input.trim().length >= MIN_LEN) {
+                phoneRef.current?.focus()
+              } else {
+                addRow()
+              }
+            }
+          }}
           autoComplete="off"
           style={{
-            minWidth: 0,
+            minWidth: 0, flex: 1,
             borderColor: input.trim().length > 0 && input.trim().length < MIN_LEN ? 'var(--danger)' : undefined,
           }}
         />
+        {mode === 'track+phone' && (
+          <input
+            ref={phoneRef}
+            className="input"
+            placeholder="Утасны дугаар"
+            value={phoneInput}
+            maxLength={8}
+            onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 8))}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addRow() } }}
+            autoComplete="off"
+            style={{ minWidth: 0, flex: '0 0 140px' }}
+          />
+        )}
         <button
           className="btn"
           onClick={addRow}
@@ -250,6 +297,7 @@ export default function ImportPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
                             <span style={{ fontSize: '0.68rem', color: 'var(--muted)', flexShrink: 0 }}>{globalIdx + 1}</span>
                             <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.trackCode}</span>
+                            {r.phone && <span style={{ fontSize: '0.72rem', color: 'var(--accent)', flexShrink: 0 }}>{r.phone}</span>}
                           </div>
                           <button onClick={() => removeRow(globalIdx)} style={{
                             background: 'none', border: 'none', cursor: 'pointer',

@@ -5,6 +5,7 @@ import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 interface ImportRow {
   trackCode: string
   status: 'EREEN_ARRIVED' | 'ARRIVED'
+  phone?: string
 }
 
 export async function POST(req: NextRequest) {
@@ -20,12 +21,13 @@ export async function POST(req: NextRequest) {
   }
 
   const results = await Promise.all(
-    rows.map(async ({ trackCode, status }) => {
+    rows.map(async ({ trackCode, status, phone }) => {
       const code = trackCode.trim().toUpperCase()
+      const ph = phone?.trim() || null
       return prisma.shipment.upsert({
         where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
-        update: { status },
-        create: { trackCode: code, status, cargoId: admin.cargoId! },
+        update: { status, ...(ph ? { phone: ph } : {}) },
+        create: { trackCode: code, status, cargoId: admin.cargoId!, phone: ph },
       })
     })
   )
