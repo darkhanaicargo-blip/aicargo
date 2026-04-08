@@ -224,7 +224,13 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
             ].map(tab => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(activeTab === tab.key ? null : tab.key)}
+                onClick={() => {
+                  const next = activeTab === tab.key ? null : tab.key
+                  setActiveTab(next)
+                  if (next) setTimeout(() => {
+                    document.getElementById('tab-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }, 50)
+                }}
                 style={{
                   flex: 1, padding: '0.75rem 0.25rem', border: 'none', cursor: 'pointer',
                   fontSize: '0.75rem', fontWeight: 600, fontFamily: 'inherit',
@@ -241,7 +247,7 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
 
           {/* Tab content */}
           {activeTab && (
-            <div style={{ padding: '0.75rem 5%', fontSize: '0.83rem', lineHeight: 1.8, color: 'var(--text)' }}>
+            <div id="tab-content" style={{ padding: '0.75rem 5%', fontSize: '0.83rem', lineHeight: 1.8, color: 'var(--text)' }}>
               {activeTab === 'address' && (
                 <div style={{ borderTop: '1px solid var(--border)' }}>
                   <CopyItem label="收货人 (Нэр)" value={cargo.ereemReceiver} />
