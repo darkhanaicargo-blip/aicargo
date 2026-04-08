@@ -86,7 +86,7 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
         </div>
       </nav>
 
-      <div className="page" style={{ flex: 1, paddingBottom: cargo ? '3.5rem' : 0 }}>
+      <div className="page" style={{ flex: 1 }}>
 
         {/* Track search */}
         <div style={{ marginBottom: '1.5rem', marginTop: '1.2rem' }}>
@@ -156,7 +156,7 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
         <hr className="divider" />
 
         {/* Orders preview */}
-        <div style={{ marginBottom: '1.2rem' }}>
+        <div style={{ marginBottom: '0.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.2rem' }}>Миний захиалгууд</h2>
@@ -213,20 +213,35 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
         </div>
       </div>
       {cargo && (
-        <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-          background: 'var(--surface)',
-          borderTop: '1px solid var(--border)',
-          boxShadow: '0 -2px 10px rgba(0,0,0,0.08)',
-        }}>
-          {/* Tab content — expands upward */}
+        <div style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
+          {/* 4 tab buttons */}
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
+            {[
+              { key: 'address', label: 'Хаяг' },
+              { key: 'tariff', label: 'Тариф' },
+              { key: 'announcement', label: 'Анхааруулга' },
+              { key: 'contact', label: 'Холбоо барих' },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(activeTab === tab.key ? null : tab.key)}
+                style={{
+                  flex: 1, padding: '0.75rem 0.25rem', border: 'none', cursor: 'pointer',
+                  fontSize: '0.75rem', fontWeight: 600, fontFamily: 'inherit',
+                  background: activeTab === tab.key ? 'var(--accent-light)' : 'transparent',
+                  color: activeTab === tab.key ? 'var(--accent)' : 'var(--muted)',
+                  borderBottom: activeTab === tab.key ? '2px solid var(--accent)' : '2px solid transparent',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
           {activeTab && (
-            <div style={{
-              padding: '0.75rem 5%', fontSize: '0.83rem', lineHeight: 1.8,
-              color: 'var(--text)', borderTop: '1px solid var(--border)',
-              maxHeight: '60vh', overflowY: 'auto',
-              background: 'var(--surface)',
-            }}>
+            <div style={{ padding: '0.75rem 5%', fontSize: '0.83rem', lineHeight: 1.8, color: 'var(--text)' }}>
               {activeTab === 'address' && (
                 <div style={{ borderTop: '1px solid var(--border)' }}>
                   <CopyItem label="收货人 (Нэр)" value={cargo.ereemReceiver} />
@@ -274,31 +289,6 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
               )}
             </div>
           )}
-          {/* 4 tab buttons */}
-          <div style={{ display: 'flex' }}>
-            {[
-              { key: 'address', label: 'Хаяг' },
-              { key: 'tariff', label: 'Тариф' },
-              { key: 'announcement', label: 'Анхааруулга' },
-              { key: 'contact', label: 'Холбоо барих' },
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(activeTab === tab.key ? null : tab.key)}
-                style={{
-                  flex: 1, padding: '0.75rem 0.25rem', border: 'none', cursor: 'pointer',
-                  fontSize: '0.75rem', fontWeight: 600, fontFamily: 'inherit',
-                  background: activeTab === tab.key ? 'var(--accent-light)' : 'transparent',
-                  color: activeTab === tab.key ? 'var(--accent)' : 'var(--muted)',
-                  borderBottom: activeTab === tab.key ? '2px solid var(--accent)' : '2px solid transparent',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
         </div>
       )}
 
