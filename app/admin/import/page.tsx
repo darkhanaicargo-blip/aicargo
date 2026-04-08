@@ -94,6 +94,22 @@ export default function ImportPage() {
 
   const MIN_LEN = 4
 
+  async function lookupPhone(trackCode: string) {
+    if (!trackCode || trackCode.length < MIN_LEN) return
+    try {
+      const res = await fetch(`/api/admin/ereen/recent?q=${encodeURIComponent(trackCode)}`)
+      if (!res.ok) return
+      const data = await res.json()
+      const match = data.items?.find((s: any) =>
+        s.trackCode === trackCode.toUpperCase()
+      )
+      if (match) {
+        const phone = match.user?.phone || match.phone || ''
+        if (phone) setPhoneInput(phone)
+      }
+    } catch {}
+  }
+
   function addRow() {
     const code = input.trim().toUpperCase()
     if (!code) return
@@ -201,10 +217,11 @@ export default function ImportPage() {
           placeholder="Трак код уншуулах эсвэл бичих..."
           value={input}
           onChange={e => { setInput(e.target.value); setLastAdded('') }}
-          onKeyDown={e => {
+          onKeyDown={async e => {
             if (e.key === 'Enter') {
               e.preventDefault()
               if (mode === 'track+phone' && input.trim().length >= MIN_LEN) {
+                await lookupPhone(input.trim())
                 phoneRef.current?.focus()
               } else {
                 addRow()
