@@ -20,6 +20,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Өгөгдөл хоосон байна' }, { status: 400 })
   }
 
+  const codes = rows.map(r => r.trackCode.trim().toUpperCase())
+
+  // Find which codes are already EREEN_ARRIVED
+  const existing = await prisma.shipment.findMany({
+    where: { cargoId: admin.cargoId!, trackCode: { in: codes }, status: 'EREEN_ARRIVED' },
+    select: { trackCode: true },
+  })
+  const duplicates = existing.map(e => e.trackCode)
+
   const results = await Promise.all(
     rows.map(async ({ trackCode, status, phone }) => {
       const code = trackCode.trim().toUpperCase()
@@ -32,5 +41,5 @@ export async function POST(req: NextRequest) {
     })
   )
 
-  return NextResponse.json({ count: results.length })
+  return NextResponse.json({ count: results.length, duplicates })
 }

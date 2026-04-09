@@ -31,6 +31,7 @@ export default function ImportPage() {
   const [page, setPage] = useState(1)
   const [saving, setSaving] = useState(false)
   const [done, setDone] = useState<number | null>(null)
+  const [duplicates, setDuplicates] = useState<string[]>([])
   const [error, setError] = useState('')
   const [lastAdded, setLastAdded] = useState('')
 
@@ -159,6 +160,7 @@ export default function ImportPage() {
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Алдаа гарлаа'); return }
       setDone(data.count)
+      setDuplicates(data.duplicates ?? [])
       setRows([])
       setLastAdded('')
       setPage(1)
@@ -290,6 +292,16 @@ export default function ImportPage() {
           <div className="card-row">
             <span className="msg-success" style={{ margin: 0 }}>Амжилттай хадгалагдлаа — {done} бараа</span>
           </div>
+          {duplicates.length > 0 && (
+            <div className="card-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '0.3rem' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--danger)', fontWeight: 600 }}>
+                ⚠ {duplicates.length} бараа аль хэдийн Эрээнд статустай байсан:
+              </span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontFamily: 'monospace', lineHeight: 1.6 }}>
+                {duplicates.join(', ')}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
