@@ -213,6 +213,7 @@ export default function HistoryPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
                   <strong style={{ color: 'var(--text)' }}>{rFilteredCount}</strong> ачаа &nbsp;·&nbsp;
+                  <strong style={{ color: 'var(--text)' }}>{new Set(rFiltered.flatMap(g => g.shipments.map(s => s.phone ?? '—'))).size}</strong> хэрэглэгч &nbsp;·&nbsp;
                   <strong style={{ color: 'var(--accent)' }}>₮{rFilteredTotal.toLocaleString()}</strong>
                 </span>
               </div>
@@ -247,6 +248,9 @@ export default function HistoryPage() {
                             <strong style={{ fontSize: '0.9rem' }}>{g.date}</strong>
                             <span style={{ fontSize: '0.75rem', color: 'var(--muted)', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.1rem 0.55rem' }}>
                               {g.count} ачаа
+                            </span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.1rem 0.55rem' }}>
+                              {phoneGroups.length} хэрэглэгч
                             </span>
                           </div>
                           <strong style={{ color: g.value > 0 ? 'var(--accent)' : 'var(--muted)', fontSize: '0.9rem', flexShrink: 0 }}>
