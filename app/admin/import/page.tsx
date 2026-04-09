@@ -67,7 +67,7 @@ export default function ImportPage() {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
         const wb = XLSX.read(ev.target?.result, { type: 'array' })
         const ws = wb.Sheets[wb.SheetNames[0]]
@@ -79,12 +79,25 @@ export default function ImportPage() {
           }))
           .filter(r => r.trackCode.length >= 4)
         if (parsed.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
+
+        // Check DB for already-EREEN_ARRIVED codes
+        const codes = parsed.map(r => r.trackCode)
+        let dbDupes: string[] = []
+        try {
+          const res = await fetch(`/api/admin/bulk-import?codes=${encodeURIComponent(codes.join(','))}`)
+          if (res.ok) dbDupes = (await res.json()).duplicates ?? []
+        } catch {}
+
         setRows(prev => {
           const existing = new Set(prev.map(r => r.trackCode))
           const newRows = parsed.filter(r => !existing.has(r.trackCode))
           const next = [...prev, ...newRows]
           setPage(Math.ceil(next.length / PAGE_SIZE))
-          setXlsxMsg(`✓ ${newRows.length} трак код нэмэгдлээ`)
+          if (dbDupes.length > 0) {
+            setXlsxMsg(`✓ ${newRows.length} нэмэгдлээ — ⚠ ${dbDupes.length} аль хэдийн Эрээнд байна: ${dbDupes.join(', ')}`)
+          } else {
+            setXlsxMsg(`✓ ${newRows.length} трак код нэмэгдлээ`)
+          }
           return next
         })
       } catch { setXlsxMsg('Файл уншихад алдаа гарлаа') }

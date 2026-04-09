@@ -8,6 +8,22 @@ interface ImportRow {
   phone?: string
 }
 
+export async function GET(req: NextRequest) {
+  const admin = getAuthUserFromRequest(req)
+  if (!admin) return unauthorized()
+  if (admin.role !== 'ADMIN') return forbidden()
+
+  const raw = req.nextUrl.searchParams.get('codes') ?? ''
+  const codes = raw.split(',').map(c => c.trim().toUpperCase()).filter(Boolean)
+  if (codes.length === 0) return NextResponse.json({ duplicates: [] })
+
+  const existing = await prisma.shipment.findMany({
+    where: { cargoId: admin.cargoId!, trackCode: { in: codes }, status: 'EREEN_ARRIVED' },
+    select: { trackCode: true },
+  })
+  return NextResponse.json({ duplicates: existing.map(e => e.trackCode) })
+}
+
 export async function POST(req: NextRequest) {
   const admin = getAuthUserFromRequest(req)
   if (!admin) return unauthorized()
