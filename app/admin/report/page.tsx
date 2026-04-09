@@ -18,6 +18,8 @@ export default function ReportPage() {
   const [data, setData] = useState<ReportData | null>(null)
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const PAGE = 10
 
   async function search() {
     const ph = phone.trim()
@@ -26,20 +28,23 @@ export default function ReportPage() {
     setData(null)
     setExpanded(null)
     setFilterDate('')
+    setPage(1)
     const params = new URLSearchParams({ phone: ph })
     const res = await fetch(`/api/admin/report?${params}`)
     setLoading(false)
     if (res.ok) setData(await res.json())
   }
 
-  const filtered = data
+  const filteredDates = data
     ? filterDate
-      ? { ...data, dates: data.dates.filter(g => g.date === filterDate.replace(/-/g, '.')) }
-      : data
-    : null
+      ? data.dates.filter(g => g.date === filterDate.replace(/-/g, '.'))
+      : data.dates
+    : []
 
-  const filteredTotal = filtered?.dates.reduce((s, g) => s + g.value, 0) ?? 0
-  const filteredCount = filtered?.dates.reduce((s, g) => s + g.count, 0) ?? 0
+  const filteredTotal = filteredDates.reduce((s, g) => s + g.value, 0)
+  const filteredCount = filteredDates.reduce((s, g) => s + g.count, 0)
+  const totalPages = Math.max(1, Math.ceil(filteredDates.length / PAGE))
+  const pagedDates = filteredDates.slice((page - 1) * PAGE, page * PAGE)
 
   return (
     <div className="page-wide" style={{ maxWidth: 600 }}>
@@ -67,7 +72,7 @@ export default function ReportPage() {
               className="input"
               type="date"
               value={filterDate}
-              onChange={e => { setFilterDate(e.target.value); setExpanded(null) }}
+              onChange={e => { setFilterDate(e.target.value); setExpanded(null); setPage(1) }}
               style={{ width: 160 }}
             />
             {filterDate && (
@@ -82,20 +87,20 @@ export default function ReportPage() {
             </span>
           </div>
 
-          {!filtered || filtered.dates.length === 0 ? (
+          {filteredDates.length === 0 ? (
             <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>
               {filterDate ? 'Энэ өдөр авсан бараа байхгүй.' : 'Авсан бараа байхгүй байна.'}
             </p>
           ) : (
             <div className="card" style={{ overflow: 'hidden' }}>
-              {filtered.dates.map((g, i) => (
+              {pagedDates.map((g, i) => (
                 <div key={g.date}>
                   <div
                     onClick={() => setExpanded(expanded === g.date ? null : g.date)}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '0.8rem 1.2rem', cursor: 'pointer',
-                      borderBottom: (expanded === g.date || i < filtered.dates.length - 1) ? '1px solid var(--border)' : 'none',
+                      borderBottom: (expanded === g.date || i < pagedDates.length - 1) ? '1px solid var(--border)' : 'none',
                       background: expanded === g.date ? 'var(--surface2)' : 'var(--surface)',
                       transition: 'background 0.12s', gap: '0.5rem',
                     }}
@@ -113,7 +118,7 @@ export default function ReportPage() {
                   </div>
 
                   {expanded === g.date && (
-                    <div style={{ borderBottom: i < filtered.dates.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                    <div style={{ borderBottom: i < pagedDates.length - 1 ? '1px solid var(--border)' : 'none' }}>
                       {g.shipments.map((s, si) => (
                         <div key={s.id} style={{
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -134,6 +139,22 @@ export default function ReportPage() {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'center', marginTop: '0.75rem' }}>
+              <button onClick={() => { setPage(p => Math.max(1, p-1)); setExpanded(null) }} disabled={page === 1} style={{
+                height: 32, padding: '0 0.75rem', borderRadius: '8px', border: '1px solid var(--border)',
+                background: 'var(--surface)', cursor: page === 1 ? 'not-allowed' : 'pointer',
+                opacity: page === 1 ? 0.4 : 1, fontSize: '0.82rem', color: 'var(--text)', fontFamily: 'inherit',
+              }}>‹</button>
+              <span style={{ fontSize: '0.8rem', color: 'var(--muted)', padding: '0 0.4rem' }}>{page} / {totalPages}</span>
+              <button onClick={() => { setPage(p => Math.min(totalPages, p+1)); setExpanded(null) }} disabled={page === totalPages} style={{
+                height: 32, padding: '0 0.75rem', borderRadius: '8px', border: '1px solid var(--border)',
+                background: 'var(--surface)', cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                opacity: page === totalPages ? 0.4 : 1, fontSize: '0.82rem', color: 'var(--text)', fontFamily: 'inherit',
+              }}>›</button>
             </div>
           )}
         </>
