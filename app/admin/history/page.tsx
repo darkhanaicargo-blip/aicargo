@@ -63,13 +63,14 @@ export default function HistoryPage() {
   const [rDate, setRDate] = useState('')
   const [rData, setRData] = useState<{ dates: DateGroup[]; totalCount: number; totalValue: number } | null>(null)
   const [rLoading, setRLoading] = useState(false)
-  const [rExpanded, setRExpanded] = useState<string | null>(null)
+  const [rExpandedDate, setRExpandedDate] = useState<string | null>(null)
+  const [rExpandedPhone, setRExpandedPhone] = useState<string | null>(null)
   const [rPage, setRPage] = useState(1)
 
   async function loadReport() {
     const ph = rPhone.trim()
     if (!ph && !rDate) return
-    setRLoading(true); setRData(null); setRExpanded(null); setRPage(1)
+    setRLoading(true); setRData(null); setRExpandedDate(null); setRExpandedPhone(null); setRPage(1)
     const params = new URLSearchParams()
     if (ph) params.set('phone', ph)
     if (rDate) { params.set('from', rDate); params.set('to', rDate) }
@@ -220,57 +221,98 @@ export default function HistoryPage() {
                 <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Тохирох бараа байхгүй байна.</p>
               ) : (
                 <div className="card" style={{ overflow: 'hidden' }}>
-                  {rPaged.map((g, i) => (
-                    <div key={g.date}>
-                      <div onClick={() => setRExpanded(rExpanded === g.date ? null : g.date)} style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '0.8rem 1.2rem', cursor: 'pointer',
-                        borderBottom: (rExpanded === g.date || i < rPaged.length - 1) ? '1px solid var(--border)' : 'none',
-                        background: rExpanded === g.date ? 'var(--surface2)' : 'var(--surface)',
-                        transition: 'background 0.12s', gap: '0.5rem',
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <span style={{ fontSize: '0.65rem', color: 'var(--muted)', transform: rExpanded === g.date ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>▶</span>
-                          <strong style={{ fontSize: '0.9rem' }}>{g.date}</strong>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--muted)', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.1rem 0.55rem' }}>
-                            {g.count} ачаа
-                          </span>
+                  {rPaged.map((g, i) => {
+                    // Group shipments by phone
+                    const phoneMap = new Map<string, { count: number; value: number; shipments: Row[] }>()
+                    for (const s of g.shipments) {
+                      const key = s.phone ?? '—'
+                      if (!phoneMap.has(key)) phoneMap.set(key, { count: 0, value: 0, shipments: [] })
+                      const ph = phoneMap.get(key)!
+                      ph.count++; ph.value += s.adminPrice ? Number(s.adminPrice) : 0; ph.shipments.push(s)
+                    }
+                    const phoneGroups = Array.from(phoneMap.entries())
+                    const dateOpen = rExpandedDate === g.date
+                    return (
+                      <div key={g.date}>
+                        {/* Date row */}
+                        <div onClick={() => { setRExpandedDate(dateOpen ? null : g.date); setRExpandedPhone(null) }} style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: '0.8rem 1.2rem', cursor: 'pointer',
+                          borderBottom: (dateOpen || i < rPaged.length - 1) ? '1px solid var(--border)' : 'none',
+                          background: dateOpen ? 'var(--surface2)' : 'var(--surface)',
+                          transition: 'background 0.12s', gap: '0.5rem',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--muted)', transform: dateOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>▶</span>
+                            <strong style={{ fontSize: '0.9rem' }}>{g.date}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.1rem 0.55rem' }}>
+                              {g.count} ачаа
+                            </span>
+                          </div>
+                          <strong style={{ color: g.value > 0 ? 'var(--accent)' : 'var(--muted)', fontSize: '0.9rem', flexShrink: 0 }}>
+                            {g.value > 0 ? `₮${g.value.toLocaleString()}` : '—'}
+                          </strong>
                         </div>
-                        <strong style={{ color: g.value > 0 ? 'var(--accent)' : 'var(--muted)', fontSize: '0.9rem', flexShrink: 0 }}>
-                          {g.value > 0 ? `₮${g.value.toLocaleString()}` : '—'}
-                        </strong>
+                        {/* Phone groups */}
+                        {dateOpen && (
+                          <div style={{ borderBottom: i < rPaged.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                            {phoneGroups.map(([phone, pg], pi) => {
+                              const phoneKey = `${g.date}|${phone}`
+                              const phoneOpen = rExpandedPhone === phoneKey
+                              return (
+                                <div key={phone}>
+                                  <div onClick={() => setRExpandedPhone(phoneOpen ? null : phoneKey)} style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '0.6rem 1.2rem 0.6rem 2.8rem', cursor: 'pointer',
+                                    borderBottom: (phoneOpen || pi < phoneGroups.length - 1) ? '1px solid var(--border)' : 'none',
+                                    background: phoneOpen ? 'var(--bg)' : 'var(--surface)',
+                                    gap: '0.5rem',
+                                  }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                      <span style={{ fontSize: '0.6rem', color: 'var(--muted)', transform: phoneOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>▶</span>
+                                      <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{phone}</span>
+                                      <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{pg.count} ачаа</span>
+                                    </div>
+                                    <strong style={{ color: pg.value > 0 ? 'var(--accent)' : 'var(--muted)', fontSize: '0.85rem', flexShrink: 0 }}>
+                                      {pg.value > 0 ? `₮${pg.value.toLocaleString()}` : '—'}
+                                    </strong>
+                                  </div>
+                                  {phoneOpen && (
+                                    <div>
+                                      {pg.shipments.map((s, si) => (
+                                        <div key={s.id} style={{
+                                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                          padding: '0.45rem 1.2rem 0.45rem 4.2rem',
+                                          borderBottom: si < pg.shipments.length - 1 ? '1px solid var(--border)' : 'none',
+                                          fontSize: '0.82rem', gap: '0.5rem', background: 'var(--bg)',
+                                        }}>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                                            <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
+                                            {s.adminNote && <span style={{ color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</span>}
+                                          </div>
+                                          <span style={{ color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', fontWeight: 600, flexShrink: 0 }}>
+                                            {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
                       </div>
-                      {rExpanded === g.date && (
-                        <div style={{ borderBottom: i < rPaged.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                          {g.shipments.map((s, si) => (
-                            <div key={s.id} style={{
-                              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                              padding: '0.5rem 1.2rem 0.5rem 2.8rem',
-                              borderBottom: si < g.shipments.length - 1 ? '1px solid var(--border)' : 'none',
-                              fontSize: '0.82rem', gap: '0.5rem', background: 'var(--bg)',
-                            }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
-                                {s.phone && <span style={{ color: 'var(--muted)' }}>{s.phone}</span>}
-                                {s.adminNote && <span style={{ color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</span>}
-                              </div>
-                              <span style={{ color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', fontWeight: 600, flexShrink: 0 }}>
-                                {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
 
               {rTotalPages > 1 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'center', marginTop: '0.75rem' }}>
-                  <button onClick={() => { setRPage(p => Math.max(1, p-1)); setRExpanded(null) }} disabled={rPage===1} style={pgBtn}>‹</button>
+                  <button onClick={() => { setRPage(p => Math.max(1, p-1)); setRExpandedDate(null); setRExpandedPhone(null) }} disabled={rPage===1} style={pgBtn}>‹</button>
                   <span style={{ fontSize: '0.8rem', color: 'var(--muted)', padding: '0 0.4rem' }}>{rPage} / {rTotalPages}</span>
-                  <button onClick={() => { setRPage(p => Math.min(rTotalPages, p+1)); setRExpanded(null) }} disabled={rPage===rTotalPages} style={pgBtn}>›</button>
+                  <button onClick={() => { setRPage(p => Math.min(rTotalPages, p+1)); setRExpandedDate(null); setRExpandedPhone(null) }} disabled={rPage===rTotalPages} style={pgBtn}>›</button>
                 </div>
               )}
             </>
