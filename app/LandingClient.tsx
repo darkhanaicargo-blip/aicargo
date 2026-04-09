@@ -149,6 +149,14 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
                   <strong style={{ color: 'var(--accent)' }}>₮{Number(result.adminPrice).toLocaleString()}</strong>
                 </div>
               )}
+              {result.updatedAt && (
+                <div className="card-row">
+                  <span className="label">Огноо</span>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
+                    {new Date(result.updatedAt).toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
