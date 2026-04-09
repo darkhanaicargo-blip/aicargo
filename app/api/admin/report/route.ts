@@ -8,22 +8,35 @@ export async function GET(req: NextRequest) {
   if (admin.role !== 'ADMIN') return forbidden()
 
   const phone = req.nextUrl.searchParams.get('phone')?.trim()
-  if (!phone) return NextResponse.json({ error: 'Утасны дугаар оруулна уу' }, { status: 400 })
+  const from = req.nextUrl.searchParams.get('from')
+  const to = req.nextUrl.searchParams.get('to')
+
+  if (!phone && !from && !to) {
+    return NextResponse.json({ error: 'Утас эсвэл огноо оруулна уу' }, { status: 400 })
+  }
+
+  const fromDate = from ? new Date(from) : null
+  const toDate = to ? new Date(to + 'T23:59:59') : null
+
+  const where: any = {
+    cargoId: admin.cargoId!,
+    status: 'PICKED_UP',
+    ...(phone ? { phone: { contains: phone } } : {}),
+    ...(fromDate || toDate ? {
+      updatedAt: {
+        ...(fromDate ? { gte: fromDate } : {}),
+        ...(toDate ? { lte: toDate } : {}),
+      }
+    } : {}),
+  }
 
   const shipments = await prisma.shipment.findMany({
-    where: {
-      cargoId: admin.cargoId!,
-      status: 'PICKED_UP',
-      phone: { contains: phone },
-    },
-    select: {
-      id: true, trackCode: true, phone: true,
-      adminPrice: true, adminNote: true, updatedAt: true,
-    },
+    where,
+    select: { id: true, trackCode: true, phone: true, adminPrice: true, adminNote: true, updatedAt: true },
     orderBy: { updatedAt: 'desc' },
   })
 
-  // Group by date (newest first)
+  // Group by date
   const byDate = new Map<string, { count: number; value: number; shipments: typeof shipments }>()
   for (const s of shipments) {
     const d = new Date(s.updatedAt)
