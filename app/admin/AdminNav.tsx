@@ -10,6 +10,7 @@ const links = [
   { href: '/admin/arrived', label: 'Ирсэн' },
   { href: '/admin/handover', label: 'Ачаа олгох' },
   { href: '/admin/history', label: 'Олгосон' },
+  { href: '/admin/report', label: 'Тайлан' },
   { href: '/admin/notify', label: 'Мэдэгдэл' },
   { href: '/admin/faq', label: 'FAQ' },
   { href: '/admin/users', label: 'Хэрэглэгчид' },
