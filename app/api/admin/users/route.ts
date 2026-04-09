@@ -8,6 +8,8 @@ export async function GET(req: NextRequest) {
   if (admin.role !== 'ADMIN') return forbidden()
 
   const q = req.nextUrl.searchParams.get('q')?.trim()
+  const page = Math.max(1, Number(req.nextUrl.searchParams.get('page') || '1'))
+  const PAGE_SIZE = 20
 
   const where = q ? {
     cargoId: admin.cargoId!,
@@ -22,7 +24,8 @@ export async function GET(req: NextRequest) {
     prisma.user.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: 50,
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
       select: {
         id: true,
         name: true,
@@ -34,5 +37,5 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  return NextResponse.json({ users, total })
+  return NextResponse.json({ users, total, page, pageSize: PAGE_SIZE })
 }

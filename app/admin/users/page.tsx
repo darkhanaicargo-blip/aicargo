@@ -17,13 +17,16 @@ function fmtDate(iso: string) {
 
 export default function UsersPage() {
   const [q, setQ] = useState('')
+  const [search, setSearch] = useState('')
   const [users, setUsers] = useState<User[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 20
 
-  async function load(query = '') {
+  async function load(query = '', pg = 1) {
     setLoading(true)
-    const res = await fetch(`/api/admin/users?q=${encodeURIComponent(query)}`)
+    const res = await fetch(`/api/admin/users?q=${encodeURIComponent(query)}&page=${pg}`)
     setLoading(false)
     if (res.ok) {
       const data = await res.json()
@@ -36,8 +39,11 @@ export default function UsersPage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
-    load(q)
+    setPage(1); setSearch(q); load(q, 1)
   }
+
+  function goPage(p: number) { setPage(p); load(search, p) }
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
     <div className="page-wide" style={{ maxWidth: 680 }}>
@@ -80,6 +86,34 @@ export default function UsersPage() {
           ))}
         </div>
       )}
+
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', alignItems: 'center', marginTop: '1rem' }}>
+          <button onClick={() => goPage(Math.max(1, page-1))} disabled={page===1} style={pgBtn}>‹</button>
+          {(() => {
+            const pages: (number|'...')[] = []
+            if (totalPages <= 7) { for (let i=1; i<=totalPages; i++) pages.push(i) }
+            else {
+              pages.push(1)
+              if (page > 3) pages.push('...')
+              for (let i=Math.max(2,page-1); i<=Math.min(totalPages-1,page+1); i++) pages.push(i)
+              if (page < totalPages-2) pages.push('...')
+              pages.push(totalPages)
+            }
+            return pages.map((p,i) => p==='...'
+              ? <span key={`e${i}`} style={{ fontSize:'0.78rem', color:'var(--muted)', padding:'0 0.2rem' }}>…</span>
+              : <button key={p} onClick={() => goPage(p)} style={{ ...pgBtn, fontWeight: page===p?700:400, background: page===p?'var(--accent)':'var(--surface)', color: page===p?'#fff':'var(--text)', borderColor: page===p?'var(--accent)':'var(--border)' }}>{p}</button>
+            )
+          })()}
+          <button onClick={() => goPage(Math.min(totalPages, page+1))} disabled={page===totalPages} style={pgBtn}>›</button>
+        </div>
+      )}
     </div>
   )
+}
+
+const pgBtn: React.CSSProperties = {
+  padding: '0.3rem 0.65rem', borderRadius: '6px', border: '1px solid var(--border)',
+  background: 'var(--surface)', color: 'var(--text)', cursor: 'pointer',
+  fontSize: '0.82rem', fontFamily: 'inherit',
 }

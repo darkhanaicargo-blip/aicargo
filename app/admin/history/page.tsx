@@ -220,6 +220,26 @@ export default function HistoryPage() {
 
               {rPaged.length === 0 ? (
                 <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Тохирох бараа байхгүй байна.</p>
+              ) : (rPhone.trim() && rDate) ? (
+                // Both phone + date: flat list, no dropdown
+                <div className="card" style={{ overflow: 'hidden' }}>
+                  {rPaged.flatMap(g => g.shipments).map((s, si, arr) => (
+                    <div key={s.id} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '0.6rem 1.2rem',
+                      borderBottom: si < arr.length - 1 ? '1px solid var(--border)' : 'none',
+                      fontSize: '0.83rem', gap: '0.5rem',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{s.trackCode}</span>
+                        {s.adminNote && <span style={{ color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</span>}
+                      </div>
+                      <span style={{ color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', fontWeight: 600, flexShrink: 0 }}>
+                        {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="card" style={{ overflow: 'hidden' }}>
                   {rPaged.map((g, i) => {
