@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 
 export default function SettingsPage() {
-  const [form, setForm] = useState({ tariff: '', announcement: '', contactInfo: '' })
+  const [form, setForm] = useState({ tariff: '', announcement: '', contactInfo: '', bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankTransferNote: '' })
   const [cargo, setCargo] = useState<{ name: string; ereemReceiver: string; ereemPhone: string; ereemAddress: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -13,7 +13,7 @@ export default function SettingsPage() {
       .then(r => r.json())
       .then(d => {
         setCargo(d)
-        setForm({ tariff: d.tariff ?? '', announcement: d.announcement ?? '', contactInfo: d.contactInfo ?? '' })
+        setForm({ tariff: d.tariff ?? '', announcement: d.announcement ?? '', contactInfo: d.contactInfo ?? '', bankName: d.bankName ?? '', bankAccountHolder: d.bankAccountHolder ?? '', bankAccountNumber: d.bankAccountNumber ?? '', bankTransferNote: d.bankTransferNote ?? '' })
         setLoading(false)
       })
   }, [])
@@ -88,6 +88,32 @@ export default function SettingsPage() {
             onChange={e => setForm(f => ({ ...f, contactInfo: e.target.value }))}
             style={{ resize: 'vertical', fontFamily: 'inherit' }}
           />
+        </div>
+
+        <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '1.25rem 0' }} />
+        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '1rem' }}>Төлбөр төлөх данс</p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>Банкны нэр</label>
+            <input className="input" placeholder="Хаан банк" value={form.bankName}
+              onChange={e => setForm(f => ({ ...f, bankName: e.target.value }))} />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>Хүлээн авагчийн нэр</label>
+            <input className="input" placeholder="Овог Нэр" value={form.bankAccountHolder}
+              onChange={e => setForm(f => ({ ...f, bankAccountHolder: e.target.value }))} />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>Дансны дугаар</label>
+            <input className="input" placeholder="5000123456" value={form.bankAccountNumber}
+              onChange={e => setForm(f => ({ ...f, bankAccountNumber: e.target.value }))} />
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>Гүйлгээний утга <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '0.78rem' }}>(зааварчилгаа)</span></label>
+            <input className="input" placeholder="Утасны дугаараа заавал бичнэ үү" value={form.bankTransferNote}
+              onChange={e => setForm(f => ({ ...f, bankTransferNote: e.target.value }))} />
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

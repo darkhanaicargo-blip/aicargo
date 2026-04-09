@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   const cargo = await (prisma.cargo as any).findUnique({
     where: { id: admin.cargoId! },
-    select: { name: true, ereemReceiver: true, ereemPhone: true, ereemAddress: true, tariff: true, announcement: true, contactInfo: true },
+    select: { name: true, ereemReceiver: true, ereemPhone: true, ereemAddress: true, tariff: true, announcement: true, contactInfo: true, bankName: true, bankAccountHolder: true, bankAccountNumber: true, bankTransferNote: true },
   })
   return NextResponse.json(cargo)
 }
@@ -19,7 +19,7 @@ export async function PATCH(req: NextRequest) {
   if (!admin) return unauthorized()
   if (admin.role !== 'ADMIN') return forbidden()
 
-  const { tariff, announcement, contactInfo } = await req.json()
+  const { tariff, announcement, contactInfo, bankName, bankAccountHolder, bankAccountNumber, bankTransferNote } = await req.json()
 
   const cargo = await (prisma.cargo as any).update({
     where: { id: admin.cargoId! },
@@ -27,6 +27,10 @@ export async function PATCH(req: NextRequest) {
       ...(tariff !== undefined ? { tariff: tariff || null } : {}),
       ...(announcement !== undefined ? { announcement: announcement || null } : {}),
       ...(contactInfo !== undefined ? { contactInfo: contactInfo || null } : {}),
+      ...(bankName !== undefined ? { bankName: bankName || null } : {}),
+      ...(bankAccountHolder !== undefined ? { bankAccountHolder: bankAccountHolder || null } : {}),
+      ...(bankAccountNumber !== undefined ? { bankAccountNumber: bankAccountNumber || null } : {}),
+      ...(bankTransferNote !== undefined ? { bankTransferNote: bankTransferNote || null } : {}),
     },
   })
   return NextResponse.json(cargo)
