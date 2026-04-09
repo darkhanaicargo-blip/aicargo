@@ -50,6 +50,10 @@ interface CargoInfo {
   tariff: string | null
   announcement: string | null
   contactInfo: string | null
+  bankName: string | null
+  bankAccountHolder: string | null
+  bankAccountNumber: string | null
+  bankTransferNote: string | null
 }
 
 export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
@@ -229,6 +233,7 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
               { key: 'tariff', label: 'Тариф' },
               { key: 'announcement', label: 'Анхааруулга' },
               { key: 'contact', label: 'Холбоо барих' },
+              { key: 'payment', label: 'Төлбөр' },
             ].map(tab => (
               <button
                 key={tab.key}
@@ -300,6 +305,32 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
                 cargo.contactInfo
                   ? <pre style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap', margin: 0 }}>{cargo.contactInfo}</pre>
                   : <p style={{ color: 'var(--muted)' }}>Холбоо барих мэдээлэл оруулаагүй</p>
+              )}
+              {activeTab === 'payment' && (
+                cargo.bankAccountNumber ? (
+                  <div style={{ borderTop: '1px solid var(--border)' }}>
+                    {cargo.bankName && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.7rem 0', borderBottom: '1px solid var(--border)' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Банк</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{cargo.bankName}</span>
+                      </div>
+                    )}
+                    {cargo.bankAccountHolder && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.7rem 0', borderBottom: '1px solid var(--border)' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Хүлээн авагч</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{cargo.bankAccountHolder}</span>
+                      </div>
+                    )}
+                    <CopyItem label="Дансны дугаар" value={cargo.bankAccountNumber} />
+                    {cargo.bankTransferNote && (
+                      <div style={{ marginTop: '0.75rem', padding: '0.6rem 0.85rem', background: 'var(--accent-light)', borderRadius: 'var(--radius)', border: '1px solid var(--accent)', fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600 }}>
+                        ⚠ {cargo.bankTransferNote}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p style={{ color: 'var(--muted)' }}>Дансны мэдээлэл оруулаагүй байна</p>
+                )
               )}
             </div>
           )}

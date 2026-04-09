@@ -15,7 +15,8 @@ export async function PATCH(
   const cargoId = Number(id)
   if (!cargoId) return NextResponse.json({ error: 'ID буруу' }, { status: 400 })
 
-  const { name, slug, ereemReceiver, ereemPhone, ereemRegion, ereemAddress, logoUrl } = await req.json()
+  const { name, slug, ereemReceiver, ereemPhone, ereemRegion, ereemAddress, logoUrl,
+    bankName, bankAccountHolder, bankAccountNumber, bankTransferNote } = await req.json()
 
   let finalLogoUrl = logoUrl
   if (logoUrl?.startsWith('data:')) {
@@ -32,6 +33,10 @@ export async function PATCH(
       ...(ereemRegion !== undefined ? { ereemRegion: ereemRegion.trim() } : {}),
       ...(ereemAddress !== undefined ? { ereemAddress: ereemAddress.trim() } : {}),
       ...(finalLogoUrl !== undefined ? { logoUrl: finalLogoUrl || null } : {}),
+      ...(bankName !== undefined ? { bankName: bankName?.trim() || null } : {}),
+      ...(bankAccountHolder !== undefined ? { bankAccountHolder: bankAccountHolder?.trim() || null } : {}),
+      ...(bankAccountNumber !== undefined ? { bankAccountNumber: bankAccountNumber?.trim() || null } : {}),
+      ...(bankTransferNote !== undefined ? { bankTransferNote: bankTransferNote?.trim() || null } : {}),
     },
   })
 

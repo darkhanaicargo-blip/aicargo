@@ -22,10 +22,14 @@ model Cargo {
   ereemAddress  String
   logoUrl          String?
   lastNotifiedAt   DateTime?
-  tariff           String?
-  announcement     String?
-  contactInfo      String?
-  createdAt        DateTime   @default(now())
+  tariff            String?
+  announcement      String?
+  contactInfo       String?
+  bankName          String?
+  bankAccountHolder String?
+  bankAccountNumber String?
+  bankTransferNote  String?
+  createdAt         DateTime   @default(now())
   groupId       Int?
   group         CargoGroup? @relation(fields: [groupId], references: [id])
   users         User[]

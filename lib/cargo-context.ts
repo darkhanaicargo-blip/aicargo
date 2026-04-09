@@ -12,6 +12,10 @@ export interface CargoInfo {
   tariff: string | null
   announcement: string | null
   contactInfo: string | null
+  bankName: string | null
+  bankAccountHolder: string | null
+  bankAccountNumber: string | null
+  bankTransferNote: string | null
 }
 
 export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
@@ -31,6 +35,10 @@ export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
       tariff: true,
       announcement: true,
       contactInfo: true,
+      bankName: true,
+      bankAccountHolder: true,
+      bankAccountNumber: true,
+      bankTransferNote: true,
     },
   })
 }

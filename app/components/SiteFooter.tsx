@@ -39,6 +39,10 @@ interface FooterProps {
   tariff?: string | null
   announcement?: string | null
   contactInfo?: string | null
+  bankName?: string | null
+  bankAccountHolder?: string | null
+  bankAccountNumber?: string | null
+  bankTransferNote?: string | null
 }
 
 export default function SiteFooter({
@@ -50,6 +54,10 @@ export default function SiteFooter({
   tariff,
   announcement,
   contactInfo,
+  bankName,
+  bankAccountHolder,
+  bankAccountNumber,
+  bankTransferNote,
 }: FooterProps) {
   const [activeTab, setActiveTab] = useState<string | null>(null)
 
@@ -64,6 +72,7 @@ export default function SiteFooter({
           { key: 'tariff', label: 'Тариф' },
           { key: 'announcement', label: 'Анхааруулга' },
           { key: 'contact', label: 'Холбоо барих' },
+          { key: 'payment', label: 'Төлбөр' },
         ].map(tab => (
           <button
             key={tab.key}
@@ -135,6 +144,32 @@ export default function SiteFooter({
             contactInfo
               ? <pre style={{ fontFamily: 'inherit', whiteSpace: 'pre-wrap', margin: 0, fontSize: '0.83rem', lineHeight: 1.8 }}>{contactInfo}</pre>
               : <p style={{ color: 'var(--muted)', fontSize: '0.83rem' }}>Холбоо барих мэдээлэл оруулаагүй</p>
+          )}
+          {activeTab === 'payment' && (
+            bankAccountNumber ? (
+              <div style={{ maxWidth: 600, margin: '0 auto', borderTop: '1px solid var(--border)' }}>
+                {bankName && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.7rem 0', borderBottom: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Банк</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{bankName}</span>
+                  </div>
+                )}
+                {bankAccountHolder && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.7rem 0', borderBottom: '1px solid var(--border)' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Хүлээн авагч</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{bankAccountHolder}</span>
+                  </div>
+                )}
+                <CopyItem label="Дансны дугаар" value={bankAccountNumber} />
+                {bankTransferNote && (
+                  <div style={{ marginTop: '0.75rem', padding: '0.6rem 0.85rem', background: 'var(--accent-light)', borderRadius: 'var(--radius)', border: '1px solid var(--accent)', fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600 }}>
+                    ⚠ {bankTransferNote}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p style={{ color: 'var(--muted)', fontSize: '0.83rem' }}>Дансны мэдээлэл оруулаагүй байна</p>
+            )
           )}
         </div>
       )}

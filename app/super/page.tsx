@@ -12,6 +12,10 @@ interface CargoStat {
   ereemRegion: string
   ereemAddress: string
   logoUrl: string | null
+  bankName: string | null
+  bankAccountHolder: string | null
+  bankAccountNumber: string | null
+  bankTransferNote: string | null
   createdAt: string
   admins: Admin[]
   totalUsers: number
@@ -26,13 +30,17 @@ interface EditState {
   ereemRegion: string
   ereemAddress: string
   logoUrl: string
+  bankName: string
+  bankAccountHolder: string
+  bankAccountNumber: string
+  bankTransferNote: string
 }
 
 export default function SuperPage() {
   const [cargos, setCargos] = useState<CargoStat[]>([])
   const [loading, setLoading] = useState(true)
   const [editId, setEditId] = useState<number | null>(null)
-  const [editForm, setEditForm] = useState<EditState>({ name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemRegion: '', ereemAddress: '', logoUrl: '' })
+  const [editForm, setEditForm] = useState<EditState>({ name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemRegion: '', ereemAddress: '', logoUrl: '', bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankTransferNote: '' })
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
 
@@ -48,7 +56,7 @@ export default function SuperPage() {
 
   function startEdit(c: CargoStat) {
     setEditId(c.id)
-    setEditForm({ name: c.name, slug: c.slug, ereemReceiver: c.ereemReceiver, ereemPhone: c.ereemPhone, ereemRegion: (c as any).ereemRegion ?? '', ereemAddress: c.ereemAddress, logoUrl: c.logoUrl ?? '' })
+    setEditForm({ name: c.name, slug: c.slug, ereemReceiver: c.ereemReceiver, ereemPhone: c.ereemPhone, ereemRegion: c.ereemRegion ?? '', ereemAddress: c.ereemAddress, logoUrl: c.logoUrl ?? '', bankName: c.bankName ?? '', bankAccountHolder: c.bankAccountHolder ?? '', bankAccountNumber: c.bankAccountNumber ?? '', bankTransferNote: c.bankTransferNote ?? '' })
     setEditError('')
   }
 
@@ -157,6 +165,33 @@ export default function SuperPage() {
                       <label style={{ fontSize: '0.75rem' }}>详细地址</label>
                       <input className="input" value={editForm.ereemAddress}
                         onChange={e => setEditForm(f => ({ ...f, ereemAddress: e.target.value }))} />
+                    </div>
+                  </div>
+
+                  {/* Bank fields */}
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem', marginBottom: '0.75rem' }}>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.6rem' }}>Төлбөр төлөх данс</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '0.75rem' }}>Банкны нэр</label>
+                        <input className="input" placeholder="Хаан банк" value={editForm.bankName}
+                          onChange={e => setEditForm(f => ({ ...f, bankName: e.target.value }))} />
+                      </div>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '0.75rem' }}>Хүлээн авагчийн нэр</label>
+                        <input className="input" placeholder="Овог Нэр" value={editForm.bankAccountHolder}
+                          onChange={e => setEditForm(f => ({ ...f, bankAccountHolder: e.target.value }))} />
+                      </div>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '0.75rem' }}>Дансны дугаар</label>
+                        <input className="input" placeholder="5000123456" value={editForm.bankAccountNumber}
+                          onChange={e => setEditForm(f => ({ ...f, bankAccountNumber: e.target.value }))} />
+                      </div>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '0.75rem' }}>Гүйлгээний утга</label>
+                        <input className="input" placeholder="Утасны дугаараа заавал бичнэ үү" value={editForm.bankTransferNote}
+                          onChange={e => setEditForm(f => ({ ...f, bankTransferNote: e.target.value }))} />
+                      </div>
                     </div>
                   </div>
                   {editError && <p className="msg-error" style={{ margin: '0 0 0.5rem' }}>{editError}</p>}

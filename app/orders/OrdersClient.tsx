@@ -70,6 +70,10 @@ export default function OrdersClient({
   tariff,
   announcement,
   contactInfo,
+  bankName,
+  bankAccountHolder,
+  bankAccountNumber,
+  bankTransferNote,
 }: {
   shipments: Shipment[]
   userName: string
@@ -84,6 +88,10 @@ export default function OrdersClient({
   tariff?: string | null
   announcement?: string | null
   contactInfo?: string | null
+  bankName?: string | null
+  bankAccountHolder?: string | null
+  bankAccountNumber?: string | null
+  bankTransferNote?: string | null
 }) {
   const router = useRouter()
   const [shipments, setShipments] = useState(initialShipments)
@@ -467,7 +475,7 @@ export default function OrdersClient({
         )}
 
       </div>
-      <SiteFooter cargoName={cargoName} ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemRegion={ereemRegion} ereemAddress={ereemAddress} tariff={tariff} announcement={announcement} contactInfo={contactInfo} />
+      <SiteFooter cargoName={cargoName} ereemReceiver={ereemReceiver} ereemPhone={ereemPhone} ereemRegion={ereemRegion} ereemAddress={ereemAddress} tariff={tariff} announcement={announcement} contactInfo={contactInfo} bankName={bankName} bankAccountHolder={bankAccountHolder} bankAccountNumber={bankAccountNumber} bankTransferNote={bankTransferNote} />
     </>
   )
 }
