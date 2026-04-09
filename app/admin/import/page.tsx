@@ -217,6 +217,28 @@ export default function ImportPage() {
           placeholder="Трак код уншуулах эсвэл бичих..."
           value={input}
           onChange={e => { setInput(e.target.value); setLastAdded('') }}
+          onPaste={e => {
+            const text = e.clipboardData.getData('text')
+            if (!text.includes('\n')) return // single line — let default paste handle
+            e.preventDefault()
+            const lines = text.split(/\r?\n/)
+            const codes = lines
+              .map(l => l.replace(/^\s*\d+[.、)]\s*/, '').trim().toUpperCase()) // strip "1." "2、" etc
+              .filter(l => l.length >= MIN_LEN && /^[A-Z0-9\-]{4,}$/.test(l)) // valid track codes (letters+digits or pure numeric 4+)
+            if (codes.length === 0) return
+            setRows(prev => {
+              const existing = new Set(prev.map(r => r.trackCode))
+              const newRows = codes
+                .filter(c => !existing.has(c))
+                .map(c => ({ trackCode: c }))
+              const next = [...prev, ...newRows]
+              setPage(Math.ceil(next.length / PAGE_SIZE))
+              setLastAdded(`✓ ${newRows.length} трак код нэмэгдлээ`)
+              return next
+            })
+            setInput('')
+            setDone(null)
+          }}
           onKeyDown={async e => {
             if (e.key === 'Enter') {
               e.preventDefault()
