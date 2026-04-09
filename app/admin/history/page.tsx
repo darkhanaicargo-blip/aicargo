@@ -158,9 +158,22 @@ export default function HistoryPage() {
               {listTotalPages > 1 && (
                 <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', alignItems: 'center' }}>
                   <button onClick={() => goListPage(Math.max(1, listPage-1))} disabled={listPage===1} style={pgBtn}>‹</button>
-                  {Array.from({ length: listTotalPages }, (_, i) => i+1).map(p => (
-                    <button key={p} onClick={() => goListPage(p)} style={{ ...pgBtn, fontWeight: listPage===p?700:400, background: listPage===p?'var(--accent)':'var(--surface)', color: listPage===p?'#fff':'var(--text)', borderColor: listPage===p?'var(--accent)':'var(--border)' }}>{p}</button>
-                  ))}
+                  {(() => {
+                    const pages: (number|'...')[] = []
+                    if (listTotalPages <= 7) {
+                      for (let i=1; i<=listTotalPages; i++) pages.push(i)
+                    } else {
+                      pages.push(1)
+                      if (listPage > 3) pages.push('...')
+                      for (let i=Math.max(2,listPage-1); i<=Math.min(listTotalPages-1,listPage+1); i++) pages.push(i)
+                      if (listPage < listTotalPages-2) pages.push('...')
+                      pages.push(listTotalPages)
+                    }
+                    return pages.map((p,i) => p==='...'
+                      ? <span key={`e${i}`} style={{ fontSize:'0.78rem', color:'var(--muted)', padding:'0 0.2rem' }}>…</span>
+                      : <button key={p} onClick={() => goListPage(p)} style={{ ...pgBtn, fontWeight: listPage===p?700:400, background: listPage===p?'var(--accent)':'var(--surface)', color: listPage===p?'#fff':'var(--text)', borderColor: listPage===p?'var(--accent)':'var(--border)' }}>{p}</button>
+                    )
+                  })()}
                   <button onClick={() => goListPage(Math.min(listTotalPages, listPage+1))} disabled={listPage===listTotalPages} style={pgBtn}>›</button>
                 </div>
               )}
