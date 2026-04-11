@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react'
 import * as XLSX from 'xlsx'
 
-interface Row { trackCode: string; phone?: string }
+interface Row { trackCode: string; phone?: string; price?: number }
 interface SearchResult {
   id: number; trackCode: string; status: string; phone: string | null
   createdAt: string; user?: { name: string; phone: string } | null
@@ -73,10 +73,14 @@ export default function ImportPage() {
         const ws = wb.Sheets[wb.SheetNames[0]]
         const data: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1 })
         const parsed = data
-          .map(row => ({
-            trackCode: String(row[0] ?? '').trim().toUpperCase(),
-            phone: String(row[1] ?? '').trim() || undefined,
-          }))
+          .map(row => {
+            const priceRaw = Number(row[2])
+            return {
+              trackCode: String(row[0] ?? '').trim().toUpperCase(),
+              phone: String(row[1] ?? '').trim() || undefined,
+              price: !isNaN(priceRaw) && priceRaw > 0 ? priceRaw : undefined,
+            }
+          })
           .filter(r => r.trackCode.length >= 4)
         if (parsed.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
 
@@ -168,7 +172,7 @@ export default function ImportPage() {
       const res = await fetch('/api/admin/bulk-import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rows: rows.map(r => ({ trackCode: r.trackCode, status: 'EREEN_ARRIVED', phone: r.phone })) }),
+        body: JSON.stringify({ rows: rows.map(r => ({ trackCode: r.trackCode, status: 'EREEN_ARRIVED', phone: r.phone, price: r.price })) }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Алдаа гарлаа'); return }
@@ -361,7 +365,8 @@ export default function ImportPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
                             <span style={{ fontSize: '0.68rem', color: 'var(--muted)', flexShrink: 0 }}>{globalIdx + 1}</span>
                             <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.trackCode}</span>
-                            {r.phone && <span style={{ fontSize: '0.72rem', color: 'var(--accent)', flexShrink: 0 }}>{r.phone}</span>}
+                            {r.phone && <span style={{ fontSize: '0.72rem', color: 'var(--muted)', flexShrink: 0 }}>{r.phone}</span>}
+                            {r.price && <span style={{ fontSize: '0.72rem', color: 'var(--accent)', flexShrink: 0 }}>₮{r.price.toLocaleString()}</span>}
                           </div>
                           <button onClick={() => removeRow(globalIdx)} style={{
                             background: 'none', border: 'none', cursor: 'pointer',

@@ -6,6 +6,7 @@ interface ImportRow {
   trackCode: string
   status: 'EREEN_ARRIVED' | 'ARRIVED'
   phone?: string
+  price?: number
 }
 
 export async function GET(req: NextRequest) {
@@ -46,13 +47,14 @@ export async function POST(req: NextRequest) {
   const duplicates = existing.map(e => e.trackCode)
 
   const results = await Promise.all(
-    rows.map(async ({ trackCode, status, phone }) => {
+    rows.map(async ({ trackCode, status, phone, price }) => {
       const code = trackCode.trim().toUpperCase()
       const ph = phone?.trim() || null
+      const pr = price && price > 0 ? price : undefined
       return prisma.shipment.upsert({
         where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
-        update: { status, ...(ph ? { phone: ph } : {}) },
-        create: { trackCode: code, status, cargoId: admin.cargoId!, phone: ph },
+        update: { status, ...(ph ? { phone: ph } : {}), ...(pr ? { adminPrice: pr } : {}) },
+        create: { trackCode: code, status, cargoId: admin.cargoId!, phone: ph, ...(pr ? { adminPrice: pr } : {}) },
       })
     })
   )
