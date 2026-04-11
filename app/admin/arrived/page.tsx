@@ -229,7 +229,10 @@ export default function ArrivedPage() {
       {/* Excel bulk upload */}
       <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
         <input ref={xlsxRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleExcel} style={{ display: 'none' }} />
-        <button onClick={() => xlsxRef.current?.click()} disabled={xlsxLoading} style={{
+        <button onClick={() => {
+          alert('Excel форматын дагуу оруулна уу:\n\nA багана — Трак код\nB багана — Утасны дугаар (заавал биш)\nC багана — Үнэ (заавал биш)\n\nЖишээ:\nYT8853194305559  99001122  3000\nJT5467125484093  99001122  1500')
+          xlsxRef.current?.click()
+        }} disabled={xlsxLoading} style={{
           display: 'flex', alignItems: 'center', gap: '0.5rem',
           background: 'var(--surface)', border: '1px dashed var(--border)',
           borderRadius: 'var(--radius)', padding: '0.5rem 1rem',

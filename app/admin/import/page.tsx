@@ -199,7 +199,10 @@ export default function ImportPage() {
       {/* Excel upload */}
       <div style={{ marginBottom: '1rem' }}>
         <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleExcel} style={{ display: 'none' }} />
-        <button onClick={() => fileRef.current?.click()} style={{
+        <button onClick={() => {
+          alert('Excel форматын дагуу оруулна уу:\n\nA багана — Трак код\nB багана — Утасны дугаар (заавал биш, 8 оронтой)\n\nЖишээ:\nYT8853194305559  99001122\nJT5467125484093')
+          fileRef.current?.click()
+        }} style={{
           display: 'flex', alignItems: 'center', gap: '0.5rem',
           background: 'var(--surface)', border: '1px dashed var(--border)',
           borderRadius: 'var(--radius)', padding: '0.55rem 1rem',
