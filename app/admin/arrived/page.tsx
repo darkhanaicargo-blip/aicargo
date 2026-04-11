@@ -106,6 +106,7 @@ export default function ArrivedPage() {
           })
           .filter(r => r.trackCode.length >= 4)
         if (rows.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
+        if (!confirm(`${rows.length} бараа Ирсэн статустай болгох уу?`)) return
         setXlsxLoading(true)
         const res = await fetch('/api/admin/arrived', {
           method: 'PUT',
