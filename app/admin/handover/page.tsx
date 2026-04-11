@@ -13,7 +13,7 @@ interface Shipment {
 
 function fmtDT(iso: string) {
   const d = new Date(iso)
-  return `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`
+  return `${d.getFullYear().toString().slice(2)}.${d.getMonth() + 1}.${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
 interface Group { phone: string; count: number; total: number; shipments: Shipment[] }
@@ -48,10 +48,10 @@ export default function HandoverPage() {
 
   function loadSummary(pg = 1) {
     fetch(`/api/admin/handover?summary=1&page=${pg}`)
-      .then(r => r.json()).then(data => { setSummary(data); setSummaryPage(pg) }).catch(() => {})
+      .then(r => r.json()).then(data => { setSummary(data); setSummaryPage(pg) }).catch(() => { })
   }
   function loadToday() {
-    fetch('/api/admin/handover?today=1').then(r => r.json()).then(setToday).catch(() => {})
+    fetch('/api/admin/handover?today=1').then(r => r.json()).then(setToday).catch(() => { })
   }
   useEffect(() => { loadSummary(); loadToday() }, [])
 
@@ -159,7 +159,7 @@ export default function HandoverPage() {
             color: mode === m ? '#fff' : 'var(--muted)',
             cursor: 'pointer', fontWeight: mode === m ? 700 : 400,
           }}>
-            {m === 'search' ? 'Утасаар хайх' : '📷 Сканнер'}
+            {m === 'search' ? 'Утсаар хайх' : '📷 Сканнер'}
           </button>
         ))}
       </div>
@@ -182,11 +182,7 @@ export default function HandoverPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 {/* Header row with select-all */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={allSelected} onChange={toggleAll}
-                      style={{ width: 18, height: 18, accentColor: 'var(--accent)', cursor: 'pointer' }} />
-                    <span style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: '0.95rem' }}>{shipments[0].phone ?? q}</span>
-                  </label>
+                  <span style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: '0.95rem' }}>{shipments[0].phone ?? q}</span>
                   <span style={{ fontSize: '0.78rem', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: '100px', padding: '0.15rem 0.65rem', color: 'var(--muted)' }}>
                     Нийт <strong style={{ color: 'var(--text)' }}>{shipments.length}</strong> ачаа
                   </span>
@@ -195,6 +191,11 @@ export default function HandoverPage() {
                       ₮<strong style={{ color: 'var(--accent)' }}>{shipments.reduce((s, x) => s + (x.adminPrice ? Number(x.adminPrice) : 0), 0).toLocaleString()}</strong>
                     </span>
                   )}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', marginLeft: 'auto' }}>
+                    <input type="checkbox" checked={allSelected} onChange={toggleAll}
+                      style={{ width: 18, height: 18, accentColor: 'var(--accent)', cursor: 'pointer' }} />
+                    <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Бүгд</span>
+                  </label>
                 </div>
 
                 {shipments.map(s => (
@@ -345,7 +346,7 @@ export default function HandoverPage() {
                   transition: 'background 0.12s', gap: '0.5rem',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)', width: 22, textAlign: 'right', flexShrink: 0 }}>{(summaryPage-1)*20+i+1}</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)', width: 22, textAlign: 'right', flexShrink: 0 }}>{(summaryPage - 1) * 20 + i + 1}</span>
                     <span style={{ fontSize: '0.65rem', color: 'var(--muted)', display: 'inline-block', transform: expandedPhone === g.phone ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>▶</span>
                     <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>{g.phone}</span>
                     <span className="status-group-count">{g.count} ачаа</span>
@@ -380,13 +381,13 @@ export default function HandoverPage() {
 
           {summary.totalGroups > 20 && (
             <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'center', alignItems: 'center', marginTop: '1rem' }}>
-              {Array.from({ length: Math.ceil(summary.totalGroups / 20) }, (_, i) => i+1).map(p => (
+              {Array.from({ length: Math.ceil(summary.totalGroups / 20) }, (_, i) => i + 1).map(p => (
                 <button key={p} onClick={() => { setExpandedPhone(null); loadSummary(p) }} style={{
                   padding: '0.3rem 0.65rem', borderRadius: '6px',
-                  border: `1px solid ${summaryPage===p ? 'var(--accent)' : 'var(--border)'}`,
-                  background: summaryPage===p ? 'var(--accent)' : 'var(--surface)',
-                  color: summaryPage===p ? '#fff' : 'var(--text)',
-                  fontWeight: summaryPage===p ? 700 : 400,
+                  border: `1px solid ${summaryPage === p ? 'var(--accent)' : 'var(--border)'}`,
+                  background: summaryPage === p ? 'var(--accent)' : 'var(--surface)',
+                  color: summaryPage === p ? '#fff' : 'var(--text)',
+                  fontWeight: summaryPage === p ? 700 : 400,
                   cursor: 'pointer', fontSize: '0.82rem', fontFamily: 'inherit',
                 }}>{p}</button>
               ))}
