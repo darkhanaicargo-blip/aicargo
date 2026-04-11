@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
+import * as XLSX from 'xlsx'
 
 function fmtDT(iso: string) {
   const d = new Date(iso)
@@ -51,6 +52,9 @@ export default function ArrivedPage() {
   const [editForm, setEditForm] = useState({ adminPrice: '', adminNote: '', phone: '' })
   const [editLoading, setEditLoading] = useState(false)
   const [todayList, setTodayList] = useState<TodayEntry[]>([])
+  const xlsxRef = useRef<HTMLInputElement>(null)
+  const [xlsxMsg, setXlsxMsg] = useState('')
+  const [xlsxLoading, setXlsxLoading] = useState(false)
 
   function buildTodayList(shipments: SearchResult[]) {
     const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD in local timezone
@@ -81,6 +85,46 @@ export default function ArrivedPage() {
   }
 
   useEffect(() => { loadToday() }, [])
+
+  function handleExcel(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = async (ev) => {
+      try {
+        const wb = XLSX.read(ev.target?.result, { type: 'array' })
+        const ws = wb.Sheets[wb.SheetNames[0]]
+        const data: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1 })
+        const rows = data
+          .map(row => {
+            const priceRaw = Number(row[2])
+            return {
+              trackCode: String(row[0] ?? '').trim().toUpperCase(),
+              phone: String(row[1] ?? '').trim() || undefined,
+              price: !isNaN(priceRaw) && priceRaw > 0 ? priceRaw : undefined,
+            }
+          })
+          .filter(r => r.trackCode.length >= 4)
+        if (rows.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
+        setXlsxLoading(true)
+        const res = await fetch('/api/admin/arrived', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rows }),
+        })
+        setXlsxLoading(false)
+        if (res.ok) {
+          const d = await res.json()
+          setXlsxMsg(`✓ ${d.count} бараа Ирсэн статустай болсон`)
+          loadToday()
+        } else {
+          setXlsxMsg('Алдаа гарлаа')
+        }
+      } catch { setXlsxMsg('Файл уншихад алдаа гарлаа') }
+    }
+    reader.readAsArrayBuffer(file)
+    e.target.value = ''
+  }
 
   function openEdit(s: SearchResult) {
     setEditing(s)
@@ -180,6 +224,23 @@ export default function ArrivedPage() {
   return (
     <div className="page-wide">
       <h1 className="section-title">Ирсэн</h1>
+
+      {/* Excel bulk upload */}
+      <div style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <input ref={xlsxRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleExcel} style={{ display: 'none' }} />
+        <button onClick={() => xlsxRef.current?.click()} disabled={xlsxLoading} style={{
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          background: 'var(--surface)', border: '1px dashed var(--border)',
+          borderRadius: 'var(--radius)', padding: '0.5rem 1rem',
+          cursor: 'pointer', fontSize: '0.83rem', color: 'var(--muted)', fontFamily: 'inherit',
+        }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          {xlsxLoading ? 'Оруулж байна...' : 'Excel-ээр bulk оруулах'}
+        </button>
+        {xlsxMsg && <span style={{ fontSize: '0.8rem', color: xlsxMsg.startsWith('✓') ? 'var(--accent)' : 'var(--danger)' }}>{xlsxMsg}</span>}
+      </div>
 
       <div className="arrived-grid">
         {/* Col 1 — Search + Today list */}

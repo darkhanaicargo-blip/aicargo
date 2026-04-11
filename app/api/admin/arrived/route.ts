@@ -2,6 +2,39 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 
+export async function PUT(req: NextRequest) {
+  const admin = getAuthUserFromRequest(req)
+  if (!admin) return unauthorized()
+  if (admin.role !== 'ADMIN') return forbidden()
+
+  const { rows }: { rows: { trackCode: string; phone?: string; price?: number }[] } = await req.json()
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return NextResponse.json({ error: 'Өгөгдөл хоосон' }, { status: 400 })
+  }
+
+  const results = await Promise.all(rows.map(async ({ trackCode, phone: manualPhone, price }) => {
+    const code = trackCode.trim().toUpperCase()
+    const existing = await prisma.shipment.findUnique({
+      where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
+      include: { user: { select: { phone: true } } },
+    })
+    if (existing?.status === 'PICKED_UP') return null
+    const resolvedPhone = existing?.user?.phone || existing?.phone || manualPhone || null
+    let resolvedUserId = existing?.userId ?? null
+    if (!resolvedUserId && resolvedPhone) {
+      const matchedUser = await prisma.user.findUnique({ where: { phone: resolvedPhone } })
+      if (matchedUser) resolvedUserId = matchedUser.id
+    }
+    return prisma.shipment.upsert({
+      where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
+      update: { status: 'ARRIVED', adminPrice: price ?? null, phone: resolvedPhone, ...(resolvedUserId ? { userId: resolvedUserId } : {}) },
+      create: { trackCode: code, status: 'ARRIVED', adminPrice: price ?? null, phone: resolvedPhone, cargoId: admin.cargoId!, ...(resolvedUserId ? { userId: resolvedUserId } : {}) },
+    })
+  }))
+
+  return NextResponse.json({ count: results.filter(Boolean).length })
+}
+
 export async function POST(req: NextRequest) {
   const admin = getAuthUserFromRequest(req)
   if (!admin) return unauthorized()
