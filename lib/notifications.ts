@@ -76,7 +76,7 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
       const userName = s.user?.name || userPhone
       const importedRow = rows.find(r => r.trackCode === s.trackCode)
       const statusLabel = STATUS_LABEL[importedRow?.status ?? ''] ?? ''
-      const statusText = statusLabel ? ` (${statusLabel} төлөвт орлоо)` : ''
+      const statusText = statusLabel ? ` (${statusLabel} төлөвт)` : ''
 
       if ((s.cargo as any).notificationsEnabled && !isDupe(s.cargoId, s.trackCode)) {
         toCreate.push({
@@ -118,7 +118,7 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
         for (const code of matchedCodes) {
           const importedRow = rows.find(r => r.trackCode === code)
           const statusLabel = STATUS_LABEL[importedRow?.status ?? ''] ?? ''
-          const statusText = statusLabel ? ` (${statusLabel} төлөвт орлоо)` : ''
+          const statusText = statusLabel ? ` (${statusLabel} төлөвт)` : ''
 
           if ((u.cargo as any).notificationsEnabled && !isDupe(u.cargoId, code)) {
             toCreate.push({
