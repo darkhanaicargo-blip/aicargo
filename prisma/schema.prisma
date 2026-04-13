@@ -21,7 +21,8 @@ model Cargo {
   ereemRegion   String  @default("")
   ereemAddress  String
   logoUrl          String?
-  lastNotifiedAt   DateTime?
+  lastNotifiedAt        DateTime?
+  notificationsEnabled  Boolean    @default(false)
   tariff            String?
   announcement      String?
   contactInfo       String?
@@ -35,6 +36,7 @@ model Cargo {
   users         User[]
   shipments     Shipment[]
   faqs          Faq[]
+  notifications Notification[]
 }
 
 model User {
@@ -82,12 +84,32 @@ model Faq {
   cargo    Cargo  @relation(fields: [cargoId], references: [id])
 }
 
+model Notification {
+  id         Int          @id @default(autoincrement())
+  cargoId    Int
+  cargo      Cargo        @relation(fields: [cargoId], references: [id])
+  type       NotifType
+  title      String
+  body       String
+  read       Boolean      @default(false)
+  archived   Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+
+  @@index([cargoId, archived, read])
+  @@index([cargoId, archived, createdAt])
+}
+
 model Otp {
   id        Int      @id @default(autoincrement())
   email     String
   code      String
   expiresAt DateTime
   used      Boolean  @default(false)
+}
+
+enum NotifType {
+  NEW_SHIPMENT
+  CROSS_CARGO
 }
 
 enum Role {

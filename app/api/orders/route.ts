@@ -95,5 +95,23 @@ export async function POST(req: NextRequest) {
     },
   })
 
+  // NEW_SHIPMENT notification
+  try {
+    const cargo = await (prisma.cargo as any).findUnique({
+      where: { id: cargoId },
+      select: { notificationsEnabled: true },
+    })
+    if (cargo?.notificationsEnabled) {
+      await (prisma.notification as any).create({
+        data: {
+          cargoId,
+          type: 'NEW_SHIPMENT',
+          title: 'Шинэ ачаа бүртгэгдлээ',
+          body: `${userRecord?.phone ?? ''} — ${code}${description ? ` (${description})` : ''}`,
+        },
+      })
+    }
+  } catch { /* notifications are non-critical */ }
+
   return NextResponse.json(shipment, { status: 201 })
 }

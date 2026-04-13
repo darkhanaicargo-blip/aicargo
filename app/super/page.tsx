@@ -16,6 +16,7 @@ interface CargoStat {
   bankAccountHolder: string | null
   bankAccountNumber: string | null
   bankTransferNote: string | null
+  notificationsEnabled: boolean
   createdAt: string
   admins: Admin[]
   totalUsers: number
@@ -220,9 +221,30 @@ export default function SuperPage() {
                         </span>
                       )}
                     </div>
-                    <button onClick={() => startEdit(c)} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.3rem 0.8rem', cursor: 'pointer', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
-                      Засах
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <button
+                        onClick={async () => {
+                          await fetch(`/api/super/cargo/${c.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ notificationsEnabled: !c.notificationsEnabled }),
+                          })
+                          load()
+                        }}
+                        style={{
+                          background: c.notificationsEnabled ? 'rgba(34,197,94,0.12)' : 'none',
+                          border: `1px solid ${c.notificationsEnabled ? '#22c55e' : 'var(--border)'}`,
+                          color: c.notificationsEnabled ? '#22c55e' : 'var(--muted)',
+                          borderRadius: 'var(--radius)', padding: '0.3rem 0.8rem',
+                          cursor: 'pointer', fontSize: '0.78rem', whiteSpace: 'nowrap', fontFamily: 'inherit',
+                        }}
+                      >
+                        {c.notificationsEnabled ? '🔔 Мэдэгдэл: Тийм' : '🔕 Мэдэгдэл: Үгүй'}
+                      </button>
+                      <button onClick={() => startEdit(c)} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.3rem 0.8rem', cursor: 'pointer', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                        Засах
+                      </button>
+                    </div>
                   </div>
 
                   {/* Stats + Admins row */}
