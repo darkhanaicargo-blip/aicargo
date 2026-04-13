@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
       bankAccountHolder: (c as any).bankAccountHolder ?? null,
       bankAccountNumber: (c as any).bankAccountNumber ?? null,
       bankTransferNote: (c as any).bankTransferNote ?? null,
+      notificationsEnabled: (c as any).notificationsEnabled ?? false,
       createdAt: c.createdAt,
       totalUsers: c._count.users,
       totalShipments: c._count.shipments,
