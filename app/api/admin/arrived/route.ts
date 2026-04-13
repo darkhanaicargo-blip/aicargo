@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest) {
     const resolvedPhone = existing?.user?.phone || existing?.phone || manualPhone || null
     let resolvedUserId = existing?.userId ?? null
     if (!resolvedUserId && resolvedPhone) {
-      const matchedUser = await prisma.user.findUnique({ where: { phone: resolvedPhone } })
+      const matchedUser = await prisma.user.findFirst({ where: { phone: resolvedPhone, cargoId: admin.cargoId! } })
       if (matchedUser) resolvedUserId = matchedUser.id
     }
     return prisma.shipment.upsert({
@@ -65,10 +65,10 @@ export async function POST(req: NextRequest) {
 
   const resolvedPhone = existing?.user?.phone || existing?.phone || manualPhone || null
 
-  // Auto-link userId if a user with this phone exists
+  // Auto-link userId only if user belongs to THIS cargo
   let resolvedUserId = existing?.userId ?? null
   if (!resolvedUserId && resolvedPhone) {
-    const matchedUser = await prisma.user.findUnique({ where: { phone: resolvedPhone } })
+    const matchedUser = await prisma.user.findFirst({ where: { phone: resolvedPhone, cargoId: admin.cargoId! } })
     if (matchedUser) resolvedUserId = matchedUser.id
   }
 
