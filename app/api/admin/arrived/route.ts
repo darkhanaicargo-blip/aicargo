@@ -33,8 +33,10 @@ export async function PUT(req: NextRequest) {
     })
   }))
 
-  const importedCodes = rows.map(r => r.trackCode.trim().toUpperCase())
-  await checkCrossCargoOnImport(importedCodes, admin.cargoId!)
+  await checkCrossCargoOnImport(
+    rows.map(r => ({ trackCode: r.trackCode.trim().toUpperCase(), phone: r.phone?.trim() || null })),
+    admin.cargoId!
+  )
 
   return NextResponse.json({ count: results.filter(Boolean).length })
 }
@@ -91,7 +93,7 @@ export async function POST(req: NextRequest) {
     include: { user: { select: { name: true, phone: true } } },
   })
 
-  await checkCrossCargoOnImport([code], admin.cargoId!)
+  await checkCrossCargoOnImport([{ trackCode: code, phone: resolvedPhone }], admin.cargoId!)
 
   return NextResponse.json(shipment)
 }

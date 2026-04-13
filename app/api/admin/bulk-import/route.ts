@@ -59,7 +59,10 @@ export async function POST(req: NextRequest) {
   )
 
   // Cross-cargo check: notify if any imported codes belong to sibling cargo users
-  await checkCrossCargoOnImport(codes, admin.cargoId!)
+  await checkCrossCargoOnImport(
+    rows.map(r => ({ trackCode: r.trackCode.trim().toUpperCase(), phone: r.phone?.trim() || null })),
+    admin.cargoId!
+  )
 
   return NextResponse.json({ count: results.length, duplicates })
 }
