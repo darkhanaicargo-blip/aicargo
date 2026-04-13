@@ -19,8 +19,35 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
     const trackCodes = rows.map(r => r.trackCode)
     const phones = [...new Set(rows.map(r => r.phone).filter(Boolean) as string[])]
     const toCreate: { cargoId: number; type: string; title: string; body: string }[] = []
-    // Track which (trackCode|phone, cargoId) pairs already notified to avoid duplicates
+
+    // Load today's existing CROSS_CARGO notifications for all relevant cargos
+    // to avoid duplicate notifications for the same track code on the same day
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    const todayNotifs = await (prisma.notification as any).findMany({
+      where: {
+        type: 'CROSS_CARGO',
+        createdAt: { gte: todayStart },
+      },
+      select: { cargoId: true, body: true },
+    })
+    // Build a set of "cargoId|trackCode" pairs already notified today
+    const alreadyNotified = new Set<string>()
+    for (const n of todayNotifs) {
+      for (const code of trackCodes) {
+        if (n.body.includes(code)) alreadyNotified.add(`${n.cargoId}|${code}`)
+      }
+    }
+
+    // Track which pairs are being created in this batch (in-memory dedup)
     const notified = new Set<string>()
+
+    function isDupe(cargoId: number, code: string) {
+      const key = `${cargoId}|${code}`
+      if (alreadyNotified.has(key) || notified.has(key)) return true
+      notified.add(key)
+      return false
+    }
 
     // ── Check 1: track code exists in sibling cargo with a registered user ──
     const crossByCode = await prisma.shipment.findMany({
@@ -42,11 +69,8 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
     for (const s of crossByCode) {
       const userPhone = s.user?.phone || s.phone || '—'
       const userName = s.user?.name || userPhone
-      const key = `${s.trackCode}|${s.cargoId}`
-      if (notified.has(key)) continue
-      notified.add(key)
 
-      if ((s.cargo as any).notificationsEnabled) {
+      if ((s.cargo as any).notificationsEnabled && !isDupe(s.cargoId, s.trackCode)) {
         toCreate.push({
           cargoId: s.cargoId,
           type: 'CROSS_CARGO',
@@ -54,7 +78,7 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
           body: `${userName} (${userPhone})-ийн бүртгүүлсэн ${s.trackCode} ачаа ${thisCargo.name}-д орсон байна. Яаралтай холбогдож барааг авна уу.`,
         })
       }
-      if (thisCargo.notificationsEnabled) {
+      if (thisCargo.notificationsEnabled && !isDupe(adminCargoId, s.trackCode)) {
         toCreate.push({
           cargoId: adminCargoId,
           type: 'CROSS_CARGO',
@@ -84,11 +108,7 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
         // Find which track codes had this phone
         const matchedCodes = rows.filter(r => r.phone === u.phone).map(r => r.trackCode)
         for (const code of matchedCodes) {
-          const key = `${code}|${u.cargoId}`
-          if (notified.has(key)) continue
-          notified.add(key)
-
-          if ((u.cargo as any).notificationsEnabled) {
+          if ((u.cargo as any).notificationsEnabled && !isDupe(u.cargoId, code)) {
             toCreate.push({
               cargoId: u.cargoId,
               type: 'CROSS_CARGO',
@@ -96,7 +116,7 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
               body: `${u.name} (${u.phone})-ийн ${code} ачаа ${thisCargo.name}-д орсон байна. Яаралтай холбогдож барааг авна уу.`,
             })
           }
-          if (thisCargo.notificationsEnabled) {
+          if (thisCargo.notificationsEnabled && !isDupe(adminCargoId, code)) {
             toCreate.push({
               cargoId: adminCargoId,
               type: 'CROSS_CARGO',
