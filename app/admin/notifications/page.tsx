@@ -11,10 +11,13 @@ interface Notif {
   createdAt: string
 }
 
+const PAGE_SIZE = 10
+
 export default function NotificationsPage() {
   const [notifs, setNotifs] = useState<Notif[]>([])
   const [loading, setLoading] = useState(true)
   const [showArchived, setShowArchived] = useState(false)
+  const [page, setPage] = useState(1)
 
   function load(archived = false) {
     setLoading(true)
@@ -24,7 +27,7 @@ export default function NotificationsPage() {
       .catch(() => setLoading(false))
   }
 
-  useEffect(() => { load(showArchived) }, [showArchived])
+  useEffect(() => { load(showArchived); setPage(1) }, [showArchived])
 
   async function markRead(id: number) {
     await fetch(`/api/admin/notifications/${id}`, {
@@ -50,6 +53,8 @@ export default function NotificationsPage() {
   }
 
   const unread = notifs.filter(n => !n.read).length
+  const totalPages = Math.ceil(notifs.length / PAGE_SIZE)
+  const paged = showArchived ? notifs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : notifs
 
   return (
     <div className="page">
@@ -84,8 +89,9 @@ export default function NotificationsPage() {
           {showArchived ? 'Архивласан мэдэгдэл байхгүй' : 'Мэдэгдэл байхгүй байна'}
         </div>
       ) : (
+        <>
         <div style={{ display: 'grid', gap: '0.6rem' }}>
-          {notifs.map(n => (
+          {paged.map(n => (
             <div key={n.id} className="card" style={{
               padding: '1rem 1.2rem',
               borderLeft: `3px solid ${n.type === 'CROSS_CARGO' ? '#f97316' : 'var(--accent)'}`,
@@ -136,7 +142,34 @@ export default function NotificationsPage() {
             </div>
           ))}
         </div>
+        {showArchived && totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.4rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <button onClick={() => setPage(1)} disabled={page === 1} style={pgBtn(page === 1)}>«</button>
+            <button onClick={() => setPage(p => p - 1)} disabled={page === 1} style={pgBtn(page === 1)}>‹</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => {
+              if (totalPages <= 7 || p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+                return <button key={p} onClick={() => setPage(p)} style={pgBtn(false, p === page)}>{p}</button>
+              }
+              if (Math.abs(p - page) === 2) return <span key={p} style={{ color: 'var(--muted)', fontSize: '0.82rem' }}>…</span>
+              return null
+            })}
+            <button onClick={() => setPage(p => p + 1)} disabled={page === totalPages} style={pgBtn(page === totalPages)}>›</button>
+            <button onClick={() => setPage(totalPages)} disabled={page === totalPages} style={pgBtn(page === totalPages)}>»</button>
+          </div>
+        )}
+        </>
       )}
     </div>
   )
+}
+
+function pgBtn(disabled: boolean, active = false): React.CSSProperties {
+  return {
+    minWidth: '2rem', height: '2rem', padding: '0 0.5rem',
+    border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+    borderRadius: 'var(--radius)', cursor: disabled ? 'default' : 'pointer',
+    background: active ? 'var(--accent)' : 'none',
+    color: active ? '#fff' : disabled ? 'var(--border)' : 'var(--text)',
+    fontSize: '0.82rem', fontFamily: 'inherit', fontWeight: active ? 700 : 400,
+  }
 }
