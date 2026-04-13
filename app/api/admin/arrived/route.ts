@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { checkCrossCargoOnImport } from '@/lib/notifications'
 
 export async function PUT(req: NextRequest) {
   const admin = getAuthUserFromRequest(req)
@@ -31,6 +32,9 @@ export async function PUT(req: NextRequest) {
       create: { trackCode: code, status: 'ARRIVED', adminPrice: price ?? null, phone: resolvedPhone, cargoId: admin.cargoId!, ...(resolvedUserId ? { userId: resolvedUserId } : {}) },
     })
   }))
+
+  const importedCodes = rows.map(r => r.trackCode.trim().toUpperCase())
+  await checkCrossCargoOnImport(importedCodes, admin.cargoId!)
 
   return NextResponse.json({ count: results.filter(Boolean).length })
 }
@@ -86,6 +90,8 @@ export async function POST(req: NextRequest) {
     },
     include: { user: { select: { name: true, phone: true } } },
   })
+
+  await checkCrossCargoOnImport([code], admin.cargoId!)
 
   return NextResponse.json(shipment)
 }

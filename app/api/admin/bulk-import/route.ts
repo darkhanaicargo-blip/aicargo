@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { checkCrossCargoOnImport } from '@/lib/notifications'
 
 interface ImportRow {
   trackCode: string
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest) {
       })
     })
   )
+
+  // Cross-cargo check: notify if any imported codes belong to sibling cargo users
+  await checkCrossCargoOnImport(codes, admin.cargoId!)
 
   return NextResponse.json({ count: results.length, duplicates })
 }

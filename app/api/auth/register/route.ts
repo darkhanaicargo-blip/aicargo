@@ -33,52 +33,6 @@ export async function POST(req: NextRequest) {
     data: { userId: user.id },
   })
 
-  // CROSS_CARGO detection: check if this phone has shipments in other cargos within same group
-  try {
-    const thisCargo = await (prisma.cargo as any).findUnique({
-      where: { id: cargo.id },
-      select: { groupId: true, name: true, notificationsEnabled: true },
-    })
-    if (thisCargo?.groupId) {
-      const otherShipments = await prisma.shipment.findMany({
-        where: {
-          phone,
-          cargoId: { not: cargo.id },
-          cargo: { groupId: thisCargo.groupId },
-        },
-        select: {
-          cargoId: true,
-          cargo: { select: { name: true, notificationsEnabled: true } },
-        },
-        distinct: ['cargoId'],
-      })
-      const toCreate: { cargoId: number; type: string; title: string; body: string }[] = []
-      for (const s of otherShipments) {
-        // notify cargo where the user came from
-        if ((s.cargo as any).notificationsEnabled) {
-          toCreate.push({
-            cargoId: s.cargoId,
-            type: 'CROSS_CARGO',
-            title: 'Харьяа хэрэглэгч өөр cargo-д бүртгүүллэ',
-            body: `${name} (${phone}) таны карго дахь хэрэглэгч боловч ${thisCargo.name}-д бүртгүүллээ`,
-          })
-        }
-        // notify the cargo the user just registered in
-        if (thisCargo.notificationsEnabled) {
-          toCreate.push({
-            cargoId: cargo.id,
-            type: 'CROSS_CARGO',
-            title: 'Харьяа cargo зөрүүтэй хэрэглэгч',
-            body: `${name} (${phone}) ${(s.cargo as any).name}-д ачаатай боловч таны cargo-д бүртгүүллээ`,
-          })
-        }
-      }
-      if (toCreate.length > 0) {
-        await (prisma.notification as any).createMany({ data: toCreate })
-      }
-    }
-  } catch { /* notifications are non-critical */ }
-
   const token = signToken({ userId: user.id, role: user.role, cargoId: user.cargoId })
   const res = NextResponse.json({ ok: true })
   setAuthCookie(res, token)
