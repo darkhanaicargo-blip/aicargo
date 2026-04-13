@@ -63,5 +63,5 @@ export async function checkCrossCargoOnImport(trackCodes: string[], adminCargoId
     if (toCreate.length > 0) {
       await (prisma.notification as any).createMany({ data: toCreate })
     }
-  } catch { /* notifications are non-critical */ }
+  } catch (e) { console.error('[notifications] checkCrossCargoOnImport error:', e) }
 }
