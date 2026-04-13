@@ -6,7 +6,12 @@ import { prisma } from '@/lib/prisma'
  * with a registered userId — meaning the shipment belongs to
  * another cargo's customer and was mis-assigned.
  */
-interface ImportRow { trackCode: string; phone?: string | null }
+interface ImportRow { trackCode: string; phone?: string | null; status?: string }
+
+const STATUS_LABEL: Record<string, string> = {
+  EREEN_ARRIVED: 'Эрээнд ирсэн',
+  ARRIVED: 'Ирсэн',
+}
 
 export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: number) {
   try {
@@ -69,13 +74,16 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
     for (const s of crossByCode) {
       const userPhone = s.user?.phone || s.phone || '—'
       const userName = s.user?.name || userPhone
+      const importedRow = rows.find(r => r.trackCode === s.trackCode)
+      const statusLabel = STATUS_LABEL[importedRow?.status ?? ''] ?? ''
+      const statusText = statusLabel ? ` (${statusLabel} төлөвт орлоо)` : ''
 
       if ((s.cargo as any).notificationsEnabled && !isDupe(s.cargoId, s.trackCode)) {
         toCreate.push({
           cargoId: s.cargoId,
           type: 'CROSS_CARGO',
           title: 'Таны хэрэглэгчийн ачаа өөр cargo-д орлоо',
-          body: `${userName} (${userPhone})-ийн бүртгүүлсэн ${s.trackCode} ачаа ${thisCargo.name}-д орсон байна. Яаралтай холбогдож барааг авна уу.`,
+          body: `${userName} (${userPhone})-ийн бүртгүүлсэн ${s.trackCode} ачаа ${thisCargo.name}-д${statusText} орсон байна. Яаралтай холбогдож барааг авна уу.`,
         })
       }
       if (thisCargo.notificationsEnabled && !isDupe(adminCargoId, s.trackCode)) {
@@ -83,7 +91,7 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
           cargoId: adminCargoId,
           type: 'CROSS_CARGO',
           title: 'Өөр cargo-ийн хэрэглэгчийн ачаа орлоо',
-          body: `${s.trackCode} нь ${(s.cargo as any).name}-ийн ${userName} (${userPhone})-ийн бүртгэлтэй ачаа байна.`,
+          body: `${s.trackCode} нь ${(s.cargo as any).name}-ийн ${userName} (${userPhone})-ийн бүртгэлтэй ачаа байна${statusText}.`,
         })
       }
     }
@@ -108,12 +116,16 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
         // Find which track codes had this phone
         const matchedCodes = rows.filter(r => r.phone === u.phone).map(r => r.trackCode)
         for (const code of matchedCodes) {
+          const importedRow = rows.find(r => r.trackCode === code)
+          const statusLabel = STATUS_LABEL[importedRow?.status ?? ''] ?? ''
+          const statusText = statusLabel ? ` (${statusLabel} төлөвт орлоо)` : ''
+
           if ((u.cargo as any).notificationsEnabled && !isDupe(u.cargoId, code)) {
             toCreate.push({
               cargoId: u.cargoId,
               type: 'CROSS_CARGO',
               title: 'Таны хэрэглэгчийн ачаа өөр cargo-д орлоо',
-              body: `${u.name} (${u.phone})-ийн ${code} ачаа ${thisCargo.name}-д орсон байна. Яаралтай холбогдож барааг авна уу.`,
+              body: `${u.name} (${u.phone})-ийн ${code} ачаа ${thisCargo.name}-д${statusText} орсон байна. Яаралтай холбогдож барааг авна уу.`,
             })
           }
           if (thisCargo.notificationsEnabled && !isDupe(adminCargoId, code)) {
@@ -121,7 +133,7 @@ export async function checkCrossCargoOnImport(rows: ImportRow[], adminCargoId: n
               cargoId: adminCargoId,
               type: 'CROSS_CARGO',
               title: 'Өөр cargo-ийн хэрэглэгчийн ачаа орлоо',
-              body: `${code} нь ${(u.cargo as any).name}-ийн ${u.name} (${u.phone})-ийн бүртгэлтэй хэрэглэгчийн ачаа байна.`,
+              body: `${code} нь ${(u.cargo as any).name}-ийн ${u.name} (${u.phone})-ийн бүртгэлтэй хэрэглэгчийн ачаа байна${statusText}.`,
             })
           }
         }

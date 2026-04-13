@@ -34,7 +34,7 @@ export async function PUT(req: NextRequest) {
   }))
 
   await checkCrossCargoOnImport(
-    rows.map(r => ({ trackCode: r.trackCode.trim().toUpperCase(), phone: r.phone?.trim() || null })),
+    rows.map(r => ({ trackCode: r.trackCode.trim().toUpperCase(), phone: r.phone?.trim() || null, status: 'ARRIVED' })),
     admin.cargoId!
   )
 
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     include: { user: { select: { name: true, phone: true } } },
   })
 
-  await checkCrossCargoOnImport([{ trackCode: code, phone: resolvedPhone }], admin.cargoId!)
+  await checkCrossCargoOnImport([{ trackCode: code, phone: resolvedPhone, status: 'ARRIVED' }], admin.cargoId!)
 
   return NextResponse.json(shipment)
 }
