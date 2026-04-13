@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 
-interface Cargo { id: number; name: string; slug: string; logoUrl: string | null }
+interface Cargo { id: number; name: string; slug: string; logoUrl: string | null; notificationsEnabled: boolean }
 interface Group { id: number; name: string; cargos: Cargo[] }
 
 export default function GroupsPage() {
@@ -157,6 +157,30 @@ export default function GroupsPage() {
                     )}
                   </div>
                   <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                    {g.cargos.length > 0 && (() => {
+                      const allOn = g.cargos.every(c => c.notificationsEnabled)
+                      return (
+                        <button
+                          onClick={async () => {
+                            await fetch(`/api/super/groups/${g.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ notificationsEnabled: !allOn }),
+                            })
+                            load()
+                          }}
+                          style={{
+                            background: allOn ? 'rgba(34,197,94,0.12)' : 'none',
+                            border: `1px solid ${allOn ? '#22c55e' : 'var(--border)'}`,
+                            color: allOn ? '#22c55e' : 'var(--muted)',
+                            borderRadius: 'var(--radius)', padding: '0.3rem 0.8rem',
+                            cursor: 'pointer', fontSize: '0.78rem', whiteSpace: 'nowrap', fontFamily: 'inherit',
+                          }}
+                        >
+                          {allOn ? '🔔 Мэдэгдэл: Тийм' : '🔕 Мэдэгдэл: Үгүй'}
+                        </button>
+                      )
+                    })()}
                     <button onClick={() => startEdit(g)} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.3rem 0.8rem', cursor: 'pointer', fontSize: '0.78rem' }}>
                       Засах
                     </button>

@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 
   const groups = await (prisma.cargoGroup as any).findMany({
-    include: { cargos: { select: { id: true, name: true, slug: true, logoUrl: true } } },
+    include: { cargos: { select: { id: true, name: true, slug: true, logoUrl: true, notificationsEnabled: true } } },
     orderBy: { id: 'asc' },
   })
   return NextResponse.json(groups)

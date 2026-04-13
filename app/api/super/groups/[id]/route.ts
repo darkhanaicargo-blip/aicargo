@@ -13,10 +13,18 @@ export async function PATCH(
 
   const { id } = await params
   const groupId = Number(id)
-  const { name, cargoIds } = await req.json()
+  const { name, cargoIds, notificationsEnabled } = await req.json()
 
   if (name !== undefined) {
     await (prisma.cargoGroup as any).update({ where: { id: groupId }, data: { name: name.trim() } })
+  }
+
+  // Toggle notifications for ALL cargos in this group at once
+  if (notificationsEnabled !== undefined) {
+    await (prisma.cargo as any).updateMany({
+      where: { groupId },
+      data: { notificationsEnabled: Boolean(notificationsEnabled) },
+    })
   }
 
   if (cargoIds !== undefined) {
