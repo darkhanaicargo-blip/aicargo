@@ -193,32 +193,23 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
           {phoneResults && phoneResults.length > 0 && (
             <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {phoneResults.map((item: any) => (
-                <div key={item.trackCode} className="card" style={{ padding: '0.7rem 1rem' }}>
-                  <div className="card-row">
-                    <span className="label">Трак код</span>
-                    <strong style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.trackCode}</strong>
-                  </div>
-                  {item.description && (
-                    <div className="card-row">
-                      <span className="label">Тайлбар</span>
-                      <span>{item.description}</span>
-                    </div>
-                  )}
-                  <div className="card-row">
-                    <span className="label">Статус</span>
-                    <span className={`badge badge-${item.status}`}>{STATUS_LABEL[item.status] ?? item.status}</span>
-                  </div>
-                  {item.adminPrice && (
-                    <div className="card-row">
-                      <span className="label">Төлбөр</span>
-                      <strong style={{ color: 'var(--accent)' }}>₮{Number(item.adminPrice).toLocaleString()}</strong>
-                    </div>
-                  )}
-                  <div className="card-row">
-                    <span className="label">Огноо</span>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
+                <div key={item.trackCode} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '0.55rem 0.9rem', background: 'var(--surface)',
+                  border: '1px solid var(--border)', borderRadius: 'var(--radius)', gap: '0.5rem',
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', minWidth: 0 }}>
+                    <strong style={{ fontFamily: 'monospace', fontSize: '0.83rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.trackCode}</strong>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
                       {new Date(item.updatedAt).toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                      {item.description ? ` · ${item.description}` : ''}
                     </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem', flexShrink: 0 }}>
+                    <span className={`badge badge-${item.status}`}>{STATUS_LABEL[item.status] ?? item.status}</span>
+                    {item.adminPrice && (
+                      <strong style={{ fontSize: '0.8rem', color: 'var(--accent)' }}>₮{Number(item.adminPrice).toLocaleString()}</strong>
+                    )}
                   </div>
                 </div>
               ))}
