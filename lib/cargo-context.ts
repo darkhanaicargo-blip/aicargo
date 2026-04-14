@@ -16,6 +16,7 @@ export interface CargoInfo {
   bankAccountHolder: string | null
   bankAccountNumber: string | null
   bankTransferNote: string | null
+  searchByPhone: boolean
 }
 
 export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
@@ -39,6 +40,7 @@ export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
       bankAccountHolder: true,
       bankAccountNumber: true,
       bankTransferNote: true,
+      searchByPhone: true,
     },
   })
 }

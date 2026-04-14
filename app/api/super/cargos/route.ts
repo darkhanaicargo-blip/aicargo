@@ -40,6 +40,7 @@ export async function GET(req: NextRequest) {
       bankAccountNumber: (c as any).bankAccountNumber ?? null,
       bankTransferNote: (c as any).bankTransferNote ?? null,
       notificationsEnabled: (c as any).notificationsEnabled ?? false,
+      searchByPhone: (c as any).searchByPhone ?? false,
       createdAt: c.createdAt,
       totalUsers: c._count.users,
       totalShipments: c._count.shipments,

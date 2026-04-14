@@ -23,6 +23,7 @@ model Cargo {
   logoUrl          String?
   lastNotifiedAt        DateTime?
   notificationsEnabled  Boolean    @default(false)
+  searchByPhone         Boolean    @default(false)
   tariff            String?
   announcement      String?
   contactInfo       String?

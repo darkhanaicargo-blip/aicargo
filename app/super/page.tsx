@@ -17,6 +17,7 @@ interface CargoStat {
   bankAccountNumber: string | null
   bankTransferNote: string | null
   notificationsEnabled: boolean
+  searchByPhone: boolean
   createdAt: string
   admins: Admin[]
   totalUsers: number
@@ -240,6 +241,25 @@ export default function SuperPage() {
                         }}
                       >
                         {c.notificationsEnabled ? '🔔 Мэдэгдэл: Тийм' : '🔕 Мэдэгдэл: Үгүй'}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          await fetch(`/api/super/cargo/${c.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ searchByPhone: !c.searchByPhone }),
+                          })
+                          load()
+                        }}
+                        style={{
+                          background: c.searchByPhone ? 'rgba(99,102,241,0.12)' : 'none',
+                          border: `1px solid ${c.searchByPhone ? '#6366f1' : 'var(--border)'}`,
+                          color: c.searchByPhone ? '#6366f1' : 'var(--muted)',
+                          borderRadius: 'var(--radius)', padding: '0.3rem 0.8rem',
+                          cursor: 'pointer', fontSize: '0.78rem', whiteSpace: 'nowrap', fontFamily: 'inherit',
+                        }}
+                      >
+                        {c.searchByPhone ? '📱 Утас хайлт: Тийм' : '📱 Утас хайлт: Үгүй'}
                       </button>
                       <button onClick={() => startEdit(c)} style={{ background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: 'var(--radius)', padding: '0.3rem 0.8rem', cursor: 'pointer', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                         Засах
