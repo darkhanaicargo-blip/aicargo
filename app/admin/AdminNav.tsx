@@ -4,18 +4,6 @@ import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import NavLogo from '@/app/components/NavLogo'
 
-const links = [
-  { href: '/admin/registered', label: 'Бүртгүүлсэн' },
-  { href: '/admin/import', label: 'Эрээнд ирсэн' },
-  { href: '/admin/arrived', label: 'Ирсэн' },
-  { href: '/admin/handover', label: 'Ачаа олгох' },
-  { href: '/admin/history', label: 'Олгосон' },
-  { href: '/admin/notify', label: 'Мэдэгдэл' },
-  { href: '/admin/faq', label: 'FAQ' },
-  { href: '/admin/users', label: 'Хэрэглэгчид' },
-  { href: '/admin/settings', label: 'Тохиргоо' },
-]
-
 export default function AdminNav({
   cargoName,
   logoUrl,
@@ -29,13 +17,30 @@ export default function AdminNav({
   const router = useRouter()
   const [copied, setCopied] = useState(false)
   const [unread, setUnread] = useState(0)
+  const [arrivedLabel, setArrivedLabel] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/notifications?count=1')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.count) setUnread(d.count) })
       .catch(() => {})
+    fetch('/api/admin/settings')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.arrivedLabel) setArrivedLabel(d.arrivedLabel) })
+      .catch(() => {})
   }, [pathname])
+
+  const links = [
+    { href: '/admin/registered', label: 'Бүртгүүлсэн' },
+    { href: '/admin/import', label: 'Эрээнд ирсэн' },
+    { href: '/admin/arrived', label: arrivedLabel || 'Ирсэн' },
+    { href: '/admin/handover', label: 'Ачаа олгох' },
+    { href: '/admin/history', label: 'Олгосон' },
+    { href: '/admin/notify', label: 'Мэдэгдэл' },
+    { href: '/admin/faq', label: 'FAQ' },
+    { href: '/admin/users', label: 'Хэрэглэгчид' },
+    { href: '/admin/settings', label: 'Тохиргоо' },
+  ]
 
   function copyInvite() {
     if (!cargoSlug) return
