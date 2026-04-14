@@ -12,11 +12,13 @@ const PAGE_SIZE = 20
 const COLS = 2
 const ROWS = PAGE_SIZE / COLS  // 10 rows
 
-const STATUS_LABEL: Record<string, string> = {
-  EREEN_ARRIVED: 'Эрээнд',
-  ARRIVED: 'Ирсэн',
-  PICKED_UP: 'Авсан',
-  REGISTERED: 'Бүртгүүлсэн',
+function getStatusLabel(arrivedLabel?: string | null): Record<string, string> {
+  return {
+    EREEN_ARRIVED: 'Эрээнд',
+    ARRIVED: arrivedLabel || 'Ирсэн',
+    PICKED_UP: 'Авсан',
+    REGISTERED: 'Бүртгүүлсэн',
+  }
 }
 
 export default function ImportPage() {
@@ -40,10 +42,13 @@ export default function ImportPage() {
   const [searchTotal, setSearchTotal] = useState(0)
   const [searchPage, setSearchPage] = useState(1)
   const [searching, setSearching] = useState(false)
+  const [arrivedLabel, setArrivedLabel] = useState<string | null>(null)
+  const STATUS_LABEL = getStatusLabel(arrivedLabel)
 
   useEffect(() => {
     inputRef.current?.focus()
     loadList('', 1)
+    fetch('/api/admin/settings').then(r => r.json()).then(d => setArrivedLabel(d.arrivedLabel ?? null)).catch(() => {})
   }, [])
 
   async function loadList(q: string, pg: number) {
