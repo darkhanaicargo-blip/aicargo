@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 
 export default function SettingsPage() {
   const [form, setForm] = useState({ tariff: '', announcement: '', contactInfo: '', bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankTransferNote: '' })
-  const [cargo, setCargo] = useState<{ name: string; ereemReceiver: string; ereemPhone: string; ereemAddress: string } | null>(null)
+  const [cargo, setCargo] = useState<{ name: string; ereemReceiver: string; ereemPhone: string; ereemRegion: string; ereemAddress: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -46,6 +46,7 @@ export default function SettingsPage() {
         <div style={{ fontSize: '0.85rem', lineHeight: 2, color: 'var(--text)' }}>
           <div>收货人: <strong>{cargo?.ereemReceiver}</strong></div>
           <div>手机号: <strong>{cargo?.ereemPhone}</strong></div>
+          {cargo?.ereemRegion && <div>地区: <strong>{cargo.ereemRegion}</strong></div>}
           <div>地址: <strong>{cargo?.ereemAddress}</strong></div>
         </div>
       </div>

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   const cargo = await (prisma.cargo as any).findUnique({
     where: { id: admin.cargoId! },
-    select: { name: true, ereemReceiver: true, ereemPhone: true, ereemAddress: true, tariff: true, announcement: true, contactInfo: true, bankName: true, bankAccountHolder: true, bankAccountNumber: true, bankTransferNote: true },
+    select: { name: true, ereemReceiver: true, ereemPhone: true, ereemRegion: true, ereemAddress: true, tariff: true, announcement: true, contactInfo: true, bankName: true, bankAccountHolder: true, bankAccountNumber: true, bankTransferNote: true },
   })
   return NextResponse.json(cargo)
 }
