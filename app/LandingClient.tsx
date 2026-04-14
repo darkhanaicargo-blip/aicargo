@@ -59,48 +59,39 @@ interface CargoInfo {
 
 export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
   const [activeTab, setActiveTab] = useState<string | null>(null)
-  const [code, setCode] = useState('')
+  const [query, setQuery] = useState('')
   const [result, setResult] = useState<any>(null)
+  const [phoneResults, setPhoneResults] = useState<any[] | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [phone, setPhone] = useState('')
-  const [phoneResults, setPhoneResults] = useState<any[] | null>(null)
-  const [phoneError, setPhoneError] = useState('')
-  const [phoneLoading, setPhoneLoading] = useState(false)
 
-  async function searchByPhone() {
-    const val = phone.trim()
-    if (!val) return
-    setPhoneLoading(true)
-    setPhoneError('')
-    setPhoneResults(null)
-    try {
-      const res = await fetch(`/api/phone-search?phone=${encodeURIComponent(val)}`)
-      if (res.ok) {
-        const data = await res.json()
-        if (data.length === 0) setPhoneError('Энэ дугаарт бүртгэлтэй ачаа олдсонгүй.')
-        else setPhoneResults(data)
-      } else {
-        const d = await res.json()
-        setPhoneError(d.error || 'Алдаа гарлаа.')
-      }
-    } catch {
-      setPhoneError('Холболтын алдаа гарлаа.')
-    } finally {
-      setPhoneLoading(false)
-    }
+  function isPhoneQuery(val: string) {
+    return cargo?.searchByPhone && /^\d{8}$/.test(val)
   }
 
   async function search() {
-    const val = code.trim()
+    const val = query.trim().toUpperCase().replace(/\s+/g, '')
     if (!val) return
     setLoading(true)
     setError('')
     setResult(null)
+    setPhoneResults(null)
     try {
-      const res = await fetch(`/api/track/${encodeURIComponent(val)}`)
-      if (res.ok) setResult(await res.json())
-      else setError('Бараа олдсонгүй. Трак кодоо шалгана уу.')
+      if (isPhoneQuery(query.trim())) {
+        const res = await fetch(`/api/phone-search?phone=${encodeURIComponent(query.trim())}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.length === 0) setError('Энэ дугаарт ирсэн ачаа олдсонгүй.')
+          else setPhoneResults(data)
+        } else {
+          const d = await res.json()
+          setError(d.error || 'Алдаа гарлаа.')
+        }
+      } else {
+        const res = await fetch(`/api/track/${encodeURIComponent(val)}`)
+        if (res.ok) setResult(await res.json())
+        else setError('Бараа олдсонгүй. Трак кодоо шалгана уу.')
+      }
     } catch {
       setError('Холболтын алдаа гарлаа.')
     } finally {
@@ -120,7 +111,7 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
 
       <div className="page" style={{ flex: 1 }}>
 
-        {/* Track search */}
+        {/* Search */}
         <div style={{ marginBottom: '1.5rem', marginTop: '1.2rem' }}>
           <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
             {cargo ? cargo.name : 'Aicargohub'} — Ачаа хянах систем
@@ -129,14 +120,14 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
             Ачаа шалгах
           </h1>
           <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-            Трак кодоороо бараагаа шалгана уу
+            {cargo?.searchByPhone ? 'Трак код эсвэл утасны дугаараар хайна уу' : 'Трак кодоороо бараагаа шалгана уу'}
           </p>
           <div style={{ display: 'flex', gap: '0.6rem', maxWidth: '100%' }}>
             <input
               className="input"
-              placeholder="JT5364974054841"
-              value={code}
-              onChange={e => setCode(e.target.value)}
+              placeholder={cargo?.searchByPhone ? 'JT5364974054841 эсвэл 99001234' : 'JT5364974054841'}
+              value={query}
+              onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && search()}
               autoFocus
               style={{ minWidth: 0 }}
@@ -147,6 +138,7 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
           </div>
           {error && <p className="msg-error">{error}</p>}
 
+          {/* Track code result */}
           {result && (
             <div className="card" style={{ marginTop: '1rem' }}>
               {result.cargo?.name && (
@@ -191,66 +183,43 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
               )}
             </div>
           )}
-        </div>
 
-        {/* Phone search */}
-        {cargo?.searchByPhone && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <hr className="divider" style={{ marginBottom: '1.5rem' }} />
-            <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.2rem' }}>Утасаар хайх</h2>
-            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginBottom: '0.8rem' }}>
-              Утасны дугаараар бүртгэлтэй ачаагаа шалгана уу
-            </p>
-            <div style={{ display: 'flex', gap: '0.6rem', maxWidth: '100%' }}>
-              <input
-                className="input"
-                placeholder="99001234"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && searchByPhone()}
-                style={{ minWidth: 0 }}
-              />
-              <button className="btn" onClick={searchByPhone} disabled={phoneLoading} style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
-                {phoneLoading ? '...' : 'Хайх'}
-              </button>
-            </div>
-            {phoneError && <p className="msg-error">{phoneError}</p>}
-            {phoneResults && phoneResults.length > 0 && (
-              <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {phoneResults.map((item: any) => (
-                  <div key={item.trackCode} className="card" style={{ padding: '0.7rem 1rem' }}>
-                    <div className="card-row">
-                      <span className="label">Трак код</span>
-                      <strong style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.trackCode}</strong>
-                    </div>
-                    {item.description && (
-                      <div className="card-row">
-                        <span className="label">Тайлбар</span>
-                        <span>{item.description}</span>
-                      </div>
-                    )}
-                    <div className="card-row">
-                      <span className="label">Статус</span>
-                      <span className={`badge badge-${item.status}`}>{STATUS_LABEL[item.status] ?? item.status}</span>
-                    </div>
-                    {item.adminPrice && (
-                      <div className="card-row">
-                        <span className="label">Төлбөр</span>
-                        <strong style={{ color: 'var(--accent)' }}>₮{Number(item.adminPrice).toLocaleString()}</strong>
-                      </div>
-                    )}
-                    <div className="card-row">
-                      <span className="label">Огноо</span>
-                      <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
-                        {new Date(item.updatedAt).toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' })}
-                      </span>
-                    </div>
+          {/* Phone search results */}
+          {phoneResults && phoneResults.length > 0 && (
+            <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {phoneResults.map((item: any) => (
+                <div key={item.trackCode} className="card" style={{ padding: '0.7rem 1rem' }}>
+                  <div className="card-row">
+                    <span className="label">Трак код</span>
+                    <strong style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{item.trackCode}</strong>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                  {item.description && (
+                    <div className="card-row">
+                      <span className="label">Тайлбар</span>
+                      <span>{item.description}</span>
+                    </div>
+                  )}
+                  <div className="card-row">
+                    <span className="label">Статус</span>
+                    <span className={`badge badge-${item.status}`}>{STATUS_LABEL[item.status] ?? item.status}</span>
+                  </div>
+                  {item.adminPrice && (
+                    <div className="card-row">
+                      <span className="label">Төлбөр</span>
+                      <strong style={{ color: 'var(--accent)' }}>₮{Number(item.adminPrice).toLocaleString()}</strong>
+                    </div>
+                  )}
+                  <div className="card-row">
+                    <span className="label">Огноо</span>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>
+                      {new Date(item.updatedAt).toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <hr className="divider" />
 
