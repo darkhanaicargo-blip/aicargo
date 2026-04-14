@@ -32,11 +32,13 @@ function CopyItem({ label, value }: { label: string; value: string }) {
   )
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  REGISTERED: 'Бүртгүүлсэн',
-  EREEN_ARRIVED: 'Эрээнд ирсэн',
-  ARRIVED: 'Ирсэн',
-  PICKED_UP: 'Авсан',
+function getStatusLabel(arrivedLabel?: string | null): Record<string, string> {
+  return {
+    REGISTERED: 'Бүртгүүлсэн',
+    EREEN_ARRIVED: 'Эрээнд ирсэн',
+    ARRIVED: arrivedLabel || 'Ирсэн',
+    PICKED_UP: 'Авсан',
+  }
 }
 
 interface CargoInfo {
@@ -54,6 +56,7 @@ interface CargoInfo {
   bankAccountHolder: string | null
   bankAccountNumber: string | null
   bankTransferNote: string | null
+  arrivedLabel: string | null
   searchByPhone: boolean
 }
 
@@ -64,6 +67,8 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
   const [phoneResults, setPhoneResults] = useState<any[] | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const STATUS_LABEL = getStatusLabel(cargo?.arrivedLabel)
 
   function isPhoneQuery(val: string) {
     return cargo?.searchByPhone && /^\d{8}$/.test(val)
