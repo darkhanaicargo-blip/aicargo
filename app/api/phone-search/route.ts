@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     where: {
       cargoId: cargo.id,
       phone,
+      status: 'ARRIVED',
       archived: false,
     },
     select: {
