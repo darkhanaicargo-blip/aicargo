@@ -51,7 +51,7 @@ export default function GroupSearchPage() {
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 className="section-title" style={{ margin: 0 }}>Групп хайлт</h1>
         <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.3rem' }}>
-          Группийн бүх карго дотроос трак код эсвэл утасаар хайна
+          Группийн бүх карго дотроос трак кодоор хайна
         </p>
       </div>
 
@@ -59,7 +59,7 @@ export default function GroupSearchPage() {
         <div style={{ display: 'flex', gap: '0.6rem' }}>
           <input
             className="input"
-            placeholder="Трак код эсвэл утас (8 оронтой)"
+            placeholder="JT5364974054841"
             value={q}
             onChange={e => setQ(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && search()}
