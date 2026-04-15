@@ -45,6 +45,7 @@ export default function SuperPage() {
   const [editForm, setEditForm] = useState<EditState>({ name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemRegion: '', ereemAddress: '', logoUrl: '', bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankTransferNote: '' })
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
+  const [crossStats, setCrossStats] = useState<{ rows: { cargoId: number; name: string; total: number; last30: number; unread: number }[]; grandTotal: number; grandLast30: number } | null>(null)
 
   function load() {
     setLoading(true)
@@ -52,6 +53,10 @@ export default function SuperPage() {
       .then(r => r.json())
       .then(data => { setCargos(data); setLoading(false) })
       .catch(() => setLoading(false))
+    fetch('/api/super/cross-cargo-stats')
+      .then(r => r.json())
+      .then(d => setCrossStats(d))
+      .catch(() => {})
   }
 
   useEffect(() => { load() }, [])
@@ -308,6 +313,41 @@ export default function SuperPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Cross-cargo stats */}
+      {crossStats && crossStats.grandTotal > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: '1rem' }}>
+            <h2 className="section-title" style={{ margin: 0 }}>⚠ Карго зөрүүгийн статистик</h2>
+            <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>Нийт {crossStats.grandTotal} · Сүүлийн 30 хоног {crossStats.grandLast30}</span>
+          </div>
+          <div style={{ display: 'grid', gap: '0.5rem' }}>
+            {crossStats.rows.map(r => (
+              <div key={r.cargoId} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.65rem 1rem', background: 'var(--surface)',
+                border: '1px solid var(--border)', borderRadius: 'var(--radius)',
+              }}>
+                <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>{r.name}</span>
+                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>{r.total}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginTop: '0.1rem' }}>нийт</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: r.last30 > 0 ? 'var(--accent)' : 'var(--muted)', lineHeight: 1 }}>{r.last30}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginTop: '0.1rem' }}>30 хоног</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: r.unread > 0 ? '#e05' : 'var(--muted)', lineHeight: 1 }}>{r.unread}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginTop: '0.1rem' }}>уншаагүй</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </>
