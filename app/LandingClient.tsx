@@ -190,8 +190,19 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
           )}
 
           {/* Phone search results */}
-          {phoneResults && phoneResults.length > 0 && (
-            <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {phoneResults && phoneResults.length > 0 && (() => {
+            const arrivedItems = phoneResults.filter((i: any) => i.status === 'ARRIVED')
+            const totalPrice = arrivedItems.reduce((s: number, i: any) => s + (Number(i.adminPrice) || 0), 0)
+            return (
+            <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.9rem', background: 'var(--accent-light)', border: '1px solid var(--accent)', borderRadius: 'var(--radius)' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)' }}>
+                  Нийт {phoneResults.length} бараа{arrivedItems.length > 0 ? ` · ${STATUS_LABEL['ARRIVED']} ${arrivedItems.length}` : ''}
+                </span>
+                {totalPrice > 0 && (
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--accent)' }}>₮{totalPrice.toLocaleString()}</strong>
+                )}
+              </div>
               {phoneResults.map((item: any) => (
                 <div key={item.trackCode} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -214,7 +225,8 @@ export default function LandingClient({ cargo }: { cargo?: CargoInfo | null }) {
                 </div>
               ))}
             </div>
-          )}
+            )
+          })()}
         </div>
 
         <hr className="divider" />
