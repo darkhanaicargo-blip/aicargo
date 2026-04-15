@@ -100,7 +100,7 @@ export default function GroupSearchPage() {
                 {r.user && <span>👤 {r.user.name}</span>}
                 {r.description && <span>📦 {r.description}</span>}
                 {r.adminPrice && <span style={{ color: 'var(--accent)', fontWeight: 600 }}>₮{Number(r.adminPrice).toLocaleString()}</span>}
-                <span>{new Date(r.updatedAt).toLocaleDateString('mn-MN', { year: '2-digit', month: '2-digit', day: '2-digit' })}</span>
+                <span>{(() => { const d = new Date(r.updatedAt); return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}` })()}</span>
               </div>
             </div>
           ))}
