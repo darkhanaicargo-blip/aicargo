@@ -103,7 +103,7 @@ export default function OrdersClient({
   const STATUS_LABEL = getStatusLabel(arrivedLabel, ereemLabel)
   const TABS = BASE_TABS.map(t => {
     if (t.key === 'ARRIVED') return { ...t, label: arrivedLabel || 'Ирсэн' }
-    if (t.key === 'EREEN_ARRIVED') return { ...t, label: ereemLabel ? ereemLabel.slice(0, 6) : 'Эрээнд' }
+    if (t.key === 'EREEN_ARRIVED') return { ...t, label: ereemLabel || 'Эрээнд' }
     return t
   })
   const [shipments, setShipments] = useState(initialShipments)
