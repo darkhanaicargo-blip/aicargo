@@ -32,6 +32,7 @@ model Cargo {
   bankAccountNumber String?
   bankTransferNote  String?
   arrivedLabel      String?
+  ereemLabel        String?
   createdAt         DateTime   @default(now())
   groupId       Int?
   group         CargoGroup? @relation(fields: [groupId], references: [id])
