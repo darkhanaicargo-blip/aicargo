@@ -77,7 +77,7 @@ export default function ImportPage() {
         const wb = XLSX.read(ev.target?.result, { type: 'array' })
         const ws = wb.Sheets[wb.SheetNames[0]]
         const data: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1 })
-        const parsed = data
+        const rawParsed = data
           .map(row => {
             const col1 = String(row[1] ?? '').trim()
             const isPhone = /^\d{8}$/.test(col1)
@@ -87,26 +87,28 @@ export default function ImportPage() {
             }
           })
           .filter(r => r.trackCode.length >= 4)
-        if (parsed.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
+        if (rawParsed.length === 0) { setXlsxMsg('Трак код олдсонгүй'); return }
 
-        // Check DB for already-EREEN_ARRIVED codes
-        const codes = parsed.map(r => r.trackCode)
-        let dbDupes: string[] = []
-        try {
-          const res = await fetch(`/api/admin/bulk-import?codes=${encodeURIComponent(codes.join(','))}`)
-          if (res.ok) dbDupes = (await res.json()).duplicates ?? []
-        } catch {}
+        // Detect within-file duplicates
+        const seenInFile = new Set<string>()
+        const inFileDupes: string[] = []
+        const parsed = rawParsed.filter(r => {
+          if (seenInFile.has(r.trackCode)) { inFileDupes.push(r.trackCode); return false }
+          seenInFile.add(r.trackCode)
+          return true
+        })
+        if (inFileDupes.length > 0) {
+          setXlsxMsg(`⛔ Файл дотор давхардсан трак код байна: ${inFileDupes.join(', ')}`)
+          return
+        }
 
         setRows(prev => {
           const existing = new Set(prev.map(r => r.trackCode))
           const newRows = parsed.filter(r => !existing.has(r.trackCode))
+          const skipped = parsed.length - newRows.length
           const next = [...prev, ...newRows]
           setPage(Math.ceil(next.length / PAGE_SIZE))
-          if (dbDupes.length > 0) {
-            setXlsxMsg(`✓ ${newRows.length} нэмэгдлээ — ⚠ ${dbDupes.length} аль хэдийн Эрээнд байна: ${dbDupes.join(', ')}`)
-          } else {
-            setXlsxMsg(`✓ ${newRows.length} трак код нэмэгдлээ`)
-          }
+          setXlsxMsg(`✓ ${newRows.length} трак код нэмэгдлээ${skipped > 0 ? ` — ${skipped} давхардсан тул алгасав` : ''}`)
           return next
         })
       } catch { setXlsxMsg('Файл уншихад алдаа гарлаа') }
@@ -488,21 +490,41 @@ export default function ImportPage() {
                           border: '1px solid var(--border)',
                         }}>{STATUS_LABEL[s.status] ?? s.status}</span>
                         {s.status === 'EREEN_ARRIVED' && (
-                          <button
-                            onClick={async () => {
-                              if (!confirm(`"${s.trackCode}" устгах уу?`)) return
-                              const res = await fetch('/api/admin/ereen/recent', {
-                                method: 'DELETE',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ id: s.id }),
-                              })
-                              if (res.ok) loadList(searchQ, searchPage)
-                            }}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: '0.85rem', padding: '0.1rem 0.25rem', lineHeight: 1 }}
-                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
-                            onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
-                            title="Устгах"
-                          >✕</button>
+                          <>
+                            <button
+                              onClick={() => {
+                                if (rows.some(r => r.trackCode === s.trackCode)) {
+                                  setLastAdded(`⚠ ${s.trackCode} аль хэдийн нэмэгдсэн`)
+                                  return
+                                }
+                                const ph = s.user?.phone || s.phone || undefined
+                                setRows(prev => {
+                                  const next = [...prev, { trackCode: s.trackCode, phone: ph }]
+                                  setPage(Math.ceil(next.length / PAGE_SIZE))
+                                  return next
+                                })
+                                setLastAdded(`${s.trackCode} нэмэгдлээ`)
+                                setDone(null)
+                              }}
+                              style={{ background: 'none', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--accent)', fontSize: '0.78rem', padding: '0.1rem 0.45rem', borderRadius: '4px', fontFamily: 'inherit', fontWeight: 700 }}
+                              title="Дахин нэмэх"
+                            >+</button>
+                            <button
+                              onClick={async () => {
+                                if (!confirm(`"${s.trackCode}" устгах уу?`)) return
+                                const res = await fetch('/api/admin/ereen/recent', {
+                                  method: 'DELETE',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ id: s.id }),
+                                })
+                                if (res.ok) loadList(searchQ, searchPage)
+                              }}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: '0.85rem', padding: '0.1rem 0.25rem', lineHeight: 1 }}
+                              onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+                              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+                              title="Устгах"
+                            >✕</button>
+                          </>
                         )}
                       </div>
                     </div>
