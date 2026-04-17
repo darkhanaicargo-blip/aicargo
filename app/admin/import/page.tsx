@@ -102,6 +102,19 @@ export default function ImportPage() {
           return
         }
 
+        // Check DB for already-EREEN_ARRIVED codes
+        const codes = parsed.map(r => r.trackCode)
+        let dbDupes: string[] = []
+        try {
+          const res = await fetch(`/api/admin/bulk-import?codes=${encodeURIComponent(codes.join(','))}`)
+          if (res.ok) dbDupes = (await res.json()).duplicates ?? []
+        } catch {}
+
+        if (dbDupes.length > 0) {
+          setXlsxMsg(`⛔ Аль хэдийн Эрээнд байна: ${dbDupes.join(', ')}`)
+          return
+        }
+
         setRows(prev => {
           const existing = new Set(prev.map(r => r.trackCode))
           const newRows = parsed.filter(r => !existing.has(r.trackCode))
@@ -135,7 +148,7 @@ export default function ImportPage() {
     } catch {}
   }
 
-  function addRow() {
+  async function addRow() {
     const code = input.trim().toUpperCase()
     if (!code) return
     if (code.length < MIN_LEN) {
@@ -148,6 +161,17 @@ export default function ImportPage() {
       setLastAdded(`⚠ ${code} аль хэдийн нэмэгдсэн`)
       return
     }
+    // DB check
+    try {
+      const res = await fetch(`/api/admin/bulk-import?codes=${encodeURIComponent(code)}`)
+      if (res.ok) {
+        const { duplicates } = await res.json()
+        if (duplicates?.includes(code)) {
+          setLastAdded(`⛔ ${code} аль хэдийн Эрээнд байна`)
+          return
+        }
+      }
+    } catch {}
     const ph = mode === 'track+phone' ? phoneInput.trim() : undefined
     setRows(prev => {
       const next = [...prev, { trackCode: code, phone: ph || undefined }]
@@ -158,7 +182,6 @@ export default function ImportPage() {
     setInput('')
     setPhoneInput('')
     setDone(null)
-    // Focus back to track input
     setTimeout(() => inputRef.current?.focus(), 50)
   }
 
