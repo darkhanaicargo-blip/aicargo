@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 
 export default function SettingsPage() {
-  const [form, setForm] = useState({ tariff: '', announcement: '', contactInfo: '', bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankTransferNote: '', arrivedLabel: '' })
+  const [form, setForm] = useState({ tariff: '', announcement: '', contactInfo: '', bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankTransferNote: '', arrivedLabel: '', ereemLabel: '' })
   const [cargo, setCargo] = useState<{ name: string; ereemReceiver: string; ereemPhone: string; ereemRegion: string; ereemAddress: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -13,7 +13,7 @@ export default function SettingsPage() {
       .then(r => r.json())
       .then(d => {
         setCargo(d)
-        setForm({ tariff: d.tariff ?? '', announcement: d.announcement ?? '', contactInfo: d.contactInfo ?? '', bankName: d.bankName ?? '', bankAccountHolder: d.bankAccountHolder ?? '', bankAccountNumber: d.bankAccountNumber ?? '', bankTransferNote: d.bankTransferNote ?? '', arrivedLabel: d.arrivedLabel ?? '' })
+        setForm({ tariff: d.tariff ?? '', announcement: d.announcement ?? '', contactInfo: d.contactInfo ?? '', bankName: d.bankName ?? '', bankAccountHolder: d.bankAccountHolder ?? '', bankAccountNumber: d.bankAccountNumber ?? '', bankTransferNote: d.bankTransferNote ?? '', arrivedLabel: d.arrivedLabel ?? '', ereemLabel: d.ereemLabel ?? '' })
         setLoading(false)
       })
   }, [])
@@ -54,6 +54,16 @@ export default function SettingsPage() {
       {/* Editable fields */}
       <div className="card" style={{ padding: '1.25rem' }}>
         <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '1rem' }}>Нүүр хуудасны мэдээлэл</p>
+
+        <div className="form-group">
+          <label>"Эрээнд ирсэн" төлөвийн нэр <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '0.78rem' }}>(хоосон бол "Эрээнд ирсэн" гэж харагдана)</span></label>
+          <input
+            className="input"
+            placeholder="Эрээнээс ачигдсан"
+            value={form.ereemLabel}
+            onChange={e => setForm(f => ({ ...f, ereemLabel: e.target.value }))}
+          />
+        </div>
 
         <div className="form-group">
           <label>"Ирсэн" төлөвийн нэр <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: '0.78rem' }}>(хоосон бол "Ирсэн" гэж харагдана)</span></label>

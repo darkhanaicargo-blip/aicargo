@@ -7,10 +7,10 @@ import ChatWidget from '../components/ChatWidget'
 import NavLogo from '../components/NavLogo'
 
 
-function getStatusLabel(arrivedLabel?: string | null): Record<string, string> {
+function getStatusLabel(arrivedLabel?: string | null, ereemLabel?: string | null): Record<string, string> {
   return {
     REGISTERED: 'Бүртгүүлсэн',
-    EREEN_ARRIVED: 'Эрээнд ирсэн',
+    EREEN_ARRIVED: ereemLabel || 'Эрээнд ирсэн',
     ARRIVED: arrivedLabel || 'Ирсэн',
     PICKED_UP: 'Авсан',
   }
@@ -77,6 +77,7 @@ export default function OrdersClient({
   bankAccountNumber,
   bankTransferNote,
   arrivedLabel,
+  ereemLabel,
 }: {
   shipments: Shipment[]
   userName: string
@@ -96,10 +97,15 @@ export default function OrdersClient({
   bankAccountNumber?: string | null
   bankTransferNote?: string | null
   arrivedLabel?: string | null
+  ereemLabel?: string | null
 }) {
   const router = useRouter()
-  const STATUS_LABEL = getStatusLabel(arrivedLabel)
-  const TABS = BASE_TABS.map(t => t.key === 'ARRIVED' ? { ...t, label: arrivedLabel || 'Ирсэн' } : t)
+  const STATUS_LABEL = getStatusLabel(arrivedLabel, ereemLabel)
+  const TABS = BASE_TABS.map(t => {
+    if (t.key === 'ARRIVED') return { ...t, label: arrivedLabel || 'Ирсэн' }
+    if (t.key === 'EREEN_ARRIVED') return { ...t, label: ereemLabel ? ereemLabel.slice(0, 6) : 'Эрээнд' }
+    return t
+  })
   const [shipments, setShipments] = useState(initialShipments)
   const [activeTab, setActiveTab] = useState('ALL')
   const [page, setPage] = useState(1)

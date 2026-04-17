@@ -17,6 +17,7 @@ export interface CargoInfo {
   bankAccountNumber: string | null
   bankTransferNote: string | null
   arrivedLabel: string | null
+  ereemLabel: string | null
   searchByPhone: boolean
 }
 
@@ -42,6 +43,7 @@ export async function getCargoFromSubdomain(): Promise<CargoInfo | null> {
       bankAccountNumber: true,
       bankTransferNote: true,
       arrivedLabel: true,
+      ereemLabel: true,
       searchByPhone: true,
     },
   })

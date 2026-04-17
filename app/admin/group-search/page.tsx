@@ -1,11 +1,13 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-const STATUS_LABEL: Record<string, string> = {
-  REGISTERED: 'Бүртгүүлсэн',
-  EREEN_ARRIVED: 'Эрээнд ирсэн',
-  ARRIVED: 'Ирсэн',
-  PICKED_UP: 'Авсан',
+function getStatusLabel(arrivedLabel?: string | null, ereemLabel?: string | null): Record<string, string> {
+  return {
+    REGISTERED: 'Бүртгүүлсэн',
+    EREEN_ARRIVED: ereemLabel || 'Эрээнд ирсэн',
+    ARRIVED: arrivedLabel || 'Ирсэн',
+    PICKED_UP: 'Авсан',
+  }
 }
 
 interface Result {
@@ -26,6 +28,13 @@ export default function GroupSearchPage() {
   const [results, setResults] = useState<Result[] | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [arrivedLabel, setArrivedLabel] = useState<string | null>(null)
+  const [ereemLabel, setEreemLabel] = useState<string | null>(null)
+  const STATUS_LABEL = getStatusLabel(arrivedLabel, ereemLabel)
+
+  useEffect(() => {
+    fetch('/api/admin/settings').then(r => r.json()).then(d => { setArrivedLabel(d.arrivedLabel ?? null); setEreemLabel(d.ereemLabel ?? null) }).catch(() => {})
+  }, [])
 
   async function search() {
     const val = q.trim()

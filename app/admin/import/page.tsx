@@ -12,9 +12,9 @@ const PAGE_SIZE = 20
 const COLS = 2
 const ROWS = PAGE_SIZE / COLS  // 10 rows
 
-function getStatusLabel(arrivedLabel?: string | null): Record<string, string> {
+function getStatusLabel(arrivedLabel?: string | null, ereemLabel?: string | null): Record<string, string> {
   return {
-    EREEN_ARRIVED: 'Эрээнд',
+    EREEN_ARRIVED: ereemLabel || 'Эрээнд ирсэн',
     ARRIVED: arrivedLabel || 'Ирсэн',
     PICKED_UP: 'Авсан',
     REGISTERED: 'Бүртгүүлсэн',
@@ -43,12 +43,13 @@ export default function ImportPage() {
   const [searchPage, setSearchPage] = useState(1)
   const [searching, setSearching] = useState(false)
   const [arrivedLabel, setArrivedLabel] = useState<string | null>(null)
-  const STATUS_LABEL = getStatusLabel(arrivedLabel)
+  const [ereemLabel, setEreemLabel] = useState<string | null>(null)
+  const STATUS_LABEL = getStatusLabel(arrivedLabel, ereemLabel)
 
   useEffect(() => {
     inputRef.current?.focus()
     loadList('', 1)
-    fetch('/api/admin/settings').then(r => r.json()).then(d => setArrivedLabel(d.arrivedLabel ?? null)).catch(() => {})
+    fetch('/api/admin/settings').then(r => r.json()).then(d => { setArrivedLabel(d.arrivedLabel ?? null); setEreemLabel(d.ereemLabel ?? null) }).catch(() => {})
   }, [])
 
   async function loadList(q: string, pg: number) {
