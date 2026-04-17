@@ -50,10 +50,20 @@ export async function POST(req: NextRequest) {
     rows.map(async ({ trackCode, status, phone }) => {
       const code = trackCode.trim().toUpperCase()
       const ph = phone?.trim() || null
-      return prisma.shipment.upsert({
+      const existing = await prisma.shipment.findUnique({
         where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
-        update: { status, ...(ph ? { phone: ph } : {}) },
-        create: { trackCode: code, status, cargoId: admin.cargoId!, phone: ph },
+      })
+      if (existing) {
+        if (existing.status === 'ARRIVED' || existing.status === 'PICKED_UP') {
+          return existing
+        }
+        return prisma.shipment.update({
+          where: { trackCode_cargoId: { trackCode: code, cargoId: admin.cargoId! } },
+          data: { status, ...(ph ? { phone: ph } : {}) },
+        })
+      }
+      return prisma.shipment.create({
+        data: { trackCode: code, status, cargoId: admin.cargoId!, phone: ph },
       })
     })
   )

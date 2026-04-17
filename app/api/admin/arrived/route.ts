@@ -125,6 +125,14 @@ export async function DELETE(req: NextRequest) {
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'ID шаардлагатай' }, { status: 400 })
 
+  const target = await prisma.shipment.findUnique({
+    where: { id: Number(id), cargoId: admin.cargoId! },
+  })
+  if (!target) return NextResponse.json({ error: 'Олдсонгүй' }, { status: 404 })
+  if (target.status === 'PICKED_UP') {
+    return NextResponse.json({ error: 'Аль хэдийн олгогдсон барааг буцааж болохгүй' }, { status: 400 })
+  }
+
   await prisma.shipment.update({
     where: { id: Number(id), cargoId: admin.cargoId! },
     data: { status: 'EREEN_ARRIVED', adminPrice: null },
