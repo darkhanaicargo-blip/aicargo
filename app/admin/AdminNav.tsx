@@ -38,7 +38,6 @@ export default function AdminNav({
     { href: '/admin/arrived', label: arrivedLabel || 'Ирсэн' },
     { href: '/admin/handover', label: 'Ачаа олгох' },
     { href: '/admin/history', label: 'Олгосон' },
-    { href: '/admin/filter', label: 'Шүүлт' },
     ...(hasGroup ? [{ href: '/admin/group-search', label: '🔍 Групп хайлт' }] : []),
     { href: '/admin/notify', label: 'Мэдэгдэл' },
     { href: '/admin/faq', label: 'FAQ' },
