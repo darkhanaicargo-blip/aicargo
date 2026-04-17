@@ -513,41 +513,21 @@ export default function ImportPage() {
                           border: '1px solid var(--border)',
                         }}>{STATUS_LABEL[s.status] ?? s.status}</span>
                         {s.status === 'EREEN_ARRIVED' && (
-                          <>
-                            <button
-                              onClick={() => {
-                                if (rows.some(r => r.trackCode === s.trackCode)) {
-                                  setLastAdded(`⚠ ${s.trackCode} аль хэдийн нэмэгдсэн`)
-                                  return
-                                }
-                                const ph = s.user?.phone || s.phone || undefined
-                                setRows(prev => {
-                                  const next = [...prev, { trackCode: s.trackCode, phone: ph }]
-                                  setPage(Math.ceil(next.length / PAGE_SIZE))
-                                  return next
-                                })
-                                setLastAdded(`${s.trackCode} нэмэгдлээ`)
-                                setDone(null)
-                              }}
-                              style={{ background: 'none', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--accent)', fontSize: '0.78rem', padding: '0.1rem 0.45rem', borderRadius: '4px', fontFamily: 'inherit', fontWeight: 700 }}
-                              title="Дахин нэмэх"
-                            >+</button>
-                            <button
-                              onClick={async () => {
-                                if (!confirm(`"${s.trackCode}" устгах уу?`)) return
-                                const res = await fetch('/api/admin/ereen/recent', {
-                                  method: 'DELETE',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ id: s.id }),
-                                })
-                                if (res.ok) loadList(searchQ, searchPage)
-                              }}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: '0.85rem', padding: '0.1rem 0.25rem', lineHeight: 1 }}
-                              onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
-                              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
-                              title="Устгах"
-                            >✕</button>
-                          </>
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`"${s.trackCode}" устгах уу?`)) return
+                              const res = await fetch('/api/admin/ereen/recent', {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: s.id }),
+                              })
+                              if (res.ok) loadList(searchQ, searchPage)
+                            }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: '0.85rem', padding: '0.1rem 0.25rem', lineHeight: 1 }}
+                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+                            onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+                            title="Устгах"
+                          >✕</button>
                         )}
                       </div>
                     </div>
