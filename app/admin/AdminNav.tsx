@@ -20,6 +20,7 @@ export default function AdminNav({
   const [copied, setCopied] = useState(false)
   const [unread, setUnread] = useState(0)
   const [arrivedLabel, setArrivedLabel] = useState<string | null>(null)
+  const [ereemLabel, setEreemLabel] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/notifications?count=1')
@@ -28,13 +29,13 @@ export default function AdminNav({
       .catch(() => {})
     fetch('/api/admin/settings')
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.arrivedLabel) setArrivedLabel(d.arrivedLabel) })
+      .then(d => { if (d?.arrivedLabel) setArrivedLabel(d.arrivedLabel); if (d?.ereemLabel) setEreemLabel(d.ereemLabel) })
       .catch(() => {})
   }, [pathname])
 
   const links = [
     { href: '/admin/registered', label: 'Бүртгүүлсэн' },
-    { href: '/admin/import', label: 'Эрээнд ирсэн' },
+    { href: '/admin/import', label: ereemLabel || 'Эрээнд ирсэн' },
     { href: '/admin/arrived', label: arrivedLabel || 'Ирсэн' },
     { href: '/admin/handover', label: 'Ачаа олгох' },
     { href: '/admin/history', label: 'Олгосон' },
