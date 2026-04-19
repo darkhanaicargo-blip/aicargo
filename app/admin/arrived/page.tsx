@@ -52,17 +52,20 @@ export default function ArrivedPage() {
   const [editForm, setEditForm] = useState({ adminPrice: '', adminNote: '', phone: '' })
   const [editLoading, setEditLoading] = useState(false)
   const [todayList, setTodayList] = useState<TodayEntry[]>([])
+  const [todayStats, setTodayStats] = useState({ count: 0, total: 0, noPrice: 0 })
   const xlsxRef = useRef<HTMLInputElement>(null)
   const [xlsxMsg, setXlsxMsg] = useState('')
   const [xlsxLoading, setXlsxLoading] = useState(false)
 
   function buildTodayList(shipments: SearchResult[]) {
-    const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD in local timezone
+    const todayStr = new Date().toLocaleDateString('en-CA')
     const today = shipments.filter(s => {
       if (!s.updatedAt) return false
       return new Date(s.updatedAt).toLocaleDateString('en-CA') === todayStr
     })
-    // Group by phone, pick most frequent description
+    const total = today.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
+    const noPrice = today.filter(s => !s.adminPrice).length
+    setTodayStats({ count: today.length, total, noPrice })
     const map = new Map<string, Map<string, number>>()
     for (const s of today) {
       const phone = s.phone ?? '—'
@@ -289,9 +292,22 @@ export default function ArrivedPage() {
 
           {todayList.length > 0 && (
             <>
-              <h2 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Өнөөдөр бүртгэсэн — {todayList.length} дугаар
+              <h2 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Өнөөдөр бүртгэсэн
               </h2>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+                <span style={{ fontSize: '0.8rem', background: 'var(--surface2)', borderRadius: '6px', padding: '0.2rem 0.6rem', color: 'var(--text)' }}>
+                  {todayStats.count} бараа
+                </span>
+                <span style={{ fontSize: '0.8rem', background: 'var(--surface2)', borderRadius: '6px', padding: '0.2rem 0.6rem', color: 'var(--accent)', fontWeight: 700 }}>
+                  ₮{todayStats.total.toLocaleString()}
+                </span>
+                {todayStats.noPrice > 0 && (
+                  <span style={{ fontSize: '0.8rem', background: 'var(--surface2)', borderRadius: '6px', padding: '0.2rem 0.6rem', color: 'var(--danger)' }}>
+                    {todayStats.noPrice} үнэгүй
+                  </span>
+                )}
+              </div>
               <div className="card" style={{ overflow: 'hidden' }}>
                 {todayList.map((t, i) => (
                   <div key={t.phone} style={{
