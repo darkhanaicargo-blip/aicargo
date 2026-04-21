@@ -198,25 +198,64 @@ export default function HandoverPage() {
                   </label>
                 </div>
 
-                {shipments.map(s => (
-                  <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.6rem 1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                          <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{s.trackCode}</strong>
-                          <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{s.phone ?? '—'}</span>
-                          <span className="admin-item-date">{fmtDT(s.updatedAt)}</span>
+                {(() => {
+                  const isPhoneSearch = /^\d{8}$/.test(q.trim())
+                  if (!isPhoneSearch) return shipments.map(s => (
+                    <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.6rem 1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                            <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{s.trackCode}</strong>
+                            <span style={{ fontSize: '0.82rem', color: 'var(--muted)' }}>{s.phone ?? '—'}</span>
+                            <span className="admin-item-date">{fmtDT(s.updatedAt)}</span>
+                          </div>
+                          {s.adminNote && <div style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</div>}
                         </div>
-                        {s.adminNote && <div style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</div>}
+                        <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.9rem' }}>
+                          {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
+                        </span>
+                        <input type="checkbox" checked={selected.includes(s.id)} onChange={() => toggle(s.id)}
+                          style={{ width: 18, height: 18, accentColor: 'var(--accent)', cursor: 'pointer', flexShrink: 0 }} />
                       </div>
-                      <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.9rem' }}>
-                        {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
-                      </span>
-                      <input type="checkbox" checked={selected.includes(s.id)} onChange={() => toggle(s.id)}
-                        style={{ width: 18, height: 18, accentColor: 'var(--accent)', cursor: 'pointer', flexShrink: 0 }} />
-                    </div>
-                  </label>
-                ))}
+                    </label>
+                  ))
+                  const byDate = new Map<string, Shipment[]>()
+                  for (const s of shipments) {
+                    const d = new Date(s.updatedAt).toLocaleDateString('en-CA')
+                    if (!byDate.has(d)) byDate.set(d, [])
+                    byDate.get(d)!.push(s)
+                  }
+                  return Array.from(byDate.entries()).map(([date, items]) => {
+                    const d = new Date(date)
+                    const label = `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()}`
+                    const dayTotal = items.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
+                    return (
+                      <div key={date}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.3rem 0.5rem', fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700 }}>
+                          <span>{label} · {items.length} бараа</span>
+                          {dayTotal > 0 && <span style={{ color: 'var(--accent)' }}>₮{dayTotal.toLocaleString()}</span>}
+                        </div>
+                        {items.map(s => (
+                          <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.6rem 1rem', marginBottom: '0.4rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{s.trackCode}</strong>
+                                </div>
+                                {s.adminNote && <div style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.2rem' }}>{s.adminNote}</div>}
+                              </div>
+                              <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.9rem' }}>
+                                {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
+                              </span>
+                              <input type="checkbox" checked={selected.includes(s.id)} onChange={() => toggle(s.id)}
+                                style={{ width: 18, height: 18, accentColor: 'var(--accent)', cursor: 'pointer', flexShrink: 0 }} />
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )
+                  })
+                })()}
               </div>
 
               <div className="card" style={{ position: 'sticky', top: 72 }}>
