@@ -268,26 +268,30 @@ export default function HandoverPage() {
                 })()}
               </div>
 
-              <div className="card" style={{ position: 'sticky', top: 72 }}>
-                <div style={{ padding: '1rem 1.2rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.9rem' }}>Сонгогдсон бараа</div>
+              <div className="card" style={{ position: 'sticky', top: 72, display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 100px)' }}>
+                <div style={{ padding: '1rem 1.2rem', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>Сонгогдсон бараа</div>
                 {selectedItems.length === 0 ? (
                   <div style={{ padding: '1.2rem', color: 'var(--muted)', fontSize: '0.85rem' }}>Бараа сонгоогүй байна</div>
                 ) : (
                   <>
-                    {selectedItems.map(s => (
-                      <div key={s.id} className="card-row" style={{ fontSize: '0.82rem' }}>
-                        <span style={{ fontFamily: 'monospace' }}>{s.trackCode}</span>
-                        <span>{s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}</span>
-                      </div>
-                    ))}
-                    <div className="card-row" style={{ borderTop: '1px solid var(--border)' }}>
-                      <strong>Нийт</strong>
-                      <strong style={{ color: 'var(--accent)' }}>₮{total.toLocaleString()}</strong>
+                    <div style={{ overflowY: 'auto', flex: 1 }}>
+                      {selectedItems.map(s => (
+                        <div key={s.id} className="card-row" style={{ fontSize: '0.82rem' }}>
+                          <span style={{ fontFamily: 'monospace' }}>{s.trackCode}</span>
+                          <span>{s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div style={{ padding: '1rem' }}>
-                      <button className="btn" style={{ width: '100%' }} onClick={handover} disabled={loading}>
-                        {loading ? '...' : `Олгох (${selectedItems.length})`}
-                      </button>
+                    <div style={{ flexShrink: 0, borderTop: '1px solid var(--border)' }}>
+                      <div className="card-row">
+                        <strong>Нийт</strong>
+                        <strong style={{ color: 'var(--accent)' }}>₮{total.toLocaleString()}</strong>
+                      </div>
+                      <div style={{ padding: '1rem' }}>
+                        <button className="btn" style={{ width: '100%' }} onClick={handover} disabled={loading}>
+                          {loading ? '...' : `Олгох (${selectedItems.length})`}
+                        </button>
+                      </div>
                     </div>
                   </>
                 )}
