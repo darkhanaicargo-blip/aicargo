@@ -33,10 +33,10 @@ export async function PUT(req: NextRequest) {
     })
   }))
 
-  await checkCrossCargoOnImport(
+  checkCrossCargoOnImport(
     rows.map(r => ({ trackCode: r.trackCode.trim().toUpperCase(), phone: r.phone?.trim() || null, status: 'ARRIVED' })),
     admin.cargoId!
-  )
+  ).catch(console.error)
 
   return NextResponse.json({ count: results.filter(Boolean).length })
 }
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     include: { user: { select: { name: true, phone: true } } },
   })
 
-  await checkCrossCargoOnImport([{ trackCode: code, phone: resolvedPhone, status: 'ARRIVED' }], admin.cargoId!)
+  checkCrossCargoOnImport([{ trackCode: code, phone: resolvedPhone, status: 'ARRIVED' }], admin.cargoId!).catch(console.error)
 
   return NextResponse.json(shipment)
 }
