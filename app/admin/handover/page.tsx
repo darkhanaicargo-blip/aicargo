@@ -28,6 +28,7 @@ export default function HandoverPage() {
   const [shipments, setShipments] = useState<Shipment[]>([])
   const [selected, setSelected] = useState<number[]>([])
   const [searched, setSearched] = useState(false)
+  const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set())
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
@@ -63,7 +64,7 @@ export default function HandoverPage() {
   // ── Search mode functions ──
   async function search(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true); setError(''); setShipments([]); setSelected([]); setDone(false)
+    setLoading(true); setError(''); setShipments([]); setSelected([]); setDone(false); setExpandedDates(new Set())
     const res = await fetch(`/api/admin/handover?q=${encodeURIComponent(q)}`)
     const data = await res.json()
     setLoading(false); setSearched(true)
@@ -229,22 +230,31 @@ export default function HandoverPage() {
                     const d = new Date(date)
                     const label = `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()}`
                     const dayTotal = items.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
+                    const isOpen = expandedDates.has(date)
+                    function toggleDate() {
+                      setExpandedDates(prev => {
+                        const next = new Set(prev)
+                        isOpen ? next.delete(date) : next.add(date)
+                        return next
+                      })
+                    }
                     return (
-                      <div key={date}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.3rem 0.5rem', fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700 }}>
-                          <span>{label} · {items.length} бараа</span>
-                          {dayTotal > 0 && <span style={{ color: 'var(--accent)' }}>₮{dayTotal.toLocaleString()}</span>}
+                      <div key={date} className="card" style={{ overflow: 'hidden', marginBottom: '0.5rem' }}>
+                        <div onClick={toggleDate} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 1rem', cursor: 'pointer', background: isOpen ? 'var(--surface2)' : 'var(--surface)', userSelect: 'none' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontSize: '0.6rem', color: 'var(--muted)', display: 'inline-block', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>▶</span>
+                            {label} · {items.length} бараа
+                          </span>
+                          {dayTotal > 0 && <span style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.88rem' }}>₮{dayTotal.toLocaleString()}</span>}
                         </div>
-                        {items.map(s => (
-                          <label key={s.id} className="card" style={{ cursor: 'pointer', display: 'block', padding: '0.6rem 1rem', marginBottom: '0.4rem' }}>
+                        {isOpen && items.map((s) => (
+                          <label key={s.id} style={{ cursor: 'pointer', display: 'block', padding: '0.55rem 1rem', borderTop: '1px solid var(--border)', background: 'var(--bg)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                                  <strong style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{s.trackCode}</strong>
-                                </div>
-                                {s.adminNote && <div style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.2rem' }}>{s.adminNote}</div>}
+                                <strong style={{ fontFamily: 'monospace', fontSize: '0.88rem' }}>{s.trackCode}</strong>
+                                {s.adminNote && <div style={{ fontSize: '0.78rem', color: 'var(--accent)', marginTop: '0.1rem' }}>{s.adminNote}</div>}
                               </div>
-                              <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.9rem' }}>
+                              <span style={{ fontWeight: 700, color: s.adminPrice ? 'var(--accent)' : 'var(--muted)', flexShrink: 0, fontSize: '0.88rem' }}>
                                 {s.adminPrice ? `₮${Number(s.adminPrice).toLocaleString()}` : '—'}
                               </span>
                               <input type="checkbox" checked={selected.includes(s.id)} onChange={() => toggle(s.id)}
