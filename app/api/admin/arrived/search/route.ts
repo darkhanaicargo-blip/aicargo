@@ -8,7 +8,22 @@ export async function GET(req: NextRequest) {
   if (admin.role !== 'ADMIN') return forbidden()
 
   const q = req.nextUrl.searchParams.get('q')?.trim()
+  const statsOnly = req.nextUrl.searchParams.get('stats') === '1'
   const isPhone = q && /^\d+$/.test(q)
+
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+
+  if (statsOnly) {
+    const rows = await prisma.shipment.findMany({
+      where: { status: 'ARRIVED', cargoId: admin.cargoId!, updatedAt: { gte: todayStart } },
+      select: { adminPrice: true },
+    })
+    const count = rows.length
+    const total = rows.reduce((s, r) => s + (r.adminPrice ? Number(r.adminPrice) : 0), 0)
+    const noPrice = rows.filter(r => !r.adminPrice).length
+    return NextResponse.json({ count, total, noPrice })
+  }
 
   const shipments = await prisma.shipment.findMany({
     where: {

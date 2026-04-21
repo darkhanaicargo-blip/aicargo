@@ -63,9 +63,6 @@ export default function ArrivedPage() {
       if (!s.updatedAt) return false
       return new Date(s.updatedAt).toLocaleDateString('en-CA') === todayStr
     })
-    const total = today.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
-    const noPrice = today.filter(s => !s.adminPrice).length
-    setTodayStats({ count: today.length, total, noPrice })
     const map = new Map<string, Map<string, number>>()
     for (const s of today) {
       const phone = s.phone ?? '—'
@@ -83,8 +80,15 @@ export default function ArrivedPage() {
   }
 
   async function loadToday() {
-    const res = await fetch('/api/admin/arrived/search?q=')
-    if (res.ok) buildTodayList(await res.json())
+    const [listRes, statsRes] = await Promise.all([
+      fetch('/api/admin/arrived/search?q='),
+      fetch('/api/admin/arrived/search?stats=1'),
+    ])
+    if (listRes.ok) buildTodayList(await listRes.json())
+    if (statsRes.ok) {
+      const s = await statsRes.json()
+      setTodayStats({ count: s.count, total: s.total, noPrice: s.noPrice })
+    }
   }
 
   useEffect(() => { loadToday() }, [])
