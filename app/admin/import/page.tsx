@@ -247,6 +247,7 @@ export default function ImportPage() {
   }
 
   return (
+    <>
     <div className="page-wide" style={{ maxWidth: 560 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
         <h1 className="section-title" style={{ margin: 0 }}>Эрээнд ирсэн — бараа оруулах</h1>
@@ -620,5 +621,6 @@ export default function ImportPage() {
         </div>
       </div>
     )}
+    </>
   )
 }
