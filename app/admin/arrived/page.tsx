@@ -269,29 +269,72 @@ export default function ArrivedPage() {
           {searchResults !== null && (
             searchResults.length === 0
               ? <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Олдсонгүй.</p>
-              : <div className="card" style={{ overflow: 'hidden', marginBottom: '1.5rem' }}>
-                {searchResults.map((s, i) => (
-                  <div key={s.id} style={{
-                    padding: '0.45rem 0.9rem',
-                    borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
-                    fontSize: '0.82rem',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 700, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.trackCode}</span>
-                      {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
-                      <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
-                      <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+              : /^\d{8}$/.test(searchQ.trim())
+                ? (() => {
+                    // Group by date
+                    const byDate = new Map<string, SearchResult[]>()
+                    for (const s of searchResults) {
+                      const d = s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('en-CA') : '—'
+                      if (!byDate.has(d)) byDate.set(d, [])
+                      byDate.get(d)!.push(s)
+                    }
+                    const totalAll = searchResults.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
+                    return (
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginBottom: '0.5rem', display: 'flex', gap: '0.75rem' }}>
+                          <span>Нийт <strong style={{ color: 'var(--text)' }}>{searchResults.length}</strong> бараа</span>
+                          {totalAll > 0 && <span><strong style={{ color: 'var(--accent)' }}>₮{totalAll.toLocaleString()}</strong></span>}
+                        </div>
+                        {Array.from(byDate.entries()).map(([date, items]) => {
+                          const dayTotal = items.reduce((sum, s) => sum + (s.adminPrice ? Number(s.adminPrice) : 0), 0)
+                          const d = new Date(date)
+                          const label = `${d.getFullYear().toString().slice(2)}.${d.getMonth()+1}.${d.getDate()}`
+                          return (
+                            <div key={date} className="card" style={{ overflow: 'hidden', marginBottom: '0.6rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.45rem 0.9rem', background: 'var(--surface2)', borderBottom: '1px solid var(--border)', fontSize: '0.8rem' }}>
+                                <span style={{ fontWeight: 700 }}>{label} · {items.length} бараа</span>
+                                {dayTotal > 0 && <span style={{ color: 'var(--accent)', fontWeight: 700 }}>₮{dayTotal.toLocaleString()}</span>}
+                              </div>
+                              {items.map((s, i) => (
+                                <div key={s.id} style={{ padding: '0.4rem 0.9rem', borderBottom: i < items.length - 1 ? '1px solid var(--border)' : 'none', fontSize: '0.82rem' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span style={{ fontFamily: 'monospace', fontWeight: 700, flex: 1 }}>{s.trackCode}</span>
+                                    {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
+                                    <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
+                                    <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+                                  </div>
+                                  {s.adminNote && <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.1rem' }}>{s.adminNote}</div>}
+                                </div>
+                              ))}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )
+                  })()
+                : <div className="card" style={{ overflow: 'hidden', marginBottom: '1.5rem' }}>
+                  {searchResults.map((s, i) => (
+                    <div key={s.id} style={{
+                      padding: '0.45rem 0.9rem',
+                      borderBottom: i < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
+                      fontSize: '0.82rem',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 700, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.trackCode}</span>
+                        {s.adminPrice && <span style={{ fontWeight: 700, color: 'var(--accent)', flexShrink: 0 }}>₮{Number(s.adminPrice).toLocaleString()}</span>}
+                        <button onClick={() => openEdit(s)} title="Засах" style={iconBtn}>✏️</button>
+                        <button onClick={() => revert(s.id)} title="Эрээнд буцаах" style={{ ...iconBtn, color: 'var(--danger)' }}>↩</button>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem', color: 'var(--muted)', fontSize: '0.78rem' }}>
+                        <span style={{ flexShrink: 0 }}>
+                          {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
+                        </span>
+                        {s.adminNote && <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</span>}
+                        {s.updatedAt && <span style={{ fontFamily: 'monospace', flexShrink: 0, marginLeft: 'auto' }}>{fmtDT(s.updatedAt)}</span>}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem', color: 'var(--muted)', fontSize: '0.78rem' }}>
-                      <span style={{ flexShrink: 0 }}>
-                        {s.user ? `${s.user.name} · ${s.user.phone}` : (s.phone || '—')}
-                      </span>
-                      {s.adminNote && <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.adminNote}</span>}
-                      {s.updatedAt && <span style={{ fontFamily: 'monospace', flexShrink: 0, marginLeft: 'auto' }}>{fmtDT(s.updatedAt)}</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
           )}
 
           {todayList.length > 0 && (
