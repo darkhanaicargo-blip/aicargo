@@ -45,6 +45,10 @@ export default function ImportPage() {
   const [arrivedLabel, setArrivedLabel] = useState<string | null>(null)
   const [ereemLabel, setEreemLabel] = useState<string | null>(null)
   const STATUS_LABEL = getStatusLabel(arrivedLabel, ereemLabel)
+  const [deleteModal, setDeleteModal] = useState(false)
+  const [deleteInput, setDeleteInput] = useState('')
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteMsg, setDeleteMsg] = useState('')
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -223,9 +227,37 @@ export default function ImportPage() {
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
   const paged = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
+  async function deleteAll() {
+    setDeleteLoading(true)
+    const res = await fetch('/api/admin/ereen', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirm: deleteInput }),
+    })
+    setDeleteLoading(false)
+    if (res.ok) {
+      const d = await res.json()
+      setDeleteMsg(`✓ ${d.count} бараа устгагдлаа`)
+      setDeleteModal(false)
+      setDeleteInput('')
+      loadList('', 1)
+    } else {
+      setDeleteMsg('Алдаа гарлаа')
+    }
+  }
+
   return (
     <div className="page-wide" style={{ maxWidth: 560 }}>
-      <h1 className="section-title">Эрээнд ирсэн — бараа оруулах</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <h1 className="section-title" style={{ margin: 0 }}>Эрээнд ирсэн — бараа оруулах</h1>
+        <button onClick={() => { setDeleteModal(true); setDeleteInput(''); setDeleteMsg('') }} style={{
+          background: 'none', border: '1px solid var(--danger)', borderRadius: 'var(--radius)',
+          color: 'var(--danger)', cursor: 'pointer', fontSize: '0.78rem', padding: '0.3rem 0.75rem', fontFamily: 'inherit',
+        }}>
+          Бүгдийг устгах
+        </button>
+      </div>
+      {deleteMsg && <p style={{ fontSize: '0.82rem', color: deleteMsg.startsWith('✓') ? 'var(--green)' : 'var(--danger)', marginBottom: '0.75rem' }}>{deleteMsg}</p>}
 
       {/* Excel upload */}
       <div style={{ marginBottom: '1rem' }}>
@@ -553,5 +585,40 @@ export default function ImportPage() {
         )}
       </div>
     </div>
+
+    {deleteModal && (
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1rem' }}>
+        <div className="card" style={{ width: '100%', maxWidth: 400, padding: '1.5rem' }}>
+          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1rem', fontWeight: 700, color: 'var(--danger)' }}>⚠ Бүх өгөгдөл устгагдана</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '1rem', lineHeight: 1.6 }}>
+            Эрээнд ирсэн төлөвтэй <strong style={{ color: 'var(--text)' }}>бүх бараа</strong> бүрмөсөн устгагдана. Энэ үйлдлийг буцааж болохгүй.
+          </p>
+          <p style={{ fontSize: '0.82rem', marginBottom: '0.5rem' }}>
+            Үргэлжлүүлэхийн тулд <strong>УСТГАХ</strong> гэж бичнэ үү:
+          </p>
+          <input
+            className="input"
+            placeholder="УСТГАХ"
+            value={deleteInput}
+            onChange={e => setDeleteInput(e.target.value)}
+            style={{ marginBottom: '1rem', borderColor: deleteInput === 'УСТГАХ' ? 'var(--danger)' : undefined }}
+            autoFocus
+          />
+          <div style={{ display: 'flex', gap: '0.6rem' }}>
+            <button
+              className="btn"
+              onClick={deleteAll}
+              disabled={deleteInput !== 'УСТГАХ' || deleteLoading}
+              style={{ flex: 1, background: 'var(--danger)', borderColor: 'var(--danger)', opacity: deleteInput === 'УСТГАХ' ? 1 : 0.4 }}
+            >
+              {deleteLoading ? 'Устгаж байна...' : 'Устгах'}
+            </button>
+            <button onClick={() => setDeleteModal(false)} style={{ flex: 1, padding: '0.6rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>
+              Болих
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   )
 }
