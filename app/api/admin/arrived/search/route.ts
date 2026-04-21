@@ -32,10 +32,10 @@ export async function GET(req: NextRequest) {
       ...(q ? isPhone
         ? { phone: { contains: q } }
         : { trackCode: { contains: q.toUpperCase() } }
-      : {}),
+      : { updatedAt: { gte: todayStart } }),
     },
     orderBy: { updatedAt: 'desc' },
-    take: 50,
+    ...(!q ? {} : { take: 50 }),
     select: {
       id: true,
       trackCode: true,
