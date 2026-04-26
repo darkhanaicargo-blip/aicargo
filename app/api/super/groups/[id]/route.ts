@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { getVerifiedUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 
 // PATCH: rename group or set cargos
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = getAuthUserFromRequest(req)
+  const user = await getVerifiedUserFromRequest(req)
   if (!user) return unauthorized()
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 
@@ -47,7 +47,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = getAuthUserFromRequest(req)
+  const user = await getVerifiedUserFromRequest(req)
   if (!user) return unauthorized()
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 

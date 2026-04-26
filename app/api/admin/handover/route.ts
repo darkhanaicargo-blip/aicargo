@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { getVerifiedUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 
 // GET /api/admin/handover?q=phone_or_trackcode
 // GET /api/admin/handover?summary=1
 // GET /api/admin/handover?today=1
 export async function GET(req: NextRequest) {
-  const admin = getAuthUserFromRequest(req)
+  const admin = await getVerifiedUserFromRequest(req)
   if (!admin) return unauthorized()
   if (admin.role !== 'ADMIN') return forbidden()
 
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/admin/handover — bulk PICKED_UP
 export async function POST(req: NextRequest) {
-  const admin = getAuthUserFromRequest(req)
+  const admin = await getVerifiedUserFromRequest(req)
   if (!admin) return unauthorized()
   if (admin.role !== 'ADMIN') return forbidden()
 

@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   const cargoId = user.role === 'SUPER_ADMIN' ? null : user.cargoId
-  const token = signToken({ userId: user.id, role: user.role, cargoId })
+  const token = signToken({ userId: user.id, role: user.role, cargoId, tokenVersion: user.tokenVersion })
   const res = NextResponse.json({ ok: true, role: user.role })
   setAuthCookie(res, token)
   return res

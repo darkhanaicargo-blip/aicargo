@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { getVerifiedUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
-  const user = getAuthUserFromRequest(req)
+  const user = await getVerifiedUserFromRequest(req)
   if (!user) return unauthorized()
   if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') return forbidden()
   if (!user.cargoId) return NextResponse.json({ error: 'CargoId шаардлагатай' }, { status: 400 })
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
 // PATCH /api/admin/notifications — mark all as read
 export async function PATCH(req: NextRequest) {
-  const user = getAuthUserFromRequest(req)
+  const user = await getVerifiedUserFromRequest(req)
   if (!user) return unauthorized()
   if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') return forbidden()
   if (!user.cargoId) return NextResponse.json({ error: 'CargoId шаардлагатай' }, { status: 400 })

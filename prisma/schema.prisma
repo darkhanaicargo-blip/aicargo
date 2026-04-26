@@ -43,16 +43,17 @@ model Cargo {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  name      String
-  phone     String     @unique
-  email     String?    @unique
-  password  String
-  role      Role       @default(USER)
-  cargoId   Int
-  cargo     Cargo      @relation(fields: [cargoId], references: [id])
-  createdAt DateTime   @default(now())
-  shipments Shipment[]
+  id           Int        @id @default(autoincrement())
+  name         String
+  phone        String     @unique
+  email        String?    @unique
+  password     String
+  role         Role       @default(USER)
+  cargoId      Int
+  cargo        Cargo      @relation(fields: [cargoId], references: [id])
+  tokenVersion Int        @default(0)
+  createdAt    DateTime   @default(now())
+  shipments    Shipment[]
 
   @@index([cargoId])
 }

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { getVerifiedUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
-  const user = getAuthUserFromRequest(req)
+  const user = await getVerifiedUserFromRequest(req)
   if (!user) return unauthorized()
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 

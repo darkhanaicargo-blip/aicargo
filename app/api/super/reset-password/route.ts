@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getAuthUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
+import { getVerifiedUserFromRequest, unauthorized, forbidden } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
-  const user = getAuthUserFromRequest(req)
+  const user = await getVerifiedUserFromRequest(req)
   if (!user) return unauthorized()
   if (user.role !== 'SUPER_ADMIN') return forbidden()
 
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const hashed = await bcrypt.hash(newPassword, 10)
   await prisma.user.update({
     where: { id: Number(userId) },
-    data: { password: hashed },
+    data: { password: hashed, tokenVersion: { increment: 1 } },
   })
 
   return NextResponse.json({ ok: true })
