@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import NavLogo from '@/app/components/NavLogo'
@@ -13,6 +14,16 @@ const links = [
 export default function SuperNav() {
   const pathname = usePathname()
   const router = useRouter()
+
+  useEffect(() => {
+    const orig = window.fetch
+    window.fetch = async (...args) => {
+      const res = await orig(...args)
+      if (res.status === 401) router.push('/login')
+      return res
+    }
+    return () => { window.fetch = orig }
+  }, [router])
 
   async function logout() {
     if (!confirm('Гарахдаа итгэлтэй байна уу?')) return

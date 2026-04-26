@@ -43,7 +43,14 @@ export async function getAuthUser(): Promise<JwtPayload | null> {
   const cookieStore = await cookies()
   const token = cookieStore.get(COOKIE_NAME)?.value
   if (!token) return null
-  return verifyToken(token)
+  const payload = verifyToken(token)
+  if (!payload) return null
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { tokenVersion: true },
+  })
+  if (!user || user.tokenVersion !== (payload.tokenVersion ?? 0)) return null
+  return payload
 }
 
 export function getAuthUserFromRequest(req: NextRequest): JwtPayload | null {
