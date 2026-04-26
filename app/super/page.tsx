@@ -45,6 +45,23 @@ export default function SuperPage() {
   const [editForm, setEditForm] = useState<EditState>({ name: '', slug: '', ereemReceiver: '', ereemPhone: '', ereemRegion: '', ereemAddress: '', logoUrl: '', bankName: '', bankAccountHolder: '', bankAccountNumber: '', bankTransferNote: '' })
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
+  const [pwModal, setPwModal] = useState<{ userId: number; name: string } | null>(null)
+  const [pwInput, setPwInput] = useState('')
+  const [pwLoading, setPwLoading] = useState(false)
+  const [pwMsg, setPwMsg] = useState('')
+
+  async function resetPassword() {
+    if (!pwModal || pwInput.length < 6) return
+    setPwLoading(true)
+    const res = await fetch('/api/super/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: pwModal.userId, newPassword: pwInput }),
+    })
+    setPwLoading(false)
+    if (res.ok) { setPwMsg('✓ Нууц үг шинэчлэгдлээ'); setPwInput('') }
+    else { const d = await res.json(); setPwMsg(d.error || 'Алдаа гарлаа') }
+  }
   function load() {
     setLoading(true)
     fetch('/api/super/cargos')
@@ -272,8 +289,9 @@ export default function SuperPage() {
                       {c.admins.length > 0 ? (
                         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                           {c.admins.map(a => (
-                            <span key={a.id} style={{ fontSize: '0.82rem', color: 'var(--text)' }}>
+                            <span key={a.id} style={{ fontSize: '0.82rem', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                               {a.name} <span style={{ color: 'var(--muted)', fontFamily: 'monospace' }}>{a.phone}</span>
+                              <button onClick={() => { setPwModal({ userId: a.id, name: a.name }); setPwInput(''); setPwMsg('') }} title="Нууц үг солих" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.8rem', padding: '0.1rem 0.3rem', color: 'var(--muted)' }}>🔑</button>
                             </span>
                           ))}
                           <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>— Админ</span>
@@ -310,6 +328,33 @@ export default function SuperPage() {
         </div>
       )}
 
+      {pwModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '1rem' }}>
+          <div className="card" style={{ width: '100%', maxWidth: 360, padding: '1.5rem' }}>
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '0.95rem', fontWeight: 700 }}>Нууц үг солих — {pwModal.name}</h3>
+            <div className="form-group">
+              <label>Шинэ нууц үг <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>(хамгийн багадаа 6 тэмдэгт)</span></label>
+              <input
+                className="input"
+                type="password"
+                placeholder="Шинэ нууц үг"
+                value={pwInput}
+                onChange={e => { setPwInput(e.target.value); setPwMsg('') }}
+                autoFocus
+              />
+            </div>
+            {pwMsg && <p style={{ fontSize: '0.82rem', color: pwMsg.startsWith('✓') ? 'var(--green)' : 'var(--danger)', marginBottom: '0.75rem' }}>{pwMsg}</p>}
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
+              <button className="btn" onClick={resetPassword} disabled={pwInput.length < 6 || pwLoading} style={{ flex: 1 }}>
+                {pwLoading ? '...' : 'Хадгалах'}
+              </button>
+              <button onClick={() => setPwModal(null)} style={{ flex: 1, padding: '0.6rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>
+                Болих
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
