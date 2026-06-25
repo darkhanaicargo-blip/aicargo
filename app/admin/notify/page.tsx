@@ -111,7 +111,6 @@ function BannerSection() {
       formData.append('signature', signature)
       formData.append('folder', folder)
       formData.append('public_id', publicId)
-      formData.append('transformation', 'w_800,q_auto,f_auto')
 
       const upRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: 'POST',
