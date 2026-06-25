@@ -8,6 +8,7 @@ const links = [
   { href: '/super', label: 'Карго жагсаалт' },
   { href: '/super/groups', label: 'Группүүд' },
   { href: '/super/cross-cargo', label: '⚠ Карго зөрүү' },
+  { href: '/super/announce', label: '📢 Мэдэгдэл' },
   { href: '/super/cargo/new', label: '+ Шинэ карго' },
 ]
 
