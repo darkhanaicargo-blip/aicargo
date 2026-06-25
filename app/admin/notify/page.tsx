@@ -170,7 +170,7 @@ function BannerSection() {
 
   return (
     <>
-    {previewing && banner && <BannerPreviewModal banner={banner} onClose={() => setPreviewing(false)} />}
+    {previewing && <BannerPreviewModal banner={{ id: 0, content: content.trim() || banner?.content || '', imageUrl: imageUrl || banner?.imageUrl || null, expiresAt: expiresAt || banner?.expiresAt || null, createdAt: '' }} onClose={() => setPreviewing(false)} />}
     <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>
       <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '1rem' }}>
         Хэрэглэгчид харуулах мэдэгдэл (Banner)
@@ -281,9 +281,25 @@ function BannerSection() {
       {error && <p className="msg-error" style={{ marginBottom: '0.75rem' }}>{error}</p>}
       {success && <p style={{ fontSize: '0.82rem', color: 'var(--green)', marginBottom: '0.75rem' }}>✓ {success}</p>}
 
-      <button className="btn" onClick={handleSubmit} disabled={saving || uploadingImg || !content.trim()}>
-        {saving ? 'Хадгалж байна...' : banner ? 'Шинэ мэдэгдэл тохируулах' : 'Мэдэгдэл үүсгэх'}
-      </button>
+      <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => {
+            if (content.trim()) setPreviewing(true)
+            else setError('Эхлээд текст бичнэ үү')
+          }}
+          disabled={uploadingImg}
+          style={{
+            background: 'var(--surface2)', border: '1px solid var(--border)',
+            borderRadius: 8, padding: '0.7rem 1.2rem', cursor: 'pointer',
+            color: 'var(--text)', fontFamily: 'inherit', fontSize: '0.875rem', fontWeight: 600,
+          }}
+        >
+          👁 Урьдчилан харах
+        </button>
+        <button className="btn" onClick={handleSubmit} disabled={saving || uploadingImg || !content.trim()}>
+          {saving ? 'Хадгалж байна...' : banner ? 'Шинэ мэдэгдэл тохируулах' : 'Мэдэгдэл үүсгэх'}
+        </button>
+      </div>
 
       {confirmNew && pendingForm && (
         <div style={{
