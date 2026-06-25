@@ -90,7 +90,7 @@ function BannerSection() {
 
   useEffect(() => {
     fetch('/api/admin/banner')
-      .then(r => r.json())
+      .then(r => r.ok ? r.json() : null)
       .then(d => setBanner(d))
       .catch(() => setBanner(null))
   }, [])

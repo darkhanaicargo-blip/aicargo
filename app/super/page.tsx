@@ -76,7 +76,7 @@ function SuperBannerSection() {
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    fetch('/api/super/banner').then(r => r.json()).then(d => setBanner(d)).catch(() => setBanner(null))
+    fetch('/api/super/banner').then(r => r.ok ? r.json() : null).then(d => setBanner(d)).catch(() => setBanner(null))
   }, [])
 
   async function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
