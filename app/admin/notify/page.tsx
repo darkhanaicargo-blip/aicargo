@@ -100,24 +100,32 @@ function BannerSection() {
     if (!file) return
     setUploadingImg(true)
     setError('')
-    const reader = new FileReader()
-    reader.onload = async () => {
-      try {
-        const res = await fetch('/api/admin/banner/image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ base64: reader.result }),
-        })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error)
-        setImageUrl(data.url)
-      } catch {
-        setError('Зураг upload хийхэд алдаа гарлаа')
-      } finally {
-        setUploadingImg(false)
-      }
+    try {
+      const sigRes = await fetch('/api/admin/banner/upload-signature')
+      const { signature, timestamp, publicId, folder, apiKey, cloudName } = await sigRes.json()
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('api_key', apiKey)
+      formData.append('timestamp', timestamp)
+      formData.append('signature', signature)
+      formData.append('folder', folder)
+      formData.append('public_id', publicId)
+      formData.append('transformation', 'w_800,q_auto,f_auto')
+
+      const upRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await upRes.json()
+      if (!upRes.ok) throw new Error(data.error?.message ?? 'Upload алдаа')
+      setImageUrl(data.secure_url)
+    } catch {
+      setError('Зураг upload хийхэд алдаа гарлаа')
+    } finally {
+      setUploadingImg(false)
+      if (fileRef.current) fileRef.current.value = ''
     }
-    reader.readAsDataURL(file)
   }
 
   function handleSubmit() {
