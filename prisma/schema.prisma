@@ -56,7 +56,8 @@ model User {
   tokenVersion Int        @default(0)
   createdAt    DateTime   @default(now())
   shipments    Shipment[]
-  bannerDismisses BannerDismiss[]
+  bannerDismisses      BannerDismiss[]
+  superBannerDismisses SuperBannerDismiss[]
 
   @@index([cargoId])
 }
@@ -128,6 +129,26 @@ model BannerDismiss {
   createdAt DateTime @default(now())
 
   @@unique([bannerId, userId])
+}
+
+model SuperBanner {
+  id        Int       @id @default(autoincrement())
+  content   String
+  imageUrl  String?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  dismisses SuperBannerDismiss[]
+}
+
+model SuperBannerDismiss {
+  id            Int         @id @default(autoincrement())
+  superBannerId Int
+  superBanner   SuperBanner @relation(fields: [superBannerId], references: [id], onDelete: Cascade)
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@unique([superBannerId, userId])
 }
 
 model Otp {

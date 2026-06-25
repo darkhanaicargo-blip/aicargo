@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminNav from './AdminNav'
+import SuperAnnouncementModal from '@/app/components/SuperAnnouncementModal'
 
 const BANK_ACCOUNT = '5119007473'
 const BANK_NAME = 'Хаан банк'
@@ -145,6 +146,7 @@ export default function AdminShell({ children, cargoName, logoUrl, cargoSlug, ha
       </div>
       {isBlocked && <BlockingOverlay cargoName={cargoName ?? ''} overdueDays={overdueDays} />}
       {isWarning && !warningDismissed && <WarningBanner cargoName={cargoName ?? ''} onClose={() => setWarningDismissed(true)} />}
+      <SuperAnnouncementModal />
     </div>
   )
 }
