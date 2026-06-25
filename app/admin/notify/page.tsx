@@ -9,6 +9,71 @@ interface Banner {
   createdAt: string
 }
 
+function BannerPreviewModal({ banner, onClose }: { banner: Banner; onClose: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9500,
+        background: 'rgba(0,0,0,0.55)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '1rem',
+        backdropFilter: 'blur(2px)',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'var(--surface)', borderRadius: 16,
+          padding: '1.75rem 1.5rem 1.5rem',
+          maxWidth: 420, width: '100%',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.22)',
+          border: '1px solid var(--border)',
+          position: 'relative',
+        }}
+      >
+        <div style={{
+          position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(0,0,0,0.7)', borderRadius: 100,
+          padding: '0.2rem 0.8rem', fontSize: '0.72rem', color: '#fff', whiteSpace: 'nowrap',
+        }}>
+          👁 User-ийн харагдах байдал
+        </div>
+        <button
+          onClick={onClose}
+          aria-label="Хаах"
+          style={{
+            position: 'absolute', top: '0.75rem', right: '0.75rem',
+            background: 'var(--surface2)', border: 'none', cursor: 'pointer',
+            color: 'var(--muted)', borderRadius: '50%',
+            width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '0.9rem',
+          }}
+        >✕</button>
+
+        {banner.imageUrl && (
+          <img
+            src={banner.imageUrl}
+            alt=""
+            style={{ width: '100%', borderRadius: 10, marginBottom: '1rem', maxHeight: 240, objectFit: 'cover' }}
+          />
+        )}
+        <p style={{ fontSize: '0.95rem', lineHeight: 1.65, color: 'var(--text)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          {banner.content}
+        </p>
+        {banner.expiresAt && (
+          <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.75rem' }}>
+            {new Date(banner.expiresAt).toLocaleString('mn-MN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} хүртэл
+          </p>
+        )}
+        <button className="btn" style={{ marginTop: '1.25rem', width: '100%' }}>
+          Ойлголоо
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function BannerSection() {
   const [banner, setBanner] = useState<Banner | null | undefined>(undefined)
   const [content, setContent] = useState('')
@@ -20,6 +85,7 @@ function BannerSection() {
   const [pendingForm, setPendingForm] = useState<{ content: string; imageUrl: string; expiresAt: string } | null>(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [previewing, setPreviewing] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -103,6 +169,8 @@ function BannerSection() {
   if (banner === undefined) return <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Ачааллаж байна...</p>
 
   return (
+    <>
+    {previewing && banner && <BannerPreviewModal banner={banner} onClose={() => setPreviewing(false)} />}
     <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>
       <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '1rem' }}>
         Хэрэглэгчид харуулах мэдэгдэл (Banner)
@@ -130,18 +198,29 @@ function BannerSection() {
                 <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Цаггүй — гар аргаар устгах хүртэл</p>
               )}
             </div>
-            <button
-              onClick={deleteBanner}
-              disabled={saving}
-              title="Устгах"
-              style={{
-                background: 'none', border: '1px solid var(--danger)', color: 'var(--danger)',
-                borderRadius: 8, padding: '0.3rem 0.6rem', cursor: 'pointer',
-                fontSize: '0.78rem', fontFamily: 'inherit', whiteSpace: 'nowrap',
-              }}
-            >
-              Устгах
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <button
+                onClick={() => setPreviewing(true)}
+                style={{
+                  background: 'none', border: '1px solid var(--accent)', color: 'var(--accent)',
+                  borderRadius: 8, padding: '0.3rem 0.6rem', cursor: 'pointer',
+                  fontSize: '0.78rem', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                }}
+              >
+                👁 Харах
+              </button>
+              <button
+                onClick={deleteBanner}
+                disabled={saving}
+                style={{
+                  background: 'none', border: '1px solid var(--danger)', color: 'var(--danger)',
+                  borderRadius: 8, padding: '0.3rem 0.6rem', cursor: 'pointer',
+                  fontSize: '0.78rem', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                }}
+              >
+                Устгах
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -244,6 +323,7 @@ function BannerSection() {
         </div>
       )}
     </div>
+    </>
   )
 }
 
